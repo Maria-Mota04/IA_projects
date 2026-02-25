@@ -1,7 +1,9 @@
 # Artificial Intelligence
 
 **Course**: Artificial Intelligence
+
 **Institution**: Faculty of Engineering of the University of Porto
+
 **Academic Year**: 2025/2026
 
 ## Practical Assignment 1
@@ -128,10 +130,42 @@ We followed a progressive development strategy:
 5. Perform systematic performance evaluation
 6. This allowed us to ensure reliability before increasing complexity.
 
+## Practical Assignment 2
+
+TODO
+
+### Chosen Topic
+
+### Chosen Project
+
+### Project Overview
+
+### Main Objectives
+
+### Features
+
+#### Algorithmic Component.
+
+#### Performance Evaluation
+
+#### Graphical User Interface
+
+### Input and Output
+
+#### Input
+
+
+#### Output
+
+### Technologies Used
+
+### Project Structure
+
+### Development Approach
+
+
 ### Authors
 
 - Camila de Almeida Correia– Up202304507@up.pt
 - Leonor Alexandra Costa Azevedo – Leonor.costa.azevedo@gmail.com (up202304040)
 - Maria Nóbrega E Alberich Mota – up202309537@up.pt
-
-## Practical Assignment 2
