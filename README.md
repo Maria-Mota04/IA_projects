@@ -5,6 +5,15 @@
 **Academic Year**: 2025/2026
 
 ## Practical Assignment 1
+
+### Chosen Topic
+
+TODO
+
+### Chosen Project
+
+TODO
+
 ### Project Overview
 
 This project was developed within the Artificial Intelligence course at FEUP. The goal of the assignment is to design and implement a complete AI-based system capable of solving a search or optimization problem, while allowing performance comparison between different algorithms and strategies.
