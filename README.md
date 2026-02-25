@@ -102,7 +102,7 @@ The project was implemented using:
 
 ### Project Structure
 
-```código
+```code
 /src
     algorithms/
     gui/
