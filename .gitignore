@@ -1,19 +1,8 @@
-__pycache__/
-*.pyc
 
-*.exe
-*.out
-*.dll
-*.so
-*.dylib
+**/.*
 
-.vscode/
-.idea/
-.DS_Store
-Thumbs.db
-desktop.ini
+**/*.exe
 
-project1/results/*
-!project1/results/.empty
-project2/results/*
-!project2/results/.empty
+**/*.tmp
+**/*.log
+**/*.out
