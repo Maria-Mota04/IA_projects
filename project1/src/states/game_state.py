@@ -34,3 +34,6 @@ class GameState:
 
     def heuristic_distance():
         pass
+
+    def print_board(self) -> None:
+        self._board.print()
