@@ -6,14 +6,23 @@ from project1.src.utils.game_stats import GameStats
 
 
 class Game:
-    def __init__(self, size: int, initial_state: GameState):
+    def __init__(
+        self,
+        initial_state: GameState,
+        size: int = 20,
+        segment_size: int = 4,
+    ):
         self._n = size
+        self._segment_size = segment_size
         self._state = initial_state
         self._game_stats = GameStats()
         self._start_time = None
 
     def get_board_size(self) -> int:
         return self._n
+
+    def get_segment_size(self) -> int:
+        return self._segment_size
 
     def get_board_state(self) -> GameState:
         return self._state
@@ -25,7 +34,7 @@ class Game:
         if self._start_time is None:
             self._start_time = time.time()
 
-        self._state = self._state.apply_move(move)
+        self._state = self._state.apply_move(move, self._segment_size)
         self._game_stats.moves += 1
         self._game_stats.history.append(move)
 

@@ -27,6 +27,9 @@ class Board:
         return all(self._tiles[i] == i + 1 for i in range(len(self._tiles)))
 
     def reverse_segment(self, left: int, right: int) -> None:
+        if left < 0 or right >= self.size() or left >= right:
+            return
+
         while left < right:
             self._tiles[left], self._tiles[right] = (
                 self._tiles[right],
