@@ -3,9 +3,6 @@ from tree_node import TreeNode
 
 
 class SearchAlgorithms:
-    def __init__(self):
-        pass
-
     @staticmethod
     def bfs(initial_state, goal_state_func, operators_func):
 
@@ -93,6 +90,8 @@ class SearchAlgorithms:
         root = TreeNode(initial_state)
         queue = [(root, heuristic_func(root))]
 
+        visited = {initial_state}
+
         while queue:
             (node, _) = queue.pop(0)
             if goal_state_func(node.state):
@@ -102,6 +101,7 @@ class SearchAlgorithms:
                 newNode = TreeNode(state)
                 node.add_child(newNode, op_cost)
                 queue.append((newNode, heuristic_func(newNode)))
+                visited.add(state)
 
             queue.sort(key=lambda x: x[1])
 
@@ -112,6 +112,7 @@ class SearchAlgorithms:
         root = TreeNode(initial_state)
 
         queue = [(root, 0 + heuristic_func(root))]
+        visited = {initial_state}
 
         while queue:
             (node, _) = queue.pop(0)
@@ -119,12 +120,14 @@ class SearchAlgorithms:
                 return node
 
             for state, op_cost in operators_func(node.state):
-                newNode = TreeNode(state)
+                if state not in visited:
+                    newNode = TreeNode(state)
 
-                node.add_child(newNode, op_cost)
+                    node.add_child(newNode, op_cost)
 
-                queue.append((newNode, newNode.cost + heuristic_func(newNode)))
+                    queue.append((newNode, newNode.cost + heuristic_func(newNode)))
+                    visited.add(state)
 
-            queue = sorted(queue, key=lambda x: x[1])
+            queue.sort(key=lambda x: x[1])
 
         return None
