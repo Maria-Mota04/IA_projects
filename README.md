@@ -1,171 +1,153 @@
 # Artificial Intelligence
 
-**Course**: Artificial Intelligence
-
-**Institution**: Faculty of Engineering of the University of Porto
-
+**Course**: Artificial Intelligence  
+**Institution**: Faculty of Engineering of the University of Porto  
 **Academic Year**: 2025/2026
 
 ## Practical Assignment 1
 
 ### Chosen Topic
-
-TODO
+Topic 1: Heuristic Search Methods for One-Player Solitaire Games
 
 ### Chosen Project
-
-TODO
+Top Spin Puzzle Solver and Player
 
 ### Project Overview
+This project models and solves the Top Spin solitaire puzzle as a state-space search problem. The board is represented as a circular sequence of numbered tiles, and the main operator reverses a fixed-size segment (default size: 4) starting at a chosen position.
 
-This project was developed within the Artificial Intelligence course at FEUP. The goal of the assignment is to design and implement a complete AI-based system capable of solving a search or optimization problem, while allowing performance comparison between different algorithms and strategies.
+The application supports two modes:
+- Human mode: the user plays the puzzle interactively.
+- Solver mode: the computer solves puzzle instances using the selected algorithm and configuration.
 
-Our group implemented a solution based on one of the proposed topics, focusing on algorithmic design, performance analysis, and user interaction through a graphical interface.
-
-The system is able to:
-- Solve problem instances using different AI algorithms
-- Compare algorithm performance
-- Read problem instances from text files
-- Store detailed results in text files
-- Provide a graphical interface for interaction and visualization
-
-The project emphasizes correctness, efficiency, scalability, and clear experimental evaluation.
+The objective is to transform the initial board into the ordered sequence (1..N), while collecting performance data for algorithm comparison.
 
 ### Main Objectives
-
-- Implement and compare multiple AI algorithms
-- Evaluate solution quality
-- Measure execution time and memory usage
-- Analyze the number of explored states
-- Experiment with different configurations and parameters
-- Provide a user-friendly graphical interface
+- Implement a complete game model (state representation, legal moves, goal test).
+- Implement and compare uninformed and informed search algorithms.
+- Design and evaluate suitable heuristics for Top Spin.
+- Measure quality and computational performance of each approach.
+- Support reproducible experiments through text-based instance files and result files.
+- Provide a GUI for interactive gameplay, visualization, and solver execution.
 
 ### Features
 
 #### Algorithmic Component
-
-Depending on the selected topic, the system includes implementations of several AI approaches such as:
-
-- Uninformed search strategies
-- Heuristic search strategies
-- Adversarial search methods
-- Metaheuristic optimization techniques
-
-Each algorithm can be configured and evaluated under different conditions.
+- State representation through board and game-state abstractions.
+- Move operator based on segment reversal.
+- Planned algorithm set:
+	- Uninformed search: BFS, DFS, Iterative Deepening, Uniform Cost Search.
+	- Heuristic search: Greedy, A*, Weighted A*.
+- Visited-state control and solution path reconstruction.
 
 #### Performance Evaluation
-
-For every execution, the system records:
-
-- Final solution quality
-- Number of explored states
-- Execution time
-- Memory consumption
-- Game or optimization metrics depending on the problem
-
-Results are automatically saved to text files for later analysis.
+- For each algorithm and puzzle instance, the project compares:
+	- Solution quality (cost, number of moves, solution depth).
+	- Number of explored/generated states.
+	- Maximum memory usage.
+	- Execution time.
+- Experiments are intended to cover multiple board sizes and difficulty levels.
 
 #### Graphical User Interface
-
-The application includes a GUI that allows:
-
-- Visualization of the problem state evolution
-- Selection of algorithms and parameters
-- Switching between different modes
-- Interactive gameplay when applicable
-- Requesting hints from the AI system
-
-The interface was designed to make experimentation intuitive and accessible.
+- Board visualization and interaction controls.
+- Manual play controls (human mode).
+- Solver controls (algorithm, heuristic, execution).
+- Hint support (suggested next move).
+- Display of final solution and run statistics.
 
 ### Input and Output
 
 #### Input
-
-- Problem instances are read from structured text files
-- Different instance sizes and difficulty levels are supported
+- Puzzle instance files stored in [project1/instances](project1/instances).
+- Typical instance data:
+	- Board size N.
+	- Segment size K (default 4).
+	- Initial tile permutation.
+- Solver configuration selected by the user:
+	- Search algorithm.
+	- Heuristic (when applicable).
+	- Optional depth/time limits.
 
 #### Output
-
-- Solution details
-- Algorithm performance metrics
-- Logs of moves or optimization steps
-- Final results stored in text files
+- Results stored in [project1/results](project1/results), including:
+	- Algorithm and heuristic used.
+	- Solved/unsolved status.
+	- Solution path (move sequence).
+	- Solution depth / move count.
+	- States explored.
+	- Maximum memory observed.
+	- Execution time.
+- Runtime feedback through console and/or GUI.
 
 ### Technologies Used
-
-The project was implemented using:
-
-- Python
-- Relevant libraries depending on the problem requirements
-- File handling for input and output management
-- GUI framework for visualization and interaction
+- Python 3
+- Object-oriented design
+- Search and heuristic methods implemented from scratch
+- GUI toolkit integration (planned/ongoing)
 
 ### Project Structure
-
-```code
-/src
-    algorithms/
-    gui/
-    utils/
-    main.py
-
-/instances
-/results
-```
-
-- algorithms/ contains all implemented AI methods
-- gui/ manages the graphical interface
-- utils/ includes helper functions
-- instances/ stores problem definitions
-- results/ stores experimental outputs
+- [project1/src/main.py](project1/src/main.py): entry point (scaffolded).
+- [project1/src/game/game.py](project1/src/game/game.py): game controller and runtime integration.
+- [project1/src/states/board.py](project1/src/states/board.py): board representation and primitive operations.
+- [project1/src/states/game_state.py](project1/src/states/game_state.py): state transitions, equality/hash, move history.
+- [project1/src/algorithms/search.py](project1/src/algorithms/search.py): search algorithms.
+- [project1/src/utils/game_stats.py](project1/src/utils/game_stats.py): statistics and performance metrics.
+- [project1/instances](project1/instances): input puzzle instances.
+- [project1/results](project1/results): experiment outputs.
 
 ### Development Approach
-
-We followed a progressive development strategy:
-
-1. Implement a simplified version of the problem
-2. Validate correctness using small instances
-3. Add more advanced algorithms
-4. Extend to larger and more complex instances
-5. Perform systematic performance evaluation
-6. This allowed us to ensure reliability before increasing complexity.
+- Start with small instances and validate correctness first.
+- Incrementally implement algorithms:
+	- BFS/DFS
+	- IDS/UCS
+	- Greedy/A*/Weighted A*
+- Add heuristics progressively and validate behavior.
+- Instrument code early for timing/memory/state metrics.
+- Compare algorithms under equivalent conditions and summarize trade-offs.
 
 ## Practical Assignment 2
-
-TODO
+To be defined in the second phase of the course.
 
 ### Chosen Topic
+TBD
 
 ### Chosen Project
+TBD
 
 ### Project Overview
+TBD
 
 ### Main Objectives
+TBD
 
 ### Features
 
-#### Algorithmic Component.
+#### Algorithmic Component
+TBD
 
 #### Performance Evaluation
+TBD
 
 #### Graphical User Interface
+TBD
 
 ### Input and Output
 
 #### Input
-
+TBD
 
 #### Output
+TBD
 
 ### Technologies Used
+TBD
 
 ### Project Structure
+TBD
 
 ### Development Approach
-
+TBD
 
 ### Authors
-
-- Camila de Almeida Correia– Up202304507@up.pt
-- Leonor Alexandra Costa Azevedo – Leonor.costa.azevedo@gmail.com (up202304040)
-- Maria Nóbrega E Alberich Mota – up202309537@up.pt
+- Camila de Almeida Correia - Up202304507@up.pt
+- Leonor Alexandra Costa Azevedo - Leonor.costa.azevedo@gmail.com (up202304040)
+- Maria Nobrega E Alberich Mota - up202309537@up.pt

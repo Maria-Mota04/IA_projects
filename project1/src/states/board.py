@@ -26,17 +26,19 @@ class Board:
     def is_ordered(self) -> bool:
         return all(self._tiles[i] == i + 1 for i in range(len(self._tiles)))
 
-    def reverse_segment(self, left: int, right: int) -> None:
-        if left < 0 or right >= self.size() or left >= right:
-            return
+    def reverse_segment(self, start: int, segment_size: int):
 
-        while left < right:
+        n = self.size()
+
+        for i in range(segment_size // 2):
+
+            left = (start + i) % n
+            right = (start + segment_size - 1 - i) % n
+
             self._tiles[left], self._tiles[right] = (
                 self._tiles[right],
                 self._tiles[left],
             )
-            left += 1
-            right -= 1
 
     def rotate_wheel():
         pass
