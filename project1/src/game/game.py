@@ -38,6 +38,14 @@ class Game:
         self._game_stats.moves += 1
         self._game_stats.history.append(move)
 
+    def make_rotate(self, steps: int = 1) -> None:
+        if self._start_time is None:
+            self._start_time = time.time()
+
+        self._state = self._state.apply_rotate(steps)
+        self._game_stats.moves += 1
+        self._game_stats.history.append(f"rotate({steps})")
+
     def won(self) -> bool:
         return self._state.is_goal()
 

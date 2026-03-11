@@ -25,18 +25,21 @@ class GameState:
         if segment_size <= 1:
             return
 
-        end = min(start + segment_size - 1, self._board.size() - 1)
-        self._board.reverse_segment(start, end)
+        self._board.reverse_segment(start, segment_size)
+
+    def rotate_wheel(self, steps: int = 1) -> None:
+        self._board.rotate_wheel(steps)
 
     @staticmethod
     def move(func):
 
-        def wrapper(self, move: int, segment_size: int = 4):
-            new_state = GameState(self._board)
+        def wrapper(self, *args, **kwargs):
+            new_state = GameState(Board(self._board.get_tiles()), list(self._move_history))
 
-            value = func(new_state)
+            value = func(new_state, *args, **kwargs)
             if value:
-                new_state._move_history.append(move)
+                if args:
+                    new_state._move_history.append(args[0])
                 return new_state
             else:
                 return None
@@ -49,6 +52,11 @@ class GameState:
             return None
 
         self.reverse_segment(move, segment_size)
+        return self
+
+    @move
+    def apply_rotate(self, steps: int = 1) -> GameState:
+        self.rotate_wheel(steps)
         return self
 
     def get_move_cost(move: int):

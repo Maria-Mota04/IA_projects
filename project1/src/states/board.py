@@ -40,8 +40,10 @@ class Board:
                 self._tiles[left],
             )
 
-    def rotate_wheel():
-        pass
+    def rotate_wheel(self, steps=1):
+        n = self.size()
+        steps = steps % n
+        self._tiles = self._tiles[-steps:] + self._tiles[:-steps]
 
     def print(self) -> None:
         print("Board:", " ".join(str(tile) for tile in self._tiles))
