@@ -1,4 +1,5 @@
 import pygame
+import random
 from src.gui.game_graphics import *
 from src.game.game import *
 from src.states.board import Board
@@ -12,7 +13,9 @@ def main():
 
     screen = pygame.display.set_mode((800, 600))
 
-    board = Board([1, 2, 3, 4, 5, 7, 6, 8, 9, 10])
+    l = list(range(1,20))
+    random.shuffle(l)
+    board = Board(l)
     state = GameState(board)
 
     game = Game(state,10)
@@ -43,7 +46,6 @@ def main():
                 game.make_move(1)
                 gg.update(game)
 
-        screen.fill([255,255,255])
         gg.display(screen)
 
         pygame.display.flip()
