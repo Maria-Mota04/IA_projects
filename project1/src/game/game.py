@@ -1,8 +1,8 @@
 from __future__ import annotations
 import time
 
-from project1.src.states.game_state import GameState
-from project1.src.utils.game_stats import GameStats
+from src.states.game_state import GameState
+from src.utils.game_stats import GameStats
 
 
 class Game:
