@@ -31,25 +31,17 @@ class Piece:
 
 class GameGraphics:
     def __init__(self, game : Game):
+        self.update(game)
+
+    def update(self, game : Game):
         self.pieces = []
         radius = 30
 
         num = game.get_board_state().get_board().get_tiles()
 
-        for i in num:
-            self.pieces.append(Piece([100 + (radius* 2 + 5)*i, 100], i, radius))
+        for i in range(len(num)):
+            self.pieces.append(Piece([100 + (radius* 2 + 5)*i, 100], num[i], radius))
 
-    def move_right(self):
-        for piece in self.pieces:
-            piece.move_right()
-
-    def move_left(self):
-        for piece in self.pieces:
-            piece.move_left()
-
-    def clicked(self):
-        for piece in self.pieces:
-            piece.move_up()
 
     def display(self,screen):
         for piece in self.pieces:

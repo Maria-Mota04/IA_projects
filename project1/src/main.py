@@ -12,7 +12,7 @@ def main():
 
     screen = pygame.display.set_mode((800, 600))
 
-    board = Board([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
+    board = Board([1, 2, 3, 4, 5, 7, 6, 8, 9, 10])
     state = GameState(board)
 
     game = Game(state,10)
@@ -30,14 +30,18 @@ def main():
             if event.type == pygame.KEYDOWN:
                 # right key
                 if event.key == pygame.K_RIGHT:
-                    gg.move_right()
+                    game.make_rotate(1)
+                    gg.update(game)
+
                 # left key
                 if event.key == pygame.K_LEFT:
-                    gg.move_left()
+                    game.make_rotate(-1)
+                    gg.update(game)
 
             # event is a mouse click
             if event.type == pygame.MOUSEBUTTONUP:
-                gg.clicked()
+                game.make_move(1)
+                gg.update(game)
 
         screen.fill([255,255,255])
         gg.display(screen)
