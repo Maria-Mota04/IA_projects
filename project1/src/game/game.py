@@ -3,9 +3,12 @@ import time
 
 from project1.src.states.game_state import GameState
 from project1.src.utils.game_stats import GameStats
+from .solver import Solver
 
 
 class Game:
+
+    # Core functions
     def __init__(
         self,
         initial_state: GameState,
@@ -14,7 +17,7 @@ class Game:
     ):
         self._n = size
         self._segment_size = segment_size
-        self._state = initial_state
+        self._solver = Solver(initial_state)
         self._game_stats = GameStats()
         self._start_time = None
 
@@ -25,16 +28,23 @@ class Game:
         return self._segment_size
 
     def get_board_state(self) -> GameState:
-        return self._state
+        return self._solver.get_state()
 
     def set_board_state(self, state: GameState) -> None:
-        self._state = state
+        self._solver.set_state(state)
+
+    def won(self) -> bool:
+        return self._solver.get_state().is_goal()
+
+    # Move Operations
 
     def make_move(self, move: int) -> None:
         if self._start_time is None:
             self._start_time = time.time()
 
-        self._state = self._state.apply_move(move, self._segment_size)
+        self._solver.set_state(
+            self._solver.get_state().apply_move(move, self._segment_size)
+        )
         self._game_stats.moves += 1
         self._game_stats.history.append(move)
 
@@ -42,19 +52,17 @@ class Game:
         if self._start_time is None:
             self._start_time = time.time()
 
-        self._state = self._state.apply_rotate(steps)
-        self._game_stats.moves += 1
+        self._solver.set_state(self._solver.get_state().apply_rotate(steps))
         self._game_stats.history.append(f"rotate({steps})")
-
-    def won(self) -> bool:
-        return self._state.is_goal()
 
     def start_game(self):
         self._start_time = time.time()
         self._game_stats = GameStats()
 
-    def solve(self):
+    def undo_move(self):
         pass
+
+    # Utils
 
     def get_game_time(self):
         if self._start_time is None:
@@ -67,13 +75,12 @@ class Game:
         return self._game_stats.history
 
     def print_board(self) -> None:
-        self._state.print_board()
+        self._solver.get_state().print_board()
 
     def show_solution(self):
         pass
 
-    def undo_move(self):
-        pass
+    # Score Utils
 
     def get_score(self):
         return self._game_stats.score
@@ -89,3 +96,8 @@ class Game:
 
     def print_scores(self) -> None:
         self._game_stats.print()
+
+    # Solver
+
+    def solve(self):
+        pass

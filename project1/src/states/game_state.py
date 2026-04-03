@@ -5,6 +5,8 @@ from project1.src.states.board import Board
 
 
 class GameState:
+
+    # Core functions
     def __init__(self, board: Board, move_history=None):
         self._board = board
         self._move_history = move_history or []
@@ -18,8 +20,7 @@ class GameState:
     def is_goal(self) -> bool:
         return self._board.is_ordered()
 
-    def get_possible_moves(self) -> List[Board]:
-        pass
+    # Move application
 
     def reverse_segment(self, start: int, segment_size: int) -> None:
         if segment_size <= 1:
@@ -34,7 +35,9 @@ class GameState:
     def move(func):
 
         def wrapper(self, *args, **kwargs):
-            new_state = GameState(Board(self._board.get_tiles()), list(self._move_history))
+            new_state = GameState(
+                Board(self._board.get_tiles()), list(self._move_history)
+            )
 
             value = func(new_state, *args, **kwargs)
             if value:
@@ -54,22 +57,11 @@ class GameState:
         self.reverse_segment(move, segment_size)
         return self
 
-    @move
     def apply_rotate(self, steps: int = 1) -> GameState:
         self.rotate_wheel(steps)
         return self
 
-    def get_move_cost(move: int):
-        pass
-
-    def heuristic_misplaced():
-        pass
-
-    def heuristic_inversions():
-        pass
-
-    def heuristic_distance():
-        pass
+    # Utils
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, GameState):
