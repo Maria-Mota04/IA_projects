@@ -1,6 +1,11 @@
-import pygame_menu
 import pygame
 
 class Menu:
-    pygame.init()
-    surface = pygame.display.set_mode((600, 400))
+    def __init__(self, screen):
+        self.screen = screen
+
+    def run(self):
+        game_running = True
+        font = pygame.font.SysFont('arial', 40)
+
+        while game_running:
