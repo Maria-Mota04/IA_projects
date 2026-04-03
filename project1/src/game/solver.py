@@ -29,7 +29,7 @@ class Solver:
         heuristic_func: Callable[[object], float] | None = None,
     ) -> object:
         if mode == gameMode.NORMAL_GAME:
-            pass  # TODO
+            return self._state
 
         if mode != gameMode.SEARCH_ALGORITHM:
             raise ValueError(f"Unsupported game mode: {mode}")

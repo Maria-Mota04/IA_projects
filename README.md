@@ -139,6 +139,20 @@ From repository root:
 python project1/app.py
 ```
 
+### How to run tests
+
+From repository root:
+
+```bash
+python -m pytest
+```
+
+Run a specific test file:
+
+```bash
+python -m pytest project1/tests/algorithms/test_search.py -q
+```
+
 Notes:
 - The GUI layer is currently a prototype and still under active development.
 - Some solver/game helper methods are placeholders and may not expose full gameplay/analysis flows yet.
