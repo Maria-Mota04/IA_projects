@@ -22,6 +22,7 @@ class Game:
         self._n = size
         self._segment_size = segment_size
         self._solver = Solver(initial_state)
+        self._last_state = None
         self._game_stats = GameStats()
         self._start_time = None
 
@@ -46,6 +47,7 @@ class Game:
         if self._start_time is None:
             self._start_time = time.time()
 
+        self._last_state = self._solver.get_state()
         self._solver.set_state(
             self._solver.get_state().apply_move(move, self._segment_size)
         )
@@ -56,37 +58,41 @@ class Game:
         if self._start_time is None:
             self._start_time = time.time()
 
+        self._last_state = self._solver.get_state()
         self._solver.set_state(self._solver.get_state().apply_rotate(steps))
         self._game_stats.history.append(f"rotate({steps})")
 
-    def start_game(self):
+    def start_game(self) -> None:
         self._start_time = time.time()
         self._game_stats = GameStats()
 
-    def undo_move(self):
-        pass
+    def undo_move(self) -> None:
+        self._solver.set_state(self._last_state)
 
     # Utils
 
-    def get_game_time(self):
+    def get_game_time(self) -> float:
         if self._start_time is None:
             return self._game_stats.time_elapsed
 
         self._game_stats.time_elapsed = time.time() - self._start_time
         return self._game_stats.time_elapsed
 
-    def get_move_history(self):
+    def get_move_history(self) -> list:
         return self._game_stats.history
 
     def print_board(self) -> None:
         self._solver.get_state().print_board()
 
-    def show_solution(self):
-        pass
+    def reset_statistics(self) -> None:
+        self._game_stats.reset()
+
+    def reset_game(self) -> None:
+        self._solver.reset_game()
 
     # Score Utils
 
-    def get_score(self):
+    def get_score(self) -> int:
         return self._game_stats.score
 
     def increment_score(self) -> None:
@@ -108,7 +114,7 @@ class Game:
         mode: gameMode = gameMode.SEARCH_ALGORITHM,
         strategy: SearchStrategy = SearchStrategy.BFS,
         **kwargs,
-    ):
+    ) -> object:
         result = self._solver.solve(
             mode=mode,
             strategy=strategy,

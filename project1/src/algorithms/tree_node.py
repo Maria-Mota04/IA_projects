@@ -1,5 +1,5 @@
 class TreeNode:
-    def __init__(self, state, parent=None, operator_cost=0, path_set=None):
+    def __init__(self, state, parent=None, operator_cost=0, path_set=None) -> None:
         self.state = state
         self.parent = parent
         self.children = []
@@ -11,7 +11,7 @@ class TreeNode:
             self.path_set = set()
         self.path_set.add(state)
 
-    def add_child(self, child_node, operator_cost=0):
+    def add_child(self, child_node, operator_cost=0) -> None:
         self.children.append(child_node)
         child_node.parent = self
         child_node.cost = self.cost + operator_cost

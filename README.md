@@ -31,28 +31,37 @@ The objective is to transform the initial board into the ordered sequence (1..N)
 
 ### Features
 
-#### Algorithmic Component
-- State representation through board and game-state abstractions.
-- Move operator based on segment reversal.
-- Planned algorithm set:
-	- Uninformed search: BFS, DFS, Iterative Deepening, Uniform Cost Search.
-	- Heuristic search: Greedy, A*, Weighted A*.
-- Visited-state control and solution path reconstruction.
+#### Current Implementation Status
+- Board representation implemented in `Board` and `GameState` classes.
+- Core board operators implemented:
+	- Segment reversal (`reverse_segment`).
+	- Wheel rotation (`rotate_wheel`).
+- Goal test implemented (`is_goal` / ordered board check).
+- Hashing and equality for state deduplication implemented (`__hash__`, `__eq__`).
+- Parent tracking implemented in search tree nodes (`TreeNode.parent`).
+- Search strategy enum extracted to a dedicated module (`search_strategy.py`).
 
-#### Performance Evaluation
-- For each algorithm and puzzle instance, the project compares:
-	- Solution quality (cost, number of moves, solution depth).
-	- Number of explored/generated states.
-	- Maximum memory usage.
-	- Execution time.
-- Experiments are intended to cover multiple board sizes and difficulty levels.
+#### Search Algorithms (Implemented)
+- BFS
+- DFS
+- DFS Limited (explicit depth limit)
+- Iterative Deepening Search
+- Uniform Cost Search
+- Greedy Best-First Search
+- A* Search
+- Weighted A* Search
 
-#### Graphical User Interface
-- Board visualization and interaction controls.
-- Manual play controls (human mode).
-- Solver controls (algorithm, heuristic, execution).
-- Hint support (suggested next move).
-- Display of final solution and run statistics.
+#### Solver and Game Layer (In Progress)
+- `Solver.solve(...)` already supports multiple game modes and search strategies.
+- `Game.solve(...)` delegates solving to the solver and syncs game state.
+- Heuristics and move-cost functions in `Solver` are still placeholders.
+- Some utility methods are still stubs (`undo_move`, `show_solution`, next-best-move logic).
+
+#### Graphical User Interface (Partial)
+- Pygame-based scaffold exists.
+- Oval Top Spin board rendering exists (`game_graphics.py`).
+- Basic input loop exists (keyboard rotation and click action in `player_control.py`).
+- Menu and advanced controls/statistics panels are not complete yet.
 
 ### Input and Output
 
@@ -82,15 +91,22 @@ The objective is to transform the initial board into the ordered sequence (1..N)
 - Python 3
 - Object-oriented design
 - Search and heuristic methods implemented from scratch
-- GUI toolkit integration (planned/ongoing)
+- Pygame for GUI prototyping
 
 ### Project Structure
-- [project1/src/main.py](project1/src/main.py): entry point (scaffolded).
-- [project1/src/game/game.py](project1/src/game/game.py): game controller and runtime integration.
+- [project1/src/main.py](project1/src/main.py): current app entry point (pygame menu bootstrap).
+- [project1/src/game/game.py](project1/src/game/game.py): game controller and solver integration.
+- [project1/src/game/solver.py](project1/src/game/solver.py): strategy/mode-aware solve pipeline (work in progress).
+- [project1/src/game/game_modes.py](project1/src/game/game_modes.py): gameplay mode enum.
 - [project1/src/states/board.py](project1/src/states/board.py): board representation and primitive operations.
 - [project1/src/states/game_state.py](project1/src/states/game_state.py): state transitions, equality/hash, move history.
-- [project1/src/algorithms/search.py](project1/src/algorithms/search.py): search algorithms.
-- [project1/src/utils/game_stats.py](project1/src/utils/game_stats.py): statistics and performance metrics.
+- [project1/src/algorithms/search.py](project1/src/algorithms/search.py): search algorithm implementations.
+- [project1/src/algorithms/search_strategy.py](project1/src/algorithms/search_strategy.py): search strategy enum.
+- [project1/src/algorithms/tree_node.py](project1/src/algorithms/tree_node.py): tree node with parent/cost/path tracking.
+- [project1/src/gui/game_graphics.py](project1/src/gui/game_graphics.py): board rendering on oval track.
+- [project1/src/gui/menu.py](project1/src/gui/menu.py): menu scaffold.
+- [project1/src/gui/player_control.py](project1/src/gui/player_control.py): basic interactive control loop.
+- [project1/src/utils/game_stats.py](project1/src/utils/game_stats.py): runtime statistics container.
 - [project1/instances](project1/instances): input puzzle instances.
 - [project1/results](project1/results): experiment outputs.
 
@@ -104,48 +120,72 @@ The objective is to transform the initial board into the ordered sequence (1..N)
 - Instrument code early for timing/memory/state metrics.
 - Compare algorithms under equivalent conditions and summarize trade-offs.
 
+
+### Dependencies
+- Python 3.10+
+- pygame
+
+Install dependencies:
+
+```bash
+pip install -r requirements.txt
+```
+
+### How to run the game
+
+From repository root:
+
+```bash
+python project1/app.py
+```
+
+Notes:
+- The GUI layer is currently a prototype and still under active development.
+- Some solver/game helper methods are placeholders and may not expose full gameplay/analysis flows yet.
+
+
 ## Practical Assignment 2
 To be defined in the second phase of the course.
 
 ### Chosen Topic
-TBD
+TODO
 
 ### Chosen Project
-TBD
+TODO
 
 ### Project Overview
-TBD
+TODO
 
 ### Main Objectives
-TBD
+TODO
 
 ### Features
 
 #### Algorithmic Component
-TBD
+TODO
 
 #### Performance Evaluation
-TBD
+TODO
 
 #### Graphical User Interface
-TBD
+TODO
 
 ### Input and Output
 
 #### Input
-TBD
+TODO
 
 #### Output
-TBD
+TODO
 
 ### Technologies Used
-TBD
+TODO
 
 ### Project Structure
-TBD
+TODO
 
 ### Development Approach
-TBD
+TODO
 
 ### Authors
 - Camila de Almeida Correia - Up202304507@up.pt
