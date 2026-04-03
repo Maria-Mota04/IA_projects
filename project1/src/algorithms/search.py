@@ -6,6 +6,24 @@ from .search_strategy import SearchStrategy
 
 class SearchAlgorithms:
 
+    # Core function
+    @staticmethod
+    def search(strategy_enum, *args, **kwargs) -> TreeNode | None:
+        search_funcs = [
+            SearchAlgorithms.bfs,
+            SearchAlgorithms.dfs,
+            SearchAlgorithms.dfs_limited,
+            SearchAlgorithms.iterative_deepening_search,
+            SearchAlgorithms.greedy,
+            SearchAlgorithms.a_star,
+            SearchAlgorithms.weighted_a_star,
+            SearchAlgorithms.uniform_cost,
+        ]
+        func = search_funcs[strategy_enum.value]
+        return func(*args, **kwargs)
+
+    # Algorithms
+
     @staticmethod
     def bfs(
         initial_state, goal_state_func, operators_func, max_cost=None
@@ -203,18 +221,3 @@ class SearchAlgorithms:
                     cost_so_far[state] = new_cost
                     heapq.heappush(frontier, (new_cost, new_node))
         return None
-
-    @staticmethod
-    def search(strategy_enum, *args, **kwargs) -> TreeNode | None:
-        search_funcs = [
-            SearchAlgorithms.bfs,
-            SearchAlgorithms.dfs,
-            SearchAlgorithms.dfs_limited,
-            SearchAlgorithms.iterative_deepening_search,
-            SearchAlgorithms.greedy,
-            SearchAlgorithms.a_star,
-            SearchAlgorithms.weighted_a_star,
-            SearchAlgorithms.uniform_cost,
-        ]
-        func = search_funcs[strategy_enum.value]
-        return func(*args, **kwargs)
