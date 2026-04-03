@@ -1,7 +1,7 @@
 from collections import deque
-from tree_node import TreeNode
+from .tree_node import TreeNode
 import heapq
-from search_strategy import SearchStrategy
+from .search_strategy import SearchStrategy
 
 
 class SearchAlgorithms:

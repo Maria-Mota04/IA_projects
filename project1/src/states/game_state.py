@@ -1,7 +1,7 @@
 from __future__ import annotations
 from typing import Callable, List
 
-from project1.src.states.board import Board
+from src.states.board import Board
 
 
 class GameState:
