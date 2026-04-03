@@ -1,10 +1,12 @@
 from typing import List
+import random
 
 
 class Board:
-    def __init__(self, tiles: int | List[int]):
+    def __init__(self, tiles: int | List[int]) -> None:
         if isinstance(tiles, int):
-            self._tiles: List[int] = [0] * tiles
+            self._tiles: List[int] = list(range(1, tiles + 1))
+            random.shuffle(self._tiles)
         else:
             self._tiles = list(tiles)
 
@@ -26,7 +28,7 @@ class Board:
     def is_ordered(self) -> bool:
         return all(self._tiles[i] == i + 1 for i in range(len(self._tiles)))
 
-    def reverse_segment(self, start: int, segment_size: int):
+    def reverse_segment(self, start: int, segment_size: int) -> None:
 
         n = self.size()
 
@@ -40,10 +42,15 @@ class Board:
                 self._tiles[left],
             )
 
-    def rotate_wheel(self, steps=1):
+    def rotate_wheel(self, steps=1) -> None:
         n = self.size()
         steps = steps % n
         self._tiles = self._tiles[-steps:] + self._tiles[:-steps]
 
     def print(self) -> None:
         print("Board:", " ".join(str(tile) for tile in self._tiles))
+
+    def reset_board(self) -> None:
+        n = len(self._tiles)
+        self._tiles = list(range(1, n + 1))
+        random.shuffle(self._tiles)

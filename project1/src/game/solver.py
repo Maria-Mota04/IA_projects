@@ -9,10 +9,10 @@ from .game_modes import gameMode
 class Solver:
 
     # Core functions
-    def __init__(self, initial_state: GameState):
+    def __init__(self, initial_state: GameState) -> None:
         self._state = initial_state
 
-    def get_state(self):
+    def get_state(self) -> GameState:
         return self._state
 
     def set_state(self, state: GameState) -> None:
@@ -27,7 +27,7 @@ class Solver:
         max_cost=None,
         weight: float = 1.0,
         heuristic_func: Callable[[object], float] | None = None,
-    ):
+    ) -> object:
         if mode == gameMode.NORMAL_GAME:
             pass  # TODO
 
@@ -86,3 +86,6 @@ class Solver:
     # Utils
     def get_move_cost(self, move: int) -> int:
         pass
+
+    def reset_game(self) -> None:
+        self._state.reset_state()

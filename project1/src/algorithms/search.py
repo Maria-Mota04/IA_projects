@@ -7,7 +7,9 @@ from search_strategy import SearchStrategy
 class SearchAlgorithms:
 
     @staticmethod
-    def bfs(initial_state, goal_state_func, operators_func, max_cost=None):
+    def bfs(
+        initial_state, goal_state_func, operators_func, max_cost=None
+    ) -> TreeNode | None:
         root = TreeNode(initial_state, path_set={initial_state})
         queue = deque([root])
         visited = {initial_state}
@@ -32,7 +34,9 @@ class SearchAlgorithms:
         return None
 
     @staticmethod
-    def dfs(initial_state, goal_state_func, operators_func, max_cost=None):
+    def dfs(
+        initial_state, goal_state_func, operators_func, max_cost=None
+    ) -> TreeNode | None:
         root = TreeNode(initial_state, path_set={initial_state})
         stack = deque([root])
         visited = {initial_state}
@@ -59,7 +63,7 @@ class SearchAlgorithms:
     @staticmethod
     def dfs_limited(
         initial_state, goal_state_func, operators_func, depth_limit, max_cost=None
-    ):
+    ) -> TreeNode | None:
         root = TreeNode(initial_state, path_set={initial_state})
         stack = deque([(root, 0)])
         visited = {initial_state}
@@ -88,7 +92,7 @@ class SearchAlgorithms:
     @staticmethod
     def iterative_deepening_search(
         initial_state, goal_state_func, operators_func, max_depth, max_cost=None
-    ):
+    ) -> TreeNode | None:
         for depth in range(max_depth + 1):
             result = SearchAlgorithms.dfs_limited(
                 initial_state, goal_state_func, operators_func, depth, max_cost=max_cost
@@ -100,7 +104,7 @@ class SearchAlgorithms:
     @staticmethod
     def greedy(
         initial_state, goal_state_func, operators_func, heuristic_func, max_cost=None
-    ):
+    ) -> TreeNode | None:
         root = TreeNode(initial_state, path_set={initial_state})
         queue = [(root, heuristic_func(root))]
         visited = {initial_state}
@@ -128,7 +132,7 @@ class SearchAlgorithms:
     @staticmethod
     def a_star(
         initial_state, goal_state_func, operators_func, heuristic_func, max_cost=None
-    ):
+    ) -> TreeNode | None:
         return SearchAlgorithms.weighted_a_star(
             initial_state,
             goal_state_func,
@@ -146,7 +150,7 @@ class SearchAlgorithms:
         heuristic_func,
         w=1.0,
         max_cost=None,
-    ):
+    ) -> TreeNode | None:
         root = TreeNode(initial_state, path_set={initial_state})
         queue = [(root, heuristic_func(root))]
         visited = {initial_state}
@@ -173,7 +177,9 @@ class SearchAlgorithms:
         return None
 
     @staticmethod
-    def uniform_cost(initial_state, goal_state_func, operators_func, max_cost=None):
+    def uniform_cost(
+        initial_state, goal_state_func, operators_func, max_cost=None
+    ) -> TreeNode | None:
         root = TreeNode(initial_state, path_set={initial_state})
         frontier = [(0, root)]
         heapq.heapify(frontier)
@@ -199,7 +205,7 @@ class SearchAlgorithms:
         return None
 
     @staticmethod
-    def search(strategy_enum, *args, **kwargs):
+    def search(strategy_enum, *args, **kwargs) -> TreeNode | None:
         search_funcs = [
             SearchAlgorithms.bfs,
             SearchAlgorithms.dfs,

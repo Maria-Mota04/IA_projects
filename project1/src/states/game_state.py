@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import List
+from typing import Callable, List
 
 from project1.src.states.board import Board
 
@@ -7,7 +7,7 @@ from project1.src.states.board import Board
 class GameState:
 
     # Core functions
-    def __init__(self, board: Board, move_history=None):
+    def __init__(self, board: Board, move_history=None) -> None:
         self._board = board
         self._move_history = move_history or []
 
@@ -32,9 +32,9 @@ class GameState:
         self._board.rotate_wheel(steps)
 
     @staticmethod
-    def move(func):
+    def move(func) -> Callable:
 
-        def wrapper(self, *args, **kwargs):
+        def wrapper(self, *args, **kwargs) -> GameState | None:
             new_state = GameState(
                 Board(self._board.get_tiles()), list(self._move_history)
             )
@@ -62,6 +62,9 @@ class GameState:
         return self
 
     # Utils
+
+    def reset_state(self) -> None:
+        self._board.reset_board()
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, GameState):
