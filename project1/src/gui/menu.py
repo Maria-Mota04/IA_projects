@@ -8,3 +8,4 @@ class Menu:
         game_running = True
         font = pygame.font.SysFont('arial', 40)
 
+       # while game_running:
