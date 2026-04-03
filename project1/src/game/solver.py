@@ -1,5 +1,9 @@
-from typing import List
+from typing import Callable, List
+from project1.src.algorithms.search import SearchAlgorithms
+from project1.src.algorithms.search_strategy import SearchStrategy
+from project1.src.states.board import Board
 from project1.src.states.game_state import GameState
+from .game_modes import gameMode
 
 
 class Solver:
@@ -14,8 +18,47 @@ class Solver:
     def set_state(self, state: GameState) -> None:
         self._state = state
 
-    def solve():
-        pass
+    def solve(
+        self,
+        mode: gameMode,
+        strategy: SearchStrategy = SearchStrategy.BFS,
+        segment_size: int = 4,
+        depth_limit: int = 20,
+        max_cost=None,
+        weight: float = 1.0,
+        heuristic_func: Callable[[object], float] | None = None,
+    ):
+        if mode == gameMode.NORMAL_GAME:
+            pass  # TODO
+
+        if mode != gameMode.SEARCH_ALGORITHM:
+            raise ValueError(f"Unsupported game mode: {mode}")
+
+        goal_state_func = lambda state: state.is_goal()
+        operators_func = lambda state: self.generate_possible_moves(state, segment_size)
+
+        heuristic = heuristic_func
+        if heuristic is None:
+            heuristic = lambda node: self.heuristic_misplaced(node.state)
+
+        args = [self._state, goal_state_func, operators_func]
+        kwargs = {"max_cost": max_cost}
+
+        if strategy in (
+            SearchStrategy.DFS_LIMITED,
+            SearchStrategy.ITERATIVE_DEEPENING,
+        ):
+            args.append(depth_limit)
+        elif strategy in (
+            SearchStrategy.GREEDY,
+            SearchStrategy.A_STAR,
+            SearchStrategy.WEIGHTED_A_STAR,
+        ):
+            args.append(heuristic)
+            if strategy == SearchStrategy.WEIGHTED_A_STAR:
+                kwargs["w"] = weight
+
+        return SearchAlgorithms.search(strategy, *args, **kwargs)
 
     # Heuristics
     def heuristic_misplaced(self, state: GameState) -> int:

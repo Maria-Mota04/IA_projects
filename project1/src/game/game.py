@@ -1,8 +1,10 @@
 from __future__ import annotations
 import time
 
+from project1.src.algorithms.search_strategy import SearchStrategy
 from project1.src.states.game_state import GameState
 from project1.src.utils.game_stats import GameStats
+from .game_modes import gameMode
 from .solver import Solver
 
 
@@ -99,5 +101,20 @@ class Game:
 
     # Solver
 
-    def solve(self):
-        pass
+    def solve(
+        self,
+        mode: gameMode = gameMode.SEARCH_ALGORITHM,
+        strategy: SearchStrategy = SearchStrategy.BFS,
+        **kwargs,
+    ):
+        result = self._solver.solve(
+            mode=mode,
+            strategy=strategy,
+            segment_size=self._segment_size,
+            **kwargs,
+        )
+
+        if mode == gameMode.SEARCH_ALGORITHM and result is not None:
+            self._solver.set_state(result.state)
+
+        return result
