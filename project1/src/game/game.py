@@ -3,9 +3,9 @@ import time
 
 from src.states.game_state import GameState
 from src.utils.game_stats import GameStats
-from project1.src.algorithms.search_strategy import SearchStrategy
-from project1.src.states.game_state import GameState
-from project1.src.utils.game_stats import GameStats
+from src.algorithms.search_strategy import SearchStrategy
+from src.states.game_state import GameState
+from src.utils.game_stats import GameStats
 from .game_modes import gameMode
 from .solver import Solver
 

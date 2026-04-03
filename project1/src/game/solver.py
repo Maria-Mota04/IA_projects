@@ -1,8 +1,8 @@
 from typing import Callable, List
-from project1.src.algorithms.search import SearchAlgorithms
-from project1.src.algorithms.search_strategy import SearchStrategy
-from project1.src.states.board import Board
-from project1.src.states.game_state import GameState
+from src.algorithms.search import SearchAlgorithms
+from src.algorithms.search_strategy import SearchStrategy
+from src.states.board import Board
+from src.states.game_state import GameState
 from .game_modes import gameMode
 
 
