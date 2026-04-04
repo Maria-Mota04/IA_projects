@@ -78,11 +78,29 @@ class Solver:
         return math.ceil(misplaced / k)
         
 
-    def heuristic_inversions(self, state: GameState) -> int:
-        pass
+    def heuristic_breakpoints(self, state: GameState) -> int:
+        board = state.get_board()
+        tiles = board.get_tiles()
+        n = len(tiles)
+        k = board.get_segment_size()
+
+        breakpoints = 0
+
+        for i in range(n):
+            current = tiles[i]
+            nxt = tiles[(i + 1) % n]
+
+            expected_next = 1 if current == n else current + 1
+
+            if nxt != expected_next:
+                breakpoints += 1
+
+        return math.ceil(breakpoints / k)
 
     def heuristic_distance(self, state: GameState) -> int:
         pass
+
+
 
     # Move generator
     def generate_possible_moves(
