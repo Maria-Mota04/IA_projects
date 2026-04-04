@@ -5,6 +5,11 @@ from src.algorithms.search_strategy import SearchStrategy
 from src.states.board import Board
 from src.states.game_state import GameState
 from .game_modes import gameMode
+from src.algorithms.pdb_heuristic import (
+    generate_pdb,
+    build_patterns,
+    pattern_state_from_positions,
+)
 
 
 class Solver:
@@ -12,6 +17,9 @@ class Solver:
     # Core functions
     def __init__(self, initial_state: GameState) -> None:
         self._state = initial_state
+        self._group_size = 5
+        self._pdb_5 = generate_pdb(self._board.size(), self._board.get_segment_size(), self._group_size)
+        self._patterns = build_patterns(self._board.size(), self._group_size)
 
     def get_state(self) -> GameState:
         return self._state
@@ -100,6 +108,19 @@ class Solver:
     def heuristic_distance(self, state: GameState) -> int:
         pass
 
+    def heuristic_pdb(self, state: GameState) -> int:
+            tiles = state.get_board().get_tiles()
+            n = len(tiles)
+
+            pos_map = {tile: i for i, tile in enumerate(tiles)}
+
+            best = 0
+            for pattern in self._patterns:
+                key = pattern_state_from_positions(pos_map, pattern, n)
+                h = self._pdb_5.get(key, 0)
+                best = max(best, h)
+
+            return best
 
 
     # Move generator
