@@ -1,3 +1,4 @@
+import math
 from typing import Callable, List
 from src.algorithms.search import SearchAlgorithms
 from src.algorithms.search_strategy import SearchStrategy
@@ -62,7 +63,20 @@ class Solver:
 
     # Heuristics
     def heuristic_misplaced(self, state: GameState) -> int:
-        pass
+        board = state.get_board()
+        tiles = board.get_tiles()
+        n = len(tiles)
+        k = board.get_segment_size()
+
+        start = tiles.index(1)
+
+        misplaced = 0
+        for i in range(n):
+            if tiles[(start + i) % n] != i + 1:
+                misplaced += 1
+
+        return math.ceil(misplaced / k)
+        
 
     def heuristic_inversions(self, state: GameState) -> int:
         pass

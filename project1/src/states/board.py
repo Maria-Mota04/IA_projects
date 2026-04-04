@@ -18,6 +18,9 @@ class Board:
     def get_tiles(self) -> List[int]:
         return self._tiles
 
+    def get_segment_size(self) -> int:
+        return self._segment_size
+
     def set_tiles(self, tiles: List[int]) -> None:
         self._tiles = list(tiles)
 
