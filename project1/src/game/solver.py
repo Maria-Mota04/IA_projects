@@ -4,22 +4,15 @@ from src.algorithms.search_strategy import SearchStrategy
 from src.states.board import Board
 from src.states.game_state import GameState
 from .game_modes import gameMode
-
+from src.gui.game_graphics import *
+from src.game.game import *
 
 class Solver:
 
-    # Core functions
-    def __init__(self, initial_state: GameState) -> None:
-        self._state = initial_state
-
-    def get_state(self) -> GameState:
-        return self._state
-
-    def set_state(self, state: GameState) -> None:
-        self._state = state
-
     def solve(
         self,
+        game: Game,
+        screen,
         mode: gameMode,
         strategy: SearchStrategy = SearchStrategy.BFS,
         segment_size: int = 4,
@@ -29,7 +22,36 @@ class Solver:
         heuristic_func: Callable[[object], float] | None = None,
     ) -> object:
         if mode == gameMode.NORMAL_GAME:
-            pass  # TODO
+            game_running = True
+            gg = GameGraphics(game)
+
+            while game_running:
+                for event in pygame.event.get():
+
+                    # event closing the window
+                    if event.type == pygame.QUIT:
+                        game_running = False
+
+                    # event a key is pushed
+                    if event.type == pygame.KEYDOWN:
+                        # right key
+                        if event.key == pygame.K_RIGHT:
+                            game.make_rotate(1)
+                            gg.update(game)
+
+                        # left key
+                        if event.key == pygame.K_LEFT:
+                            game.make_rotate(-1)
+                            gg.update(game)
+
+                    # event is a mouse click
+                    if event.type == pygame.MOUSEBUTTONUP:
+                        game.make_move(1)
+                        gg.update(game)
+
+                gg.display(screen)
+
+                pygame.display.flip()
 
         if mode != gameMode.SEARCH_ALGORITHM:
             raise ValueError(f"Unsupported game mode: {mode}")
@@ -41,7 +63,7 @@ class Solver:
         if heuristic is None:
             heuristic = lambda node: self.heuristic_misplaced(node.state)
 
-        args = [self._state, goal_state_func, operators_func]
+        args = [game.get_board_state(), goal_state_func, operators_func]
         kwargs = {"max_cost": max_cost}
 
         if strategy in (
@@ -58,16 +80,23 @@ class Solver:
             if strategy == SearchStrategy.WEIGHTED_A_STAR:
                 kwargs["w"] = weight
 
-        return SearchAlgorithms.search(strategy, *args, **kwargs)
+        result = SearchAlgorithms.search(strategy, *args, **kwargs)
+
+        if mode == gameMode.SEARCH_ALGORITHM and result is not None:
+            game.set_board_state(result.state)
+
+        return result
+
+        
 
     # Heuristics
-    def heuristic_misplaced(self, state: GameState) -> int:
+    def heuristic_misplaced(self, game: Game) -> int:
         pass
 
-    def heuristic_inversions(self, state: GameState) -> int:
+    def heuristic_inversions(self, game: Game) -> int:
         pass
 
-    def heuristic_distance(self, state: GameState) -> int:
+    def heuristic_distance(self, game: Game) -> int:
         pass
 
     # Move generator
@@ -95,6 +124,3 @@ class Solver:
     def get_move_cost(self, move: int) -> int:
         _ = move
         return 1
-
-    def reset_game(self) -> None:
-        self._state.reset_state()

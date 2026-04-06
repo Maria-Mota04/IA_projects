@@ -21,6 +21,7 @@ class Menu:
         random.shuffle(l)
         board = Board(l)
         state = GameState(board)
+        game = Game(state,10)
 
         solver = Solver()
 
@@ -48,8 +49,7 @@ class Menu:
                 if event.type == pygame.MOUSEBUTTONUP:
 
                     if play_button.collidepoint(mouse):
-                        pc = PlayerControl(self.screen)
-                        pc.run()
+                        solver.solve(game= game, screen= self.screen, mode=2)
 
                     if quit_button.collidepoint(mouse):
                         game_running = False

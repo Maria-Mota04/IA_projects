@@ -3,11 +3,8 @@ import time
 
 from src.states.game_state import GameState
 from src.utils.game_stats import GameStats
-from src.algorithms.search_strategy import SearchStrategy
 from src.states.game_state import GameState
 from src.utils.game_stats import GameStats
-from .game_modes import gameMode
-from .solver import Solver
 
 
 class Game:
@@ -15,13 +12,13 @@ class Game:
     # Core functions
     def __init__(
         self,
-        initial_state: GameState,
+        state: GameState,
         size: int = 20,
         segment_size: int = 4,
     ):
         self._n = size
         self._segment_size = segment_size
-        self._solver = Solver(initial_state)
+        self.state = state
         self._last_state = None
         self._game_stats = GameStats()
         self._start_time = None
@@ -33,13 +30,13 @@ class Game:
         return self._segment_size
 
     def get_board_state(self) -> GameState:
-        return self._solver.get_state()
+        return self.state
 
     def set_board_state(self, state: GameState) -> None:
-        self._solver.set_state(state)
+        self.state = state
 
     def won(self) -> bool:
-        return self._solver.get_state().is_goal()
+        return self.state.is_goal()
 
     # Move Operations
 
@@ -47,10 +44,8 @@ class Game:
         if self._start_time is None:
             self._start_time = time.time()
 
-        self._last_state = self._solver.get_state()
-        self._solver.set_state(
-            self._solver.get_state().apply_move(move, self._segment_size)
-        )
+        self._last_state = self.state
+        self.state = self.state.apply_move(move, self._segment_size)
         self._game_stats.moves += 1
         self._game_stats.history.append(move)
 
@@ -58,8 +53,8 @@ class Game:
         if self._start_time is None:
             self._start_time = time.time()
 
-        self._last_state = self._solver.get_state()
-        self._solver.set_state(self._solver.get_state().apply_rotate(steps))
+        self._last_state = self.state
+        self.state = self.state.apply_rotate(steps)
         self._game_stats.history.append(f"rotate({steps})")
 
     def start_game(self) -> None:
@@ -67,7 +62,7 @@ class Game:
         self._game_stats = GameStats()
 
     def undo_move(self) -> None:
-        self._solver.set_state(self._last_state)
+        self.state = self._last_state
 
     # Utils
 
@@ -82,13 +77,13 @@ class Game:
         return self._game_stats.history
 
     def print_board(self) -> None:
-        self._solver.get_state().print_board()
+        self.state.print_board()
 
     def reset_statistics(self) -> None:
         self._game_stats.reset()
 
     def reset_game(self) -> None:
-        self._solver.reset_game()
+        self.state.reset_state()
 
     # Score Utils
 
@@ -106,23 +101,3 @@ class Game:
 
     def print_scores(self) -> None:
         self._game_stats.print()
-
-    # Solver
-
-    def solve(
-        self,
-        mode: gameMode = gameMode.SEARCH_ALGORITHM,
-        strategy: SearchStrategy = SearchStrategy.BFS,
-        **kwargs,
-    ) -> object:
-        result = self._solver.solve(
-            mode=mode,
-            strategy=strategy,
-            segment_size=self._segment_size,
-            **kwargs,
-        )
-
-        if mode == gameMode.SEARCH_ALGORITHM and result is not None:
-            self._solver.set_state(result.state)
-
-        return result
