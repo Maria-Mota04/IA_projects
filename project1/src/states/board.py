@@ -7,6 +7,7 @@ class Board:
     # Core functions
     def __init__(self, tiles: int | List[int], segment_size: int = 4) -> None:
         self._segment_size = segment_size
+        '''
         if isinstance(tiles, int):
             self._tiles: List[int] = list(range(1, tiles + 1))
             self._shuffle_solvable(segment_size)
@@ -14,6 +15,8 @@ class Board:
             self._tiles = list(tiles)
             if not self.is_solvable(self._tiles, segment_size):
                 self._shuffle_solvable(segment_size)
+        '''
+        self._tiles = tiles
 
     def get_tiles(self) -> List[int]:
         return self._tiles
@@ -79,7 +82,6 @@ class Board:
             return True
 
     def _shuffle_solvable(self, segment_size: int) -> None:
-        n = len(self._tiles)
         while True:
             random.shuffle(self._tiles)
             if Board.is_solvable(self._tiles, segment_size):

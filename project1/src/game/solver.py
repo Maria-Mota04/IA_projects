@@ -25,12 +25,15 @@ class Solver:
             game_running = True
             gg = GameGraphics(game)
 
+            print(game.get_board_state().get_board().get_tiles())
+
             while game_running:
                 for event in pygame.event.get():
 
                     # event closing the window
                     if event.type == pygame.QUIT:
                         game_running = False
+                        return 1
 
                     # event a key is pushed
                     if event.type == pygame.KEYDOWN:
@@ -52,6 +55,9 @@ class Solver:
                 gg.display(screen)
 
                 pygame.display.flip()
+
+                if(game.won()):
+                    return 0
 
         if mode != gameMode.SEARCH_ALGORITHM:
             raise ValueError(f"Unsupported game mode: {mode}")

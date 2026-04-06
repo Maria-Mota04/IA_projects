@@ -1,9 +1,9 @@
 import pygame
 from src.game.solver import Solver
-import random
 from src.game.game import *
 from src.states.board import Board
 from src.states.game_state import GameState
+import time
 
 class Menu:
     def __init__(self, screen):
@@ -17,9 +17,7 @@ class Menu:
         DARK = (100,100,100)
         BG = (60,25,60)
 
-        l = list(range(1,20))
-        random.shuffle(l)
-        board = Board(l)
+        board = Board([1,2,3,7,6,5,4,8,9,10,11,12,13,14,15,16,17,18,19,20])
         state = GameState(board)
         game = Game(state,10)
 
@@ -49,9 +47,35 @@ class Menu:
                 if event.type == pygame.MOUSEBUTTONUP:
 
                     if play_button.collidepoint(mouse):
-                        solver.solve(game= game, screen= self.screen, mode=2)
+                        ret = solver.solve(game= game, screen= self.screen, mode=2)
+
+                        if(ret == 0):
+                            WinMenu.display(self.screen)
+                        else:
+                            LossMenu.display(self.screen)
 
                     if quit_button.collidepoint(mouse):
                         game_running = False
 
             pygame.display.update()
+
+
+class WinMenu:
+    def display(screen):
+        screen.fill((60,25,60))
+        font = pygame.font.SysFont('arial', 40)
+        win_text = font.render("WIN", True, (255,255,255))
+        screen.blit(win_text, (335, 305))
+
+        pygame.display.flip()
+        time.sleep(2)
+
+class LossMenu:
+    def display(screen):
+        screen.fill((60,25,60))
+        font = pygame.font.SysFont('arial', 40)
+        win_text = font.render("LOSS", True, (255,255,255))
+        screen.blit(win_text, (335, 305))
+
+        pygame.display.flip()
+        time.sleep(2)
