@@ -31,6 +31,14 @@ class GameGraphics:
     def __init__(self, game : Game):
         self.update(game)
         self.turn_size = game.get_segment_size()
+        self.initial = [0,0]
+        self.diameter = 0
+
+    def get_center_circle(self):
+        return [self.initial[0] + self.diameter/2 - (self.pieces)[1].get_radius() - self.spacing/4 + 5, self.initial[1]]
+    
+    def get_radius_circle(self):
+        return self.diameter/2-5
 
     def get_position_on_track(self, d, cx, cy, width, r):
 
@@ -98,10 +106,10 @@ class GameGraphics:
         pygame.draw.circle(screen, (166, 171, 175), [400 - 350/2, 300], 250/2 + 40)
 
         # purple circle
-        diameter = (self.pieces)[1].get_radius() * (self.turn_size-1) + self.spacing * (self.turn_size -1)
-        inital = (self.pieces)[1].get_position()
+        self.diameter = (self.pieces)[1].get_radius() * (self.turn_size-1) + self.spacing * (self.turn_size -1)
+        self.initial = (self.pieces)[1].get_position()
 
-        pygame.draw.circle(screen, (69, 92, 168), [inital[0] + diameter/2 - (self.pieces)[1].get_radius() - self.spacing/4 + 5, inital[1]], diameter/2-5)
+        pygame.draw.circle(screen, (69, 92, 168), [self.initial[0] + self.diameter/2 - (self.pieces)[1].get_radius() - self.spacing/4 + 5, self.initial[1]], self.diameter/2-5)
 
 
         for piece in self.pieces:

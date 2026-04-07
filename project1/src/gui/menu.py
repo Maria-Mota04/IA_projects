@@ -54,6 +54,8 @@ class Menu:
 
                         if(ret == 0):
                             self.display_win()
+                        elif(ret == -1):
+                            game_running = False
                         else:
                             ret1 = self.display_lose()
 
@@ -64,6 +66,9 @@ class Menu:
                                 try_again = True
                                 pygame.event.post(pygame.event.Event(1))
                                 continue
+
+                            if(ret1==-1):
+                                game_running = False
 
                         # make a new board, for next try
                         board = Board([1,2,3,7,6,5,4,8,9,10,11,12,13,14,15,16,17,18,19,20])
@@ -110,7 +115,7 @@ class Menu:
             for event in pygame.event.get():
 
                 if event.type == pygame.QUIT:
-                    game_running = False
+                    return -1
 
                 if event.type == pygame.MOUSEBUTTONUP:
 

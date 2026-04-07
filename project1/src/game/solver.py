@@ -6,6 +6,7 @@ from src.states.game_state import GameState
 from .game_modes import gameMode
 from src.gui.game_graphics import *
 from src.game.game import *
+import pygame
 
 class Solver:
 
@@ -25,15 +26,23 @@ class Solver:
             game_running = True
             gg = GameGraphics(game)
 
-            print(game.get_board_state().get_board().get_tiles())
+            font = pygame.font.SysFont('arial', 40)
+            quit_button = pygame.Rect(50, 50, 140, 50)
 
             while game_running:
+                mouse = pygame.mouse.get_pos()
+
+                pygame.draw.rect(screen, (170,170,170) if quit_button.collidepoint(mouse) else (100,100,100), quit_button)
+
+                quit_text = font.render("Quit", True, (255,255,255))
+                screen.blit(quit_text, (60, 60))
+                
                 for event in pygame.event.get():
 
                     # event closing the window
                     if event.type == pygame.QUIT:
                         game_running = False
-                        return 1
+                        return -1
 
                     # event a key is pushed
                     if event.type == pygame.KEYDOWN:
@@ -49,10 +58,20 @@ class Solver:
 
                     # event is a mouse click
                     if event.type == pygame.MOUSEBUTTONUP:
-                        game.make_move(1)
-                        gg.update(game)
+
+                        # the mouse is in the circle (turn circle)
+                        if(math.sqrt(math.pow(mouse[0]-center_circle[0],2) + math.pow(mouse[1]-center_circle[1],2)) <= radius_circle):
+                            game.make_move(1)
+                            gg.update(game)
+                    
+                        elif(quit_button.collidepoint(mouse)):
+                            return 1
+            
 
                 gg.display(screen)
+
+                center_circle = gg.get_center_circle()
+                radius_circle = gg.get_radius_circle()
 
                 pygame.display.flip()
 
