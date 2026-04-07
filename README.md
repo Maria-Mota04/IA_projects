@@ -136,7 +136,7 @@ pip install -r requirements.txt
 From repository root:
 
 ```bash
-python project1/app.py
+python3 project1/app.py
 ```
 
 Notes:

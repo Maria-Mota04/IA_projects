@@ -16,7 +16,7 @@ class Board:
             if not self.is_solvable(self._tiles, segment_size):
                 self._shuffle_solvable(segment_size)
         '''
-        self._tiles = tiles
+        self._tiles = list(tiles)
 
     def get_tiles(self) -> List[int]:
         return self._tiles
