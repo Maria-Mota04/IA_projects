@@ -27,15 +27,14 @@ class Solver:
             gg = GameGraphics(game)
 
             font = pygame.font.SysFont('arial', 40)
-            quit_button = pygame.Rect(50, 50, 140, 50)
+            quit_button = pygame.Rect(30, 30, 85, 50)            
+            quit_text = font.render("Quit", True, (255,255,255))
 
             while game_running:
                 mouse = pygame.mouse.get_pos()
 
                 pygame.draw.rect(screen, (170,170,170) if quit_button.collidepoint(mouse) else (100,100,100), quit_button)
-
-                quit_text = font.render("Quit", True, (255,255,255))
-                screen.blit(quit_text, (60, 60))
+                screen.blit(quit_text, (40, 32))
                 
                 for event in pygame.event.get():
 

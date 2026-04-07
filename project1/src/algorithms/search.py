@@ -19,7 +19,7 @@ class SearchAlgorithms:
             SearchAlgorithms.weighted_a_star,
             SearchAlgorithms.uniform_cost,
         ]
-        func = search_funcs[strategy_enum.value]
+        func = search_funcs[strategy_enum]
         return func(*args, **kwargs)
 
     # Algorithms
