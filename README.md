@@ -71,6 +71,16 @@ The objective is to transform the initial board into the ordered sequence (1..N)
 	- Board size N.
 	- Segment size K (default 4).
 	- Initial tile permutation.
+- Instance file format (`.txt`):
+```
+N K
+t1 t2 ... tN
+```
+Example (`instances/puzzle_8.txt`):
+```
+8 4
+3 1 4 2 7 5 6 8
+```
 - Solver configuration selected by the user:
 	- Search algorithm.
 	- Heuristic (when applicable).
