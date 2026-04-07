@@ -12,8 +12,6 @@ class Board:
             self._shuffle_solvable(segment_size)
         else:
             self._tiles = list(tiles)
-            if not self.is_solvable(self._tiles, segment_size):
-                self._shuffle_solvable(segment_size)
 
     def get_tiles(self) -> List[int]:
         return self._tiles
@@ -31,7 +29,10 @@ class Board:
         self._tiles[index] = value
 
     def is_ordered(self) -> bool:
-        return all(self._tiles[i] == i + 1 for i in range(len(self._tiles)))
+        n = len(self._tiles)
+        return all(
+            self._tiles[(i + 1) % n] == (self._tiles[i] % n) + 1 for i in range(n)
+        )
 
     # Moves
 

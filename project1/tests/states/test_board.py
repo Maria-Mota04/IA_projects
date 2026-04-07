@@ -6,6 +6,21 @@ def test_is_ordered_true_for_goal_sequence():
     assert board.is_ordered() is True
 
 
+def test_is_ordered_true_for_goal_sequence_2():
+    board = Board([5, 1, 2, 3, 4])
+    assert board.is_ordered() is True
+
+
+def test_is_ordered_true_for_goal_sequence_3():
+    board = Board([4, 5, 1, 2, 3])
+    assert board.is_ordered() is True
+
+
+def test_is_ordered_false_for_goal_sequence():
+    board = Board([4, 1, 5, 2, 3])
+    assert board.is_ordered() is False
+
+
 def test_reverse_segment_changes_tiles_as_expected():
     board = Board([1, 2, 3, 4, 5])
     board.reverse_segment(start=1, segment_size=4)
