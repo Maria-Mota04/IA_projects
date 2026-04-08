@@ -2,10 +2,11 @@ import sys
 import os
 import tempfile
 import pytest
+from pathlib import Path
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "src"))
 
-from src.utils.file_manager import FileManager
+from src.utils.file_manager import FileManager, _INSTANCES_DIR, _RESULTS_DIR
 from src.utils.game_stats import GameStats
 from src.states.board import Board
 from src.states.game_state import GameState
@@ -65,6 +66,68 @@ class TestLoadInstance:
         with pytest.raises(ValueError):
             FileManager.load_instance(str(f))
 
+
+class TestResolvePath:
+
+    def test_bare_name_goes_to_instances_dir(self):
+        resolved = FileManager._resolve_path("input", _INSTANCES_DIR)
+        assert resolved == _INSTANCES_DIR / "input.txt"
+
+    def test_bare_name_goes_to_results_dir(self):
+        resolved = FileManager._resolve_path("output", _RESULTS_DIR)
+        assert resolved == _RESULTS_DIR / "output.txt"
+
+    def test_no_extension_gets_txt(self):
+        resolved = FileManager._resolve_path("puzzle", _INSTANCES_DIR)
+        assert resolved.suffix == ".txt"
+
+    def test_existing_extension_kept(self):
+        resolved = FileManager._resolve_path("puzzle.txt", _INSTANCES_DIR)
+        assert resolved.suffix == ".txt"
+        assert resolved == _INSTANCES_DIR / "puzzle.txt"
+
+    def test_absolute_path_unchanged(self, tmp_path):
+        abs_path = str(tmp_path / "my_file.txt")
+        resolved = FileManager._resolve_path(abs_path, _INSTANCES_DIR)
+        assert resolved == Path(abs_path)
+
+    def test_relative_subpath_unchanged(self):
+        resolved = FileManager._resolve_path("sub/puzzle.txt", _INSTANCES_DIR)
+        assert resolved == Path("sub/puzzle.txt")
+
+
+class TestLoadInstanceDefaultDir:
+
+    def test_bare_name_loads_from_instances_dir(self):
+        # instances/input.txt must exist with valid content
+        state, n, k = FileManager.load_instance("input")
+        assert n == 8
+        assert k == 4
+        assert state.get_board().get_tiles() == [3, 1, 4, 2, 7, 5, 6, 8]
+
+    def test_bare_name_without_extension(self):
+        state, n, k = FileManager.load_instance("input")
+        assert n > 0
+
+
+class TestSaveResultDefaultDir:
+
+    def _default_stats(self) -> GameStats:
+        stats = GameStats()
+        stats.moves = 3
+        stats.solution_depth = 3
+        stats.states_explored = 10
+        stats.max_memory = 50
+        stats.time_elapsed = 0.5
+        return stats
+
+    def test_bare_name_saves_to_results_dir(self):
+        FileManager.save_result(
+            "test_output", "BFS", self._default_stats(), solved=True
+        )
+        out = _RESULTS_DIR / "test_output.txt"
+        assert out.exists()
+        out.unlink()  
 
 class TestSaveResult:
 

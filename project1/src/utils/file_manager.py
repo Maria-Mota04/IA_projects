@@ -8,7 +8,21 @@ from src.states.game_state import GameState
 from src.utils.game_stats import GameStats
 
 
+_PROJECT_ROOT = Path(__file__).parent.parent.parent
+_INSTANCES_DIR = _PROJECT_ROOT / "instances"
+_RESULTS_DIR = _PROJECT_ROOT / "results"
+
+
 class FileManager:
+
+    @staticmethod
+    def _resolve_path(filepath: str, default_dir: Path) -> Path:
+        p = Path(filepath)
+        if not p.suffix:
+            p = p.with_suffix(".txt")
+        if not p.is_absolute() and len(p.parts) == 1:
+            p = default_dir / p
+        return p
 
     @staticmethod
     def load_instance(filepath: str) -> tuple[GameState, int, int]:
@@ -25,9 +39,9 @@ class FileManager:
                 Returns:
                     (initial_state, N, K)
         """
-        path = Path(filepath)
+        path = FileManager._resolve_path(filepath, _INSTANCES_DIR)
         if not path.exists():
-            raise FileNotFoundError(f"Instance file not found: {filepath}")
+            raise FileNotFoundError(f"Instance file not found: {path}")
 
         with open(path, "r") as f:
             lines = [line.strip() for line in f if line.strip()]
@@ -60,9 +74,10 @@ class FileManager:
         heuristic_name: str | None = None,
     ) -> None:
 
-        os.makedirs(os.path.dirname(os.path.abspath(filepath)), exist_ok=True)
+        path = FileManager._resolve_path(filepath, _RESULTS_DIR)
+        os.makedirs(path.parent, exist_ok=True)
 
-        with open(filepath, "w") as f:
+        with open(path, "w") as f:
             f.write(
                 f"Timestamp:        {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n"
             )
