@@ -1,3 +1,4 @@
+import math
 from typing import Callable, List
 from src.algorithms.search import SearchAlgorithms
 from src.algorithms.search_strategy import SearchStrategy
@@ -7,6 +8,11 @@ from .game_modes import gameMode
 from src.gui.game_graphics import *
 from src.game.game import *
 import pygame
+from src.algorithms.pdb_heuristic import (
+    generate_pdb,
+    build_patterns,
+    pattern_state_from_positions,
+)
 
 class Solver:
 
@@ -114,14 +120,75 @@ class Solver:
         
 
     # Heuristics
-    def heuristic_misplaced(self, game: Game) -> int:
-        pass
+    def heuristic_misplaced(self, state: GameState) -> int:
+        board = state.get_board()
+        tiles = board.get_tiles()
+        n = len(tiles)
+        k = board.get_segment_size()
 
-    def heuristic_inversions(self, game: Game) -> int:
-        pass
+        start = tiles.index(1)
 
-    def heuristic_distance(self, game: Game) -> int:
-        pass
+        misplaced = 0
+        for i in range(n):
+            if tiles[(start + i) % n] != i + 1:
+                misplaced += 1
+
+        return math.ceil(misplaced / k) if k > 0 else misplaced
+
+    def heuristic_breakpoints(self, state: GameState) -> int:
+        board = state.get_board()
+        tiles = board.get_tiles()
+        n = len(tiles)
+        k = board.get_segment_size()
+
+        breakpoints = 0
+
+        for i in range(n):
+            current = tiles[i]
+            nxt = tiles[(i + 1) % n]
+            expected_next = 1 if current == n else current + 1
+
+            if nxt != expected_next:
+                breakpoints += 1
+
+        return math.ceil(breakpoints / k) if k > 0 else breakpoints
+
+    def heuristic_distance(self, state: GameState) -> int:
+        board = state.get_board()
+        tiles = board.get_tiles()
+        n = len(tiles)
+        k = board.get_segment_size()
+
+        if k <= 1:
+            return 0
+
+        start = tiles.index(1)
+        max_distance = 0
+
+        for i in range(n):
+            tile = tiles[i]
+            goal_pos = (start + (tile - 1)) % n
+
+            diff = abs(i - goal_pos)
+            circular_dist = min(diff, n - diff)
+
+            max_distance = max(max_distance, circular_dist)
+
+        return math.ceil(max_distance / (k - 1))
+
+    def heuristic_pdb(self, state: GameState) -> int:
+        tiles = state.get_board().get_tiles()
+        n = len(tiles)
+
+        pos_map = {tile: i for i, tile in enumerate(tiles)}
+
+        best = 0
+        for pattern in self._patterns:
+            key = pattern_state_from_positions(pos_map, pattern, n)
+            h = self._pdb_5.get(key, 0)
+            best = max(best, h)
+
+        return best
 
     # Move generator
     def generate_possible_moves(
