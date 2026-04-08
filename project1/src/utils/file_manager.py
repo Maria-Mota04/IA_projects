@@ -88,7 +88,7 @@ class FileManager:
             f.write(f"Solution depth:   {stats.solution_depth}\n")
             f.write(f"States explored:  {stats.states_explored}\n")
             f.write(f"Max memory:       {stats.max_memory}\n")
-            f.write(f"Time (s):         {stats.time_elapsed:.4f}\n")
+            f.write(f"Time (s):         {stats.timer.get_time():.4f}\n")
 
             if solution_path:
                 f.write("Solution path:\n")

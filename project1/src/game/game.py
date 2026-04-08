@@ -38,6 +38,10 @@ class Game:
     def won(self) -> bool:
         return self.state.is_goal()
 
+    def start_game(self) -> None:
+        self._start_time = time.time()
+        self._game_stats = GameStats()
+
     # Move Operations
 
     def make_move(self, move: int) -> None:
@@ -56,10 +60,6 @@ class Game:
         self._last_state = self.state
         self.state = self.state.apply_rotate(steps)
         self._game_stats.history.append(f"rotate({steps})")
-
-    def start_game(self) -> None:
-        self._start_time = time.time()
-        self._game_stats = GameStats()
 
     def undo_move(self) -> None:
         self.state = self._last_state
@@ -84,6 +84,12 @@ class Game:
 
     def reset_game(self) -> None:
         self.state.reset_state()
+
+    def pause_game(self) -> None:
+        self._game_stats.timer.pause()
+
+    def continue_game(self) -> None:
+        self._game_stats.timer.resume()
 
     # Score Utils
 
