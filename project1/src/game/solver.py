@@ -6,9 +6,11 @@ from src.states.board import Board
 from src.states.game_state import GameState
 from .game_modes import gameMode
 from src.gui.game_graphics import *
+from src.gui.controls_helper import ControlHelper
 from src.game.game import *
 import pygame
-from src.game.pdb_heuristic import (pattern_state_from_positions)
+from src.game.pdb_heuristic import pattern_state_from_positions
+
 
 class Solver:
 
@@ -35,7 +37,13 @@ class Solver:
             undo_button = pygame.Rect(650, 30, 120, 50)
             undo_text = font.render("Undo", True, (255, 255, 255))
 
+            control_helper_menu_button = pygame.Rect(650, 500, 50, 50)
+            control_helper_menu_text = font.render("?", True, (255, 255, 255))
+
+            BG = (60, 25, 60)
+
             while game_running:
+                screen.fill(BG)
                 mouse = pygame.mouse.get_pos()
 
                 pygame.draw.rect(
@@ -60,6 +68,18 @@ class Solver:
                 )
 
                 screen.blit(undo_text, (660, 32))
+
+                pygame.draw.rect(
+                    screen,
+                    (
+                        (170, 170, 170)
+                        if control_helper_menu_button.collidepoint(mouse)
+                        else (100, 100, 100)
+                    ),
+                    control_helper_menu_button,
+                )
+
+                screen.blit(control_helper_menu_text, (660, 502))
 
                 for event in pygame.event.get():
 
@@ -98,6 +118,10 @@ class Solver:
                             return 1
                         elif undo_button.collidepoint(mouse):
                             game.undo_move()
+                            gg.update(game)
+
+                        elif control_helper_menu_button.collidepoint(mouse):
+                            ControlHelper(screen).run()
                             gg.update(game)
 
                 gg.display(screen)
