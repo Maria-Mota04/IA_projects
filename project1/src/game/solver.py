@@ -14,6 +14,7 @@ from src.game.pdb_heuristic import (
     pattern_state_from_positions,
 )
 
+
 class Solver:
 
     def solve(
@@ -32,16 +33,39 @@ class Solver:
             game_running = True
             gg = GameGraphics(game)
 
-            font = pygame.font.SysFont('arial', 40)
-            quit_button = pygame.Rect(30, 30, 85, 50)            
-            quit_text = font.render("Quit", True, (255,255,255))
+            font = pygame.font.SysFont("arial", 40)
+            quit_button = pygame.Rect(30, 30, 85, 50)
+            quit_text = font.render("Quit", True, (255, 255, 255))
+
+            undo_button = pygame.Rect(650, 30, 120, 50)
+            undo_text = font.render("Undo", True, (255, 255, 255))
 
             while game_running:
                 mouse = pygame.mouse.get_pos()
 
-                pygame.draw.rect(screen, (170,170,170) if quit_button.collidepoint(mouse) else (100,100,100), quit_button)
+                pygame.draw.rect(
+                    screen,
+                    (
+                        (170, 170, 170)
+                        if quit_button.collidepoint(mouse)
+                        else (100, 100, 100)
+                    ),
+                    quit_button,
+                )
                 screen.blit(quit_text, (40, 32))
-                
+
+                pygame.draw.rect(
+                    screen,
+                    (
+                        (170, 170, 170)
+                        if undo_button.collidepoint(mouse)
+                        else (100, 100, 100)
+                    ),
+                    undo_button,
+                )
+
+                screen.blit(undo_text, (660, 32))
+
                 for event in pygame.event.get():
 
                     # event closing the window
@@ -65,13 +89,21 @@ class Solver:
                     if event.type == pygame.MOUSEBUTTONUP:
 
                         # the mouse is in the circle (turn circle)
-                        if(math.sqrt(math.pow(mouse[0]-center_circle[0],2) + math.pow(mouse[1]-center_circle[1],2)) <= radius_circle):
+                        if (
+                            math.sqrt(
+                                math.pow(mouse[0] - center_circle[0], 2)
+                                + math.pow(mouse[1] - center_circle[1], 2)
+                            )
+                            <= radius_circle
+                        ):
                             game.make_move(1)
                             gg.update(game)
-                    
-                        elif(quit_button.collidepoint(mouse)):
+
+                        elif quit_button.collidepoint(mouse):
                             return 1
-            
+                        elif undo_button.collidepoint(mouse):
+                            game.undo_move()
+                            gg.update(game)
 
                 gg.display(screen)
 
@@ -80,7 +112,7 @@ class Solver:
 
                 pygame.display.flip()
 
-                if(game.won()):
+                if game.won():
                     return 0
 
         if mode != gameMode.SEARCH_ALGORITHM:
@@ -116,8 +148,6 @@ class Solver:
             game.set_board_state(result.state)
 
         return result
-
-        
 
     # Heuristics
     def heuristic_misplaced(self, state: GameState) -> int:
