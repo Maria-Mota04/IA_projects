@@ -8,11 +8,7 @@ from .game_modes import gameMode
 from src.gui.game_graphics import *
 from src.game.game import *
 import pygame
-from src.game.pdb_heuristic import (
-    generate_pdb,
-    build_patterns,
-    pattern_state_from_positions,
-)
+from src.game.pdb_heuristic import (pattern_state_from_positions)
 
 class Solver:
 
