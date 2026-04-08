@@ -1,38 +1,25 @@
 import math
 from typing import Callable, List
-
 from src.algorithms.search import SearchAlgorithms
 from src.algorithms.search_strategy import SearchStrategy
 from src.states.board import Board
 from src.states.game_state import GameState
 from .game_modes import gameMode
+from src.gui.game_graphics import *
+from src.game.game import *
+import pygame
 from src.algorithms.pdb_heuristic import (
     generate_pdb,
     build_patterns,
     pattern_state_from_positions,
 )
 
-
 class Solver:
-    def __init__(self, initial_state: GameState) -> None:
-        self._state = initial_state
-        self._group_size = 5
-
-        board = self._state.get_board()
-        n = board.size()
-        k = board.get_segment_size()
-
-        self._pdb_5 = generate_pdb(n, k, self._group_size)
-        self._patterns = build_patterns(n, self._group_size)
-
-    def get_state(self) -> GameState:
-        return self._state
-
-    def set_state(self, state: GameState) -> None:
-        self._state = state
 
     def solve(
         self,
+        game: Game,
+        screen,
         mode: gameMode,
         strategy: SearchStrategy = SearchStrategy.BFS,
         segment_size: int = 4,
@@ -42,7 +29,59 @@ class Solver:
         heuristic_func: Callable[[object], float] | None = None,
     ) -> object:
         if mode == gameMode.NORMAL_GAME:
-            pass  # TODO
+            game_running = True
+            gg = GameGraphics(game)
+
+            font = pygame.font.SysFont('arial', 40)
+            quit_button = pygame.Rect(30, 30, 85, 50)            
+            quit_text = font.render("Quit", True, (255,255,255))
+
+            while game_running:
+                mouse = pygame.mouse.get_pos()
+
+                pygame.draw.rect(screen, (170,170,170) if quit_button.collidepoint(mouse) else (100,100,100), quit_button)
+                screen.blit(quit_text, (40, 32))
+                
+                for event in pygame.event.get():
+
+                    # event closing the window
+                    if event.type == pygame.QUIT:
+                        game_running = False
+                        return -1
+
+                    # event a key is pushed
+                    if event.type == pygame.KEYDOWN:
+                        # right key
+                        if event.key == pygame.K_RIGHT:
+                            game.make_rotate(1)
+                            gg.update(game)
+
+                        # left key
+                        if event.key == pygame.K_LEFT:
+                            game.make_rotate(-1)
+                            gg.update(game)
+
+                    # event is a mouse click
+                    if event.type == pygame.MOUSEBUTTONUP:
+
+                        # the mouse is in the circle (turn circle)
+                        if(math.sqrt(math.pow(mouse[0]-center_circle[0],2) + math.pow(mouse[1]-center_circle[1],2)) <= radius_circle):
+                            game.make_move(1)
+                            gg.update(game)
+                    
+                        elif(quit_button.collidepoint(mouse)):
+                            return 1
+            
+
+                gg.display(screen)
+
+                center_circle = gg.get_center_circle()
+                radius_circle = gg.get_radius_circle()
+
+                pygame.display.flip()
+
+                if(game.won()):
+                    return 0
 
         if mode != gameMode.SEARCH_ALGORITHM:
             raise ValueError(f"Unsupported game mode: {mode}")
@@ -54,7 +93,7 @@ class Solver:
         if heuristic is None:
             heuristic = lambda node: self.heuristic_misplaced(node.state)
 
-        args = [self._state, goal_state_func, operators_func]
+        args = [game.get_board_state(), goal_state_func, operators_func]
         kwargs = {"max_cost": max_cost}
 
         if strategy in (
@@ -62,7 +101,6 @@ class Solver:
             SearchStrategy.ITERATIVE_DEEPENING,
         ):
             args.append(depth_limit)
-
         elif strategy in (
             SearchStrategy.GREEDY,
             SearchStrategy.A_STAR,
@@ -72,12 +110,16 @@ class Solver:
             if strategy == SearchStrategy.WEIGHTED_A_STAR:
                 kwargs["w"] = weight
 
-        return SearchAlgorithms.search(strategy, *args, **kwargs)
+        result = SearchAlgorithms.search(strategy, *args, **kwargs)
 
-    # -------------------------
+        if mode == gameMode.SEARCH_ALGORITHM and result is not None:
+            game.set_board_state(result.state)
+
+        return result
+
+        
+
     # Heuristics
-    # -------------------------
-
     def heuristic_misplaced(self, state: GameState) -> int:
         board = state.get_board()
         tiles = board.get_tiles()
@@ -148,10 +190,7 @@ class Solver:
 
         return best
 
-    # -------------------------
     # Move generator
-    # -------------------------
-
     def generate_possible_moves(
         self, state: GameState, segment_size: int
     ) -> List[tuple[GameState, int]]:
@@ -164,21 +203,15 @@ class Solver:
                 moves.append((new_state, self.get_move_cost(reverse_start)))
 
         rotated_state = GameState(Board(state.get_board().get_tiles())).apply_rotate(1)
-        if rotated_state is not None:
-            moves.append((rotated_state, self.get_move_cost(-1)))
+        moves.append((rotated_state, self.get_move_cost(-1)))
 
         return moves
 
+    # Next best move
     def next_best_move(self) -> GameState:
-        raise NotImplementedError("next_best_move() ainda não foi implementado.")
+        pass
 
-    # -------------------------
     # Utils
-    # -------------------------
-
     def get_move_cost(self, move: int) -> int:
         _ = move
         return 1
-
-    def reset_game(self) -> None:
-        self._state.reset_state()

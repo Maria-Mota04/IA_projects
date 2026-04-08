@@ -19,7 +19,7 @@ class SearchAlgorithms:
             SearchAlgorithms.weighted_a_star,
             SearchAlgorithms.uniform_cost,
         ]
-        func = search_funcs[strategy_enum.value]
+        func = search_funcs[strategy_enum]
         return func(*args, **kwargs)
 
     # Algorithms
@@ -44,7 +44,7 @@ class SearchAlgorithms:
                     and (max_cost is None or new_total_cost <= max_cost)
                 ):
                     new_node = TreeNode(
-                        state, parent=node, cost=cost, path_set=node.path_set
+                        state, parent=node, operator_cost=cost, path_set=node.path_set
                     )
                     node.add_child(new_node, cost)
                     visited.add(state)
@@ -71,7 +71,7 @@ class SearchAlgorithms:
                     and (max_cost is None or new_total_cost <= max_cost)
                 ):
                     new_node = TreeNode(
-                        state, parent=node, cost=cost, path_set=node.path_set
+                        state, parent=node, operator_cost=cost, path_set=node.path_set
                     )
                     node.add_child(new_node, cost)
                     visited.add(state)
@@ -100,7 +100,7 @@ class SearchAlgorithms:
                     and (max_cost is None or new_total_cost <= max_cost)
                 ):
                     new_node = TreeNode(
-                        state, parent=node, cost=cost, path_set=node.path_set
+                        state, parent=node, operator_cost=cost, path_set=node.path_set
                     )
                     node.add_child(new_node, cost)
                     visited.add(state)
@@ -139,7 +139,7 @@ class SearchAlgorithms:
                     and (max_cost is None or new_total_cost <= max_cost)
                 ):
                     new_node = TreeNode(
-                        state, parent=node, cost=cost, path_set=node.path_set
+                        state, parent=node, operator_cost=cost, path_set=node.path_set
                     )
                     node.add_child(new_node, cost)
                     visited.add(state)
@@ -185,7 +185,7 @@ class SearchAlgorithms:
                     and (max_cost is None or new_total_cost <= max_cost)
                 ):
                     new_node = TreeNode(
-                        state, parent=node, cost=cost, path_set=node.path_set
+                        state, parent=node, operator_cost=cost, path_set=node.path_set
                     )
                     node.add_child(new_node, cost)
                     visited.add(state)
