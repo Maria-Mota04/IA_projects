@@ -2,6 +2,7 @@ from collections import deque
 from .tree_node import TreeNode
 import heapq
 from .search_strategy import SearchStrategy
+from ..states.game_state import GameState
 
 
 class SearchAlgorithms:
@@ -221,3 +222,11 @@ class SearchAlgorithms:
                     cost_so_far[state] = new_cost
                     heapq.heappush(frontier, (new_cost, new_node))
         return None
+
+    @staticmethod
+    def extract_path(node: TreeNode) -> list[GameState]:
+        path = []
+        while node is not None:
+            path.append(node.state)
+            node = node.parent
+        return list(reversed(path))
