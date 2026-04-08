@@ -15,32 +15,35 @@ class Menu:
         self.BG = (60,25,60)
 
     def run(self):
+        n = 20
         game_running = True
         font = pygame.font.SysFont('arial', 40)
 
-        board = Board([1,2,3,7,6,5,4,8,9,10,11,12,13,14,15,16,17,18,19,20])
+        board = Board([1,2,3,7,6,5,4,8,9,10,14,13,12,11,15,16,17,18,19,20])
+        board.shuffle_board()
         state = GameState(board)
         game = Game(state)
 
         solver = Solver()
         try_again = False
 
+        play_button = pygame.Rect(300, 300, 140, 50)
+        ia_button = pygame.Rect(300, 380, 140, 50)
+        quit_button = pygame.Rect(300, 460, 140, 50)
+
+        play_text = font.render("Play", True, self.WHITE)
+        ia_text = font.render("Algorithms", True, self.WHITE)
+        quit_text = font.render("Quit", True, self.WHITE)
+
+        loading_text = font.render("Loading...", True, self.WHITE)
+
         while game_running:
             self.screen.fill(self.BG)
             mouse = pygame.mouse.get_pos()
 
-            play_button = pygame.Rect(300, 300, 140, 50)
-            ia_button = pygame.Rect(300, 380, 140, 50)
-            quit_button = pygame.Rect(300, 460, 140, 50)
-
-
             pygame.draw.rect(self.screen, self.LIGHT if play_button.collidepoint(mouse) else self.DARK, play_button)
             pygame.draw.rect(self.screen, self.LIGHT if ia_button.collidepoint(mouse) else self.DARK, ia_button)
             pygame.draw.rect(self.screen, self.LIGHT if quit_button.collidepoint(mouse) else self.DARK, quit_button)
-
-            play_text = font.render("Play", True, self.WHITE)
-            ia_text = font.render("Algorithms", True, self.WHITE)
-            quit_text = font.render("Quit", True, self.WHITE)
 
             self.screen.blit(play_text, (335, 305))
             self.screen.blit(ia_text, (335, 385))
@@ -60,6 +63,8 @@ class Menu:
 
                         # won
                         if ret == 0:
+                            # give it a time so the player can see his final play
+                            time.sleep(0.5)
                             self.display_win()
 
                         # pressed x
@@ -73,7 +78,7 @@ class Menu:
                             # they want to retry the level
                             if(ret1==0):
                                 board.reset_board()
-                                print("board was reset")
+                                game.set_board_state(GameState(board))
                                 try_again = True
                                 pygame.event.post(pygame.event.Event(1))
                                 continue
@@ -83,7 +88,7 @@ class Menu:
                                 game_running = False
 
                         # make a new board, for next try
-                        board = Board([1,2,3,7,6,5,4,8,9,10,11,12,13,14,15,16,17,18,19,20])
+                        board.shuffle_board()
                         state = GameState(board)
                         game = Game(state)
 
@@ -100,7 +105,14 @@ class Menu:
 
                         # chose an algorithm
                         else:
+                            self.screen.fill(self.BG)
+                            self.screen.blit(loading_text, (335, 305))
+                            pygame.display.update()
                             solver.solve(game= game, screen= self.screen, mode=1, strategy= ret)
+
+                            board.shuffle_board()
+                            state = GameState(board)
+                            game = Game(state)
 
                     if quit_button.collidepoint(mouse):
                         game_running = False
@@ -112,9 +124,9 @@ class Menu:
 
         font = pygame.font.SysFont('arial', 40)
 
-        # quit button
-        quit_button = pygame.Rect(30, 30, 85, 50)            
-        quit_text = font.render("Quit", True, (255,255,255))
+        # back button
+        back_button = pygame.Rect(30, 30, 85, 50)            
+        back_text = font.render("Back", True, (255,255,255))
 
         # title
         title_text = font.render("ALGORITHMS", True, self.WHITE)
@@ -143,8 +155,8 @@ class Menu:
             self.screen.fill(self.BG)
             mouse = pygame.mouse.get_pos()
 
-            pygame.draw.rect(self.screen, (170,170,170) if quit_button.collidepoint(mouse) else (100,100,100), quit_button)
-            self.screen.blit(quit_text, (40, 32))
+            pygame.draw.rect(self.screen, (170,170,170) if back_button.collidepoint(mouse) else (100,100,100), back_button)
+            self.screen.blit(back_text, (35, 32))
 
             self.screen.blit(title_text, (335, 100))
 
@@ -173,7 +185,7 @@ class Menu:
                 
                 if event.type == pygame.MOUSEBUTTONUP:
 
-                    if(quit_button.collidepoint(mouse)):
+                    if(back_button.collidepoint(mouse)):
                         return -2
 
                     if bfs_button.collidepoint(mouse):
