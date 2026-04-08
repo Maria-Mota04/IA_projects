@@ -18,7 +18,7 @@ class Menu:
         game_running = True
         font = pygame.font.SysFont('arial', 40)
 
-        board = Board([1,2,3,7,6,5,4,8,9,10,11,12,13,14,15,16,17,18,19,20])
+        board = Board([1,2,3,7,6,5,4,8,9,10,14,13,12,11,15,16,17,18,19,20])
         state = GameState(board)
         game = Game(state)
 
@@ -56,7 +56,6 @@ class Menu:
                     if play_button.collidepoint(mouse) or try_again:
                         try_again = False
                         self.screen.fill(self.BG)
-                        print("beg ", game.get_board_state().get_board().get_tiles())
                         ret = solver.solve(game= game, screen= self.screen, mode=2)
 
                         # won
@@ -85,7 +84,6 @@ class Menu:
                             if ret1==-1:
                                 game_running = False
 
-                        print("here")
                         # make a new board, for next try
                         board = Board([1,2,3,7,6,5,4,8,9,10,11,12,13,14,15,16,17,18,19,20])
                         state = GameState(board)
@@ -104,6 +102,8 @@ class Menu:
 
                         # chose an algorithm
                         else:
+                            print(game.get_board_state().get_board().get_tiles())
+                            self.screen.fill(self.BG)
                             solver.solve(game= game, screen= self.screen, mode=1, strategy= ret)
 
                     if quit_button.collidepoint(mouse):

@@ -1,4 +1,5 @@
 import math
+import time
 from typing import Callable, List
 from src.algorithms.search import SearchAlgorithms
 from src.algorithms.search_strategy import SearchStrategy
@@ -108,13 +109,49 @@ class Solver:
 
         result = SearchAlgorithms.search(strategy, *args, **kwargs)
 
-        if mode == gameMode.SEARCH_ALGORITHM and result is not None:
-            game.set_board_state(result.state)
-
         path = SearchAlgorithms.extract_path(result)
+    
 
-        for n in path:
-            n.type()
+        gg = GameGraphics(game)
+
+        # display first state (og problem)
+        gg.display(screen)
+        pygame.display.flip()
+        time.sleep(1)
+
+        prior = path[0].get_board().get_tiles()
+        initial_pos = 0
+        game.make_rotate(1)
+        
+
+        for n in path[1:]:
+
+            curBoard = n.get_board().get_tiles()
+
+            for i in range(initial_pos,len(prior)):
+                if prior[i] == curBoard[i]:
+                    game.make_rotate(-1)
+
+                    print(game.get_board_state().get_board().get_tiles())
+                    gg.update(game)
+                    gg.display(screen)
+                    pygame.display.flip()
+                    time.sleep(1)
+                else:
+                    initial_pos = i
+                    break
+
+            time.sleep(1)
+            game.make_move(1)
+
+            gg.update(game)
+            gg.display(screen)
+            pygame.display.flip()
+
+            prior = curBoard
+
+            time.sleep(2)
+            
         
 
     # Heuristics
