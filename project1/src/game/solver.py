@@ -111,8 +111,10 @@ class Solver:
         if mode == gameMode.SEARCH_ALGORITHM and result is not None:
             game.set_board_state(result.state)
 
-        return result
+        path = SearchAlgorithms.extract_path(result)
 
+        for n in path:
+            n.type()
         
 
     # Heuristics

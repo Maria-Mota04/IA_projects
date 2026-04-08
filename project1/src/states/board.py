@@ -8,6 +8,7 @@ class Board:
     def __init__(self, tiles: int | List[int], segment_size: int = 4) -> None:
         self._segment_size = segment_size
         self._tiles = list(tiles)
+        self._initial_tiles = list(tiles)
 
     def get_tiles(self) -> List[int]:
         return self._tiles
@@ -60,9 +61,7 @@ class Board:
         print("Board:", " ".join(str(tile) for tile in self._tiles))
 
     def reset_board(self) -> None:
-        n = len(self._tiles)
-        self._tiles = list(range(1, n + 1))
-        self._shuffle_solvable(self._segment_size)
+        self.set_tiles(self._initial_tiles)
 
     @staticmethod
     def is_solvable(board: list[int], segment_size: int) -> bool:
