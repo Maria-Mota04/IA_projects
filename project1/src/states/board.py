@@ -25,7 +25,10 @@ class Board:
         self._tiles[index] = value
 
     def is_ordered(self) -> bool:
-        return all(self._tiles[i] == i + 1 for i in range(len(self._tiles)))
+        n = len(self._tiles)
+        return all(
+            self._tiles[(i + 1) % n] == (self._tiles[i] % n) + 1 for i in range(n)
+        )
 
     # Moves
 
