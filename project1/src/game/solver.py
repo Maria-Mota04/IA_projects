@@ -8,7 +8,7 @@ from .game_modes import gameMode
 from src.gui.game_graphics import *
 from src.game.game import *
 import pygame
-from src.algorithms.pdb_heuristic import (
+from src.game.pdb_heuristic import (
     generate_pdb,
     build_patterns,
     pattern_state_from_positions,
