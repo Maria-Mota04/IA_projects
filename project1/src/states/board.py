@@ -63,6 +63,11 @@ class Board:
     def reset_board(self) -> None:
         self.set_tiles(self._initial_tiles)
 
+    def shuffle_board(self) -> None:
+        n = len(self._tiles)
+        self._tiles = list(range(1, n + 1))
+        self._shuffle_solvable(self._segment_size)
+
     @staticmethod
     def is_solvable(board: list[int], segment_size: int) -> bool:
         inversions = 0
