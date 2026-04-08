@@ -1,7 +1,5 @@
 import pygame
-import random
 from src.gui.menu import *
-from src.gui.player_control import *
 
 def main():
     pygame.init()
