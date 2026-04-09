@@ -122,7 +122,7 @@ class GameGraphics:
         self.animate_side_move(1, screen)
 
     def animate_side_move(self, direction, screen):
-        steps = 20
+        steps = 10
         move_amount = self.spacing * direction / steps
 
         cx, cy = 400, 300
@@ -139,7 +139,7 @@ class GameGraphics:
             distances.append(d)
 
         for _ in range(steps):
-            screen.fill((0, 0, 0))
+            screen.fill((60,25,60))
 
             for i in range(len(self.pieces)):
                 distances[i] = (distances[i] + move_amount) % total_len
