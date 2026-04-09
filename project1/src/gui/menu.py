@@ -21,9 +21,9 @@ class Menu:
         game_running = True
         font = pygame.font.SysFont("arial", 40)
 
-        #board = Board(list(range(1, 21)))
-        #board.shuffle_few_moves(4)
-        board = Board([1,2,3,7,6,5,4,8,9,10,14,13,12,11,15,16,17,18,19,20])
+        board = Board(list(range(1, 21)))
+        board.shuffle_few_moves(4)
+        #board = Board([2,1,20,4,5,6,7,8,9,10,11,12, 13, 14,15,16,17,18,19,3])
         game = Game(GameState(board))
 
         solver = Solver()
@@ -128,7 +128,6 @@ class Menu:
                         game = Game(state)
 
                     if ia_button.collidepoint(mouse):
-                        print("this?")
                         ret = self.display_algorithm_choice()
 
                         # pressed x
