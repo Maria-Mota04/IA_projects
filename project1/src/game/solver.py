@@ -94,12 +94,12 @@ class Solver:
                         # right key
                         if event.key == pygame.K_RIGHT:
                             game.make_rotate(1)
-                            gg.update(game)
+                            gg.move_right(screen)
 
                         # left key
                         if event.key == pygame.K_LEFT:
                             game.make_rotate(-1)
-                            gg.update(game)
+                            gg.move_left(screen)
 
                     # event is a mouse click
                     if event.type == pygame.MOUSEBUTTONUP:
@@ -169,15 +169,16 @@ class Solver:
 
         gg = GameGraphics(game)
 
+        prior = path[0].get_board().get_tiles()
+        initial_pos = 0
+        # compensate (rotate begins at 1) TODO: CHANGE THAT
+        game.make_rotate(1)
+        gg.update(game)
+        
         # display first state (og problem)
         gg.display(screen)
         pygame.display.flip()
         time.sleep(1)
-
-        prior = path[0].get_board().get_tiles()
-        initial_pos = 0
-        game.make_rotate(1)
-        
 
         for n in path[1:]:
 
@@ -186,10 +187,7 @@ class Solver:
             for i in range(initial_pos,len(prior)):
                 if prior[i] == curBoard[i]:
                     game.make_rotate(-1)
-
-                    print(game.get_board_state().get_board().get_tiles())
-                    gg.update(game)
-                    gg.display(screen)
+                    gg.move_left(screen)
                     pygame.display.flip()
                     time.sleep(1)
                 else:

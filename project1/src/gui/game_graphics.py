@@ -1,5 +1,6 @@
 import pygame
 import math
+import time
 from pygame.locals import *
 from src.game.game import *
 from src.states.board import Board
@@ -32,10 +33,11 @@ class GameGraphics:
         self.update(game)
         self.turn_size = game.get_segment_size()
         self.initial = [0,0]
-        self.diameter = 0
+        self.diameter = (self.pieces)[1].get_radius() * (self.turn_size-1) + self.spacing * (self.turn_size -1)
+        self.center_circle = [self.pieces[1].get_position()[0] + self.diameter/2 - (self.pieces)[1].get_radius() - self.spacing/4 + 5, self.pieces[0].get_position()[1]]
 
     def get_center_circle(self):
-        return [self.initial[0] + self.diameter/2 - (self.pieces)[1].get_radius() - self.spacing/4 + 5, self.initial[1]]
+        return self.center_circle
     
     def get_radius_circle(self):
         return self.diameter/2-5
@@ -106,11 +108,49 @@ class GameGraphics:
         pygame.draw.circle(screen, (166, 171, 175), [400 - 350/2, 300], 250/2 + 40)
 
         # purple circle
-        self.diameter = (self.pieces)[1].get_radius() * (self.turn_size-1) + self.spacing * (self.turn_size -1)
-        self.initial = (self.pieces)[1].get_position()
 
-        pygame.draw.circle(screen, (69, 92, 168), [self.initial[0] + self.diameter/2 - (self.pieces)[1].get_radius() - self.spacing/4 + 5, self.initial[1]], self.diameter/2-5)
+        pygame.draw.circle(screen, (69, 92, 168), self.center_circle, self.diameter/2-5)
 
 
         for piece in self.pieces:
             piece.display(screen)
+
+    def move_left(self, screen):
+        self.animate_side_move(-1, screen)
+
+    def move_right(self, screen):
+        self.animate_side_move(1, screen)
+
+    def animate_side_move(self, direction, screen):
+        steps = 20
+        move_amount = self.spacing * direction / steps
+
+        cx, cy = 400, 300
+        width = 350
+        height = 250
+        r = height / 2
+
+        total_len = width + width + 2 * math.pi * r
+
+        # Get current distances of each piece
+        distances = []
+        for i in range(len(self.pieces)):
+            d = i * self.spacing
+            distances.append(d)
+
+        for _ in range(steps):
+            screen.fill((0, 0, 0))
+
+            for i in range(len(self.pieces)):
+                distances[i] = (distances[i] + move_amount) % total_len
+                x, y = self.get_position_on_track(distances[i], cx, cy, width, r)
+                self.pieces[i].position = [int(x), int(y)]
+
+            self.display(screen)
+            pygame.display.flip()
+            pygame.time.delay(15)
+
+        if direction == 1:  # right
+            self.pieces = [self.pieces[-1]] + self.pieces[:-1]
+        else:  # left
+            self.pieces = self.pieces[1:] + [self.pieces[0]]

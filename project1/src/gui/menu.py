@@ -20,7 +20,7 @@ class Menu:
         font = pygame.font.SysFont('arial', 40)
 
         board = Board([1,2,3,7,6,5,4,8,9,10,14,13,12,11,15,16,17,18,19,20])
-        board.shuffle_board()
+        #board.shuffle_board()
         state = GameState(board)
         game = Game(state)
 
