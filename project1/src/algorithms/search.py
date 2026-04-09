@@ -37,17 +37,10 @@ class SearchAlgorithms:
         root = TreeNode(initial_state)
         queue = deque([root])
         visited = {key(initial_state)}
-        count = 0
 
         while queue:
             node = queue.popleft()
-            count += 1
-            if count % 10000 == 0:
-                print(
-                    f"[BFS] nodes expanded: {count}, frontier: {len(queue)}, visited: {len(visited)}"
-                )
             if goal_state_func(node.state):
-                print(f"[BFS] solved in {count} expansions")
                 return node
             for state, cost in operators_func(node.state):
                 new_total_cost = node.cost + cost
@@ -62,17 +55,19 @@ class SearchAlgorithms:
 
     @staticmethod
     def dfs(
-        initial_state, goal_state_func, operators_func, max_cost=None
+        initial_state, goal_state_func, operators_func, depth_limit=None, max_cost=None
     ) -> TreeNode | None:
         key = SearchAlgorithms._key
         root = TreeNode(initial_state)
-        stack = deque([root])
+        stack = deque([(root, 0)])
         visited = {key(initial_state)}
 
         while stack:
-            node = stack.pop()
+            node, depth = stack.pop()
             if goal_state_func(node.state):
                 return node
+            if depth_limit is not None and depth >= depth_limit:
+                continue
             for state, cost in operators_func(node.state):
                 new_total_cost = node.cost + cost
                 k = key(state)
@@ -81,7 +76,7 @@ class SearchAlgorithms:
                 ):
                     new_node = TreeNode(state, parent=node, operator_cost=cost)
                     visited.add(k)
-                    stack.append(new_node)
+                    stack.append((new_node, depth + 1))
         return None
 
     @staticmethod
@@ -130,17 +125,10 @@ class SearchAlgorithms:
         root = TreeNode(initial_state)
         queue = [(heuristic_func(root), root)]
         visited = {key(initial_state)}
-        count = 0
 
         while queue:
             _, node = heapq.heappop(queue)
-            count += 1
-            if count % 10000 == 0:
-                print(
-                    f"[Greedy] nodes: {count}, frontier: {len(queue)}, visited: {len(visited)}"
-                )
             if goal_state_func(node.state):
-                print(f"[Greedy] solved in {count} expansions")
                 return node
             for state, cost in operators_func(node.state):
                 new_total_cost = node.cost + cost
