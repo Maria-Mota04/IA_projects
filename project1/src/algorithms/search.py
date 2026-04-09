@@ -29,7 +29,7 @@ class SearchAlgorithms:
     def bfs(
         initial_state, goal_state_func, operators_func, max_cost=None
     ) -> TreeNode | None:
-        root = TreeNode(initial_state, path_set={initial_state})
+        root = TreeNode(initial_state)
         queue = deque([root])
         visited = {initial_state}
 
@@ -39,14 +39,10 @@ class SearchAlgorithms:
                 return node
             for state, cost in operators_func(node.state):
                 new_total_cost = node.cost + cost
-                if (
-                    state not in node.path_set
-                    and state not in visited
-                    and (max_cost is None or new_total_cost <= max_cost)
+                if state not in visited and (
+                    max_cost is None or new_total_cost <= max_cost
                 ):
-                    new_node = TreeNode(
-                        state, parent=node, operator_cost=cost, path_set=node.path_set
-                    )
+                    new_node = TreeNode(state, parent=node, operator_cost=cost)
                     node.add_child(new_node, cost)
                     visited.add(state)
                     queue.append(new_node)
@@ -56,7 +52,7 @@ class SearchAlgorithms:
     def dfs(
         initial_state, goal_state_func, operators_func, max_cost=None
     ) -> TreeNode | None:
-        root = TreeNode(initial_state, path_set={initial_state})
+        root = TreeNode(initial_state)
         stack = deque([root])
         visited = {initial_state}
 
@@ -66,14 +62,10 @@ class SearchAlgorithms:
                 return node
             for state, cost in operators_func(node.state):
                 new_total_cost = node.cost + cost
-                if (
-                    state not in node.path_set
-                    and state not in visited
-                    and (max_cost is None or new_total_cost <= max_cost)
+                if state not in visited and (
+                    max_cost is None or new_total_cost <= max_cost
                 ):
-                    new_node = TreeNode(
-                        state, parent=node, operator_cost=cost, path_set=node.path_set
-                    )
+                    new_node = TreeNode(state, parent=node, operator_cost=cost)
                     node.add_child(new_node, cost)
                     visited.add(state)
                     stack.append(new_node)
@@ -83,7 +75,7 @@ class SearchAlgorithms:
     def dfs_limited(
         initial_state, goal_state_func, operators_func, depth_limit, max_cost=None
     ) -> TreeNode | None:
-        root = TreeNode(initial_state, path_set={initial_state})
+        root = TreeNode(initial_state)
         stack = deque([(root, 0)])
         visited = {initial_state}
 
@@ -95,18 +87,10 @@ class SearchAlgorithms:
                 continue
             for state, cost in operators_func(node.state):
                 new_total_cost = node.cost + cost
-                if (
-                    state not in node.path_set
-                    and state not in visited
-                    and (max_cost is None or new_total_cost <= max_cost)
+                if state not in visited and (
+                    max_cost is None or new_total_cost <= max_cost
                 ):
-                    new_node = TreeNode(
-                        state, parent=node, operator_cost=cost, path_set=node.path_set
-                    )
-                    node.add_child(new_node, cost)
-                    visited.add(state)
-                    stack.append((new_node, depth + 1))
-        return None
+                    new_node = TreeNode(state, parent=node, operator_cost=cost)
 
     @staticmethod
     def iterative_deepening_search(
@@ -124,7 +108,7 @@ class SearchAlgorithms:
     def greedy(
         initial_state, goal_state_func, operators_func, heuristic_func, max_cost=None
     ) -> TreeNode | None:
-        root = TreeNode(initial_state, path_set={initial_state})
+        root = TreeNode(initial_state)
         queue = [(root, heuristic_func(root))]
         visited = {initial_state}
 
@@ -134,14 +118,10 @@ class SearchAlgorithms:
                 return node
             for state, cost in operators_func(node.state):
                 new_total_cost = node.cost + cost
-                if (
-                    state not in node.path_set
-                    and state not in visited
-                    and (max_cost is None or new_total_cost <= max_cost)
+                if state not in visited and (
+                    max_cost is None or new_total_cost <= max_cost
                 ):
-                    new_node = TreeNode(
-                        state, parent=node, operator_cost=cost, path_set=node.path_set
-                    )
+                    new_node = TreeNode(state, parent=node, operator_cost=cost)
                     node.add_child(new_node, cost)
                     visited.add(state)
                     queue.append((new_node, heuristic_func(new_node)))
@@ -170,7 +150,7 @@ class SearchAlgorithms:
         w=1.0,
         max_cost=None,
     ) -> TreeNode | None:
-        root = TreeNode(initial_state, path_set={initial_state})
+        root = TreeNode(initial_state)
         queue = [(root, heuristic_func(root))]
         visited = {initial_state}
 
@@ -180,26 +160,22 @@ class SearchAlgorithms:
                 return node
             for state, cost in operators_func(node.state):
                 new_total_cost = node.cost + cost
-                if (
-                    state not in node.path_set
-                    and state not in visited
-                    and (max_cost is None or new_total_cost <= max_cost)
+                if state not in visited and (
+                    max_cost is None or new_total_cost <= max_cost
                 ):
-                    new_node = TreeNode(
-                        state, parent=node, operator_cost=cost, path_set=node.path_set
-                    )
+                    new_node = TreeNode(state, parent=node, operator_cost=cost)
                     node.add_child(new_node, cost)
                     visited.add(state)
                     total_cost = new_node.cost + w * heuristic_func(new_node)
                     queue.append((new_node, total_cost))
-            queue.sort(key=lambda x: x[1])
+        queue.sort(key=lambda x: x[1])
         return None
 
     @staticmethod
     def uniform_cost(
         initial_state, goal_state_func, operators_func, max_cost=None
     ) -> TreeNode | None:
-        root = TreeNode(initial_state, path_set={initial_state})
+        root = TreeNode(initial_state)
         frontier = [(0, root)]
         heapq.heapify(frontier)
         cost_so_far = {initial_state: 0}
@@ -210,14 +186,10 @@ class SearchAlgorithms:
                 return node
             for state, op_cost in operators_func(node.state):
                 new_cost = current_cost + op_cost
-                if (
-                    state not in node.path_set
-                    and (state not in cost_so_far or new_cost < cost_so_far[state])
-                    and (max_cost is None or new_cost <= max_cost)
+                if (state not in cost_so_far or new_cost < cost_so_far[state]) and (
+                    max_cost is None or new_cost <= max_cost
                 ):
-                    new_node = TreeNode(
-                        state, parent=node, cost=op_cost, path_set=node.path_set
-                    )
+                    new_node = TreeNode(state, parent=node, operator_cost=op_cost)
                     node.add_child(new_node, op_cost)
                     cost_so_far[state] = new_cost
                     heapq.heappush(frontier, (new_cost, new_node))

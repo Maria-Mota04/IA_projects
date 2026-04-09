@@ -165,7 +165,6 @@ class Solver:
         result = SearchAlgorithms.search(strategy, *args, **kwargs)
 
         path = SearchAlgorithms.extract_path(result)
-    
 
         gg = GameGraphics(game)
 
@@ -177,13 +176,12 @@ class Solver:
         prior = path[0].get_board().get_tiles()
         initial_pos = 0
         game.make_rotate(1)
-        
 
         for n in path[1:]:
 
             curBoard = n.get_board().get_tiles()
 
-            for i in range(initial_pos,len(prior)):
+            for i in range(initial_pos, len(prior)):
                 if prior[i] == curBoard[i]:
                     game.make_rotate(-1)
 
@@ -206,8 +204,6 @@ class Solver:
             prior = curBoard
 
             time.sleep(2)
-            
-        
 
     # Heuristics
     def heuristic_misplaced(self, state: GameState) -> int:

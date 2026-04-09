@@ -70,17 +70,33 @@ class Board:
 
     @staticmethod
     def is_solvable(board: list[int], segment_size: int) -> bool:
-        inversions = 0
         n = len(board)
+        t = segment_size
+        inversions = 0
+
         for i in range(n):
             for j in range(i + 1, n):
                 if board[i] > board[j]:
                     inversions += 1
 
-        if segment_size % 2 == 0:
-            return inversions % 2 == 0
-        else:
+        if t == 2 and n >= 3:
             return True
+        if n % 2 == 0 and t % 2 == 0:
+            return True
+
+        if n % 2 == 1 and t % 4 in [0, 1]:
+            return False
+        if n % 2 == 0 and t % 2 == 1:
+            return False
+        if n >= 4 and t == n - 1:
+            return False
+
+        if n % 2 == 1 and t % 4 == 3:
+            return True
+        if n % 2 == 1 and t <= n - 2 and t % 4 == 2:
+            return True
+
+        return inversions % 2 == 0
 
     def _shuffle_solvable(self, segment_size: int) -> None:
         while True:
