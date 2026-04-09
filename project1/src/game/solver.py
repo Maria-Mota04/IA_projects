@@ -94,12 +94,12 @@ class Solver:
                         # right key
                         if event.key == pygame.K_RIGHT:
                             game.make_rotate(1)
-                            gg.update(game)
+                            gg.move_right(screen)
 
                         # left key
                         if event.key == pygame.K_LEFT:
                             game.make_rotate(-1)
-                            gg.update(game)
+                            gg.move_left(screen)
 
                     # event is a mouse click
                     if event.type == pygame.MOUSEBUTTONUP:
@@ -192,28 +192,42 @@ class Solver:
 
     def animate_path(self, game: Game, screen, path, delay=1.0):
         gg = GameGraphics(game)
-        prev_tiles = None
 
-        for state in path:
-            game.state = state
+        prior = path[0].get_board().get_tiles()
+        initial_pos = 0
+        # compensate (rotate begins at 1) TODO: CHANGE THAT
+        game.make_rotate(1)
+        gg.update(game)
+        
+        # display first state (og problem)
+        gg.display(screen)
+        pygame.display.flip()
+        time.sleep(delay)
+
+        for n in path[1:]:
+            print("n", n)
+
+            curBoard = n.get_board().get_tiles()
+
+            for i in range(initial_pos,len(prior)):
+                if prior[i] == curBoard[i]:
+                    game.make_rotate(-1)
+                    gg.move_left(screen)
+                    pygame.display.flip()
+                    time.sleep(delay)
+                else:
+                    initial_pos = i
+                    break
+
+            game.make_move(1)
+
             gg.update(game)
-
-            curr_tiles = state.get_board().get_tiles()
-            if prev_tiles is not None:
-                differing = {
-                    i for i in range(len(curr_tiles)) if curr_tiles[i] != prev_tiles[i]
-                }
-                highlight = None if len(differing) == len(curr_tiles) else differing
-            else:
-                highlight = None
-            prev_tiles = list(curr_tiles)
-
-            screen.fill((60, 25, 60))
-            gg.display(screen, highlight_indices=highlight)
-            pygame.event.pump()
+            gg.display(screen)
             pygame.display.flip()
-            is_last = state is path[-1]
-            time.sleep(delay * 3 if is_last else delay)
+
+            prior = curBoard
+
+            time.sleep(delay)
 
     # Heuristics
     def heuristic_misplaced(self, state: GameState) -> int:

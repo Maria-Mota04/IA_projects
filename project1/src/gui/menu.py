@@ -22,12 +22,9 @@ class Menu:
         game_running = True
         font = pygame.font.SysFont("arial", 40)
 
-        board = Board(
-            [1, 2, 3, 7, 6, 5, 4, 8, 9, 10, 14, 13, 12, 11, 15, 16, 17, 18, 19, 20]
-        )
-        board.shuffle_board()
-        state = GameState(board)
-        game = Game(state)
+        board = Board(list(range(1, 21)))
+        board.shuffle_few_moves(4)
+        game = Game(GameState(board))
 
         solver = Solver()
         try_again = False
@@ -117,7 +114,7 @@ class Menu:
                                 game_running = False
 
                         # make a new board, for next try
-                        board.shuffle_board()
+                        board.shuffle_few_moves(4)
                         state = GameState(board)
                         game = Game(state)
 
@@ -134,21 +131,17 @@ class Menu:
 
                         # chose an algorithm
                         else:
-                            algo_board = Board(list(range(1, 21)))
-                            algo_board.shuffle_few_moves(4)
-                            algo_game = Game(GameState(algo_board))
-
                             self.screen.fill(self.BG)
                             self.screen.blit(loading_text, (335, 305))
                             pygame.display.update()
 
                             path, stats = solver.solve(
-                                game=algo_game, screen=self.screen, mode=1, strategy=ret
+                                game=game, screen=self.screen, mode=1, strategy=ret
                             )
 
-                            self.display_algo_result(algo_game, path, stats, solver)
+                            self.display_algo_result(game, path, stats, solver)
 
-                            board.shuffle_board()
+                            board.shuffle_few_moves(4)
                             state = GameState(board)
                             game = Game(state)
 
