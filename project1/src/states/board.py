@@ -8,6 +8,7 @@ class Board:
     def __init__(self, tiles: int | List[int], segment_size: int = 4) -> None:
         self._segment_size = segment_size
         self._tiles = list(tiles)
+        self._initial_tiles = list(tiles)
 
     def get_tiles(self) -> List[int]:
         return self._tiles
@@ -60,23 +61,52 @@ class Board:
         print("Board:", " ".join(str(tile) for tile in self._tiles))
 
     def reset_board(self) -> None:
+        self.set_tiles(self._initial_tiles)
+
+    def shuffle_board(self) -> None:
         n = len(self._tiles)
         self._tiles = list(range(1, n + 1))
         self._shuffle_solvable(self._segment_size)
 
+    def shuffle_few_moves(self, n_moves: int = 8) -> None:
+        """Shuffle by applying n_moves random moves from solved state."""
+        import random as _random
+
+        n = len(self._tiles)
+        self._tiles = list(range(1, n + 1))
+        for _ in range(n_moves):
+            start = _random.randrange(n)
+            self.reverse_segment(start, self._segment_size)
+
     @staticmethod
     def is_solvable(board: list[int], segment_size: int) -> bool:
-        inversions = 0
         n = len(board)
+        t = segment_size
+        inversions = 0
+
         for i in range(n):
             for j in range(i + 1, n):
                 if board[i] > board[j]:
                     inversions += 1
 
-        if segment_size % 2 == 0:
-            return inversions % 2 == 0
-        else:
+        if t == 2 and n >= 3:
             return True
+        if n % 2 == 0 and t % 2 == 0:
+            return True
+
+        if n % 2 == 1 and t % 4 in [0, 1]:
+            return False
+        if n % 2 == 0 and t % 2 == 1:
+            return False
+        if n >= 4 and t == n - 1:
+            return False
+
+        if n % 2 == 1 and t % 4 == 3:
+            return True
+        if n % 2 == 1 and t <= n - 2 and t % 4 == 2:
+            return True
+
+        return inversions % 2 == 0
 
     def _shuffle_solvable(self, segment_size: int) -> None:
         while True:

@@ -1,14 +1,19 @@
 import math
+import time
 from typing import Callable, List
+from game.game import Game
+from gui.game_graphics import GameGraphics
 from src.algorithms.search import SearchAlgorithms
 from src.algorithms.search_strategy import SearchStrategy
 from src.states.board import Board
 from src.states.game_state import GameState
 from .game_modes import gameMode
 from src.gui.game_graphics import *
+from src.gui.controls_helper import ControlHelper
 from src.game.game import *
 import pygame
-from src.game.pdb_heuristic import (pattern_state_from_positions)
+from src.game.pdb_heuristic import pattern_state_from_positions
+
 
 class Solver:
 
@@ -28,16 +33,57 @@ class Solver:
             game_running = True
             gg = GameGraphics(game)
 
-            font = pygame.font.SysFont('arial', 40)
-            quit_button = pygame.Rect(30, 30, 85, 50)            
-            quit_text = font.render("Quit", True, (255,255,255))
+            font = pygame.font.SysFont("arial", 40)
+            quit_button = pygame.Rect(30, 30, 85, 50)
+            quit_text = font.render("Quit", True, (255, 255, 255))
+
+            undo_button = pygame.Rect(650, 30, 120, 50)
+            undo_text = font.render("Undo", True, (255, 255, 255))
+
+            control_helper_menu_button = pygame.Rect(650, 500, 50, 50)
+            control_helper_menu_text = font.render("?", True, (255, 255, 255))
+
+            BG = (60, 25, 60)
 
             while game_running:
+                screen.fill(BG)
                 mouse = pygame.mouse.get_pos()
 
-                pygame.draw.rect(screen, (170,170,170) if quit_button.collidepoint(mouse) else (100,100,100), quit_button)
+                pygame.draw.rect(
+                    screen,
+                    (
+                        (170, 170, 170)
+                        if quit_button.collidepoint(mouse)
+                        else (100, 100, 100)
+                    ),
+                    quit_button,
+                )
                 screen.blit(quit_text, (40, 32))
-                
+
+                pygame.draw.rect(
+                    screen,
+                    (
+                        (170, 170, 170)
+                        if undo_button.collidepoint(mouse)
+                        else (100, 100, 100)
+                    ),
+                    undo_button,
+                )
+
+                screen.blit(undo_text, (660, 32))
+
+                pygame.draw.rect(
+                    screen,
+                    (
+                        (170, 170, 170)
+                        if control_helper_menu_button.collidepoint(mouse)
+                        else (100, 100, 100)
+                    ),
+                    control_helper_menu_button,
+                )
+
+                screen.blit(control_helper_menu_text, (660, 502))
+
                 for event in pygame.event.get():
 
                     # event closing the window
@@ -61,13 +107,25 @@ class Solver:
                     if event.type == pygame.MOUSEBUTTONUP:
 
                         # the mouse is in the circle (turn circle)
-                        if(math.sqrt(math.pow(mouse[0]-center_circle[0],2) + math.pow(mouse[1]-center_circle[1],2)) <= radius_circle):
+                        if (
+                            math.sqrt(
+                                math.pow(mouse[0] - center_circle[0], 2)
+                                + math.pow(mouse[1] - center_circle[1], 2)
+                            )
+                            <= radius_circle
+                        ):
                             game.make_move(1)
                             gg.update(game)
-                    
-                        elif(quit_button.collidepoint(mouse)):
+
+                        elif quit_button.collidepoint(mouse):
                             return 1
-            
+                        elif undo_button.collidepoint(mouse):
+                            game.undo_move()
+                            gg.update(game)
+
+                        elif control_helper_menu_button.collidepoint(mouse):
+                            ControlHelper(screen).run()
+                            gg.update(game)
 
                 gg.display(screen)
 
@@ -76,14 +134,20 @@ class Solver:
 
                 pygame.display.flip()
 
-                if(game.won()):
+                if game.won():
                     return 0
 
         if mode != gameMode.SEARCH_ALGORITHM:
             raise ValueError(f"Unsupported game mode: {mode}")
 
+        nodes_explored = [0]
+        _inner_ops = lambda state: self.generate_possible_moves(state, segment_size)
+
+        def operators_func(state):
+            nodes_explored[0] += 1
+            return _inner_ops(state)
+
         goal_state_func = lambda state: state.is_goal()
-        operators_func = lambda state: self.generate_possible_moves(state, segment_size)
 
         heuristic = heuristic_func
         if heuristic is None:
@@ -93,6 +157,7 @@ class Solver:
         kwargs = {"max_cost": max_cost}
 
         if strategy in (
+            SearchStrategy.DFS,
             SearchStrategy.DFS_LIMITED,
             SearchStrategy.ITERATIVE_DEEPENING,
         ):
@@ -106,14 +171,51 @@ class Solver:
             if strategy == SearchStrategy.WEIGHTED_A_STAR:
                 kwargs["w"] = weight
 
+        t0 = time.time()
         result = SearchAlgorithms.search(strategy, *args, **kwargs)
+        elapsed = time.time() - t0
 
-        if mode == gameMode.SEARCH_ALGORITHM and result is not None:
-            game.set_board_state(result.state)
+        if result is None:
+            return None, {
+                "nodes": nodes_explored[0],
+                "time": elapsed,
+                "depth": 0,
+                "found": False,
+            }
 
-        return result
+        path = SearchAlgorithms.extract_path(result)
+        stats = {
+            "nodes": nodes_explored[0],
+            "time": elapsed,
+            "depth": len(path) - 1,
+            "found": True,
+        }
+        return path, stats
 
-        
+    def animate_path(self, game: Game, screen, path, delay=1.0):
+        gg = GameGraphics(game)
+        prev_tiles = None
+
+        for state in path:
+            game.state = state
+            gg.update(game)
+
+            curr_tiles = state.get_board().get_tiles()
+            if prev_tiles is not None:
+                differing = {
+                    i for i in range(len(curr_tiles)) if curr_tiles[i] != prev_tiles[i]
+                }
+                highlight = None if len(differing) == len(curr_tiles) else differing
+            else:
+                highlight = None
+            prev_tiles = list(curr_tiles)
+
+            screen.fill((60, 25, 60))
+            gg.display(screen, highlight_indices=highlight)
+            pygame.event.pump()
+            pygame.display.flip()
+            is_last = state is path[-1]
+            time.sleep(delay * 3 if is_last else delay)
 
     # Heuristics
     def heuristic_misplaced(self, state: GameState) -> int:

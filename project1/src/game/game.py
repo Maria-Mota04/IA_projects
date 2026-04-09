@@ -62,7 +62,9 @@ class Game:
         self._game_stats.history.append(f"rotate({steps})")
 
     def undo_move(self) -> None:
-        self.state = self._last_state
+        if self._last_state is not None:
+            self.state = self._last_state
+            self._last_state = None
 
     # Utils
 

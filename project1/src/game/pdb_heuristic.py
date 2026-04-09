@@ -32,8 +32,6 @@ def generate_pdb(n, k, num_pieces):
     pdb = {start_state: 0}
     queue = deque([start_state])
 
-    print(f"[PDB] Generating (N={n}, K={k}, pieces={num_pieces})...")
-
     while queue:
         curr = queue.popleft()
         dist = pdb[curr]
@@ -43,14 +41,12 @@ def generate_pdb(n, k, num_pieces):
                 pdb[nxt] = dist + 1
                 queue.append(nxt)
 
-    print(f"[PDB] Done: {len(pdb)} states")
     return pdb
 
 
 def build_patterns(n, group_size=5):
     return [
-        list(range(i, min(i + group_size, n + 1)))
-        for i in range(1, n + 1, group_size)
+        list(range(i, min(i + group_size, n + 1))) for i in range(1, n + 1, group_size)
     ]
 
 
