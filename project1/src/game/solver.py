@@ -113,7 +113,8 @@ class Solver:
                             <= radius_circle
                         ):
                             game.make_move(1)
-                            gg.update(game)
+                            #gg.update(game)
+                            gg.flip_disks(screen)
 
                         elif quit_button.collidepoint(mouse):
                             return 1
@@ -211,7 +212,6 @@ class Solver:
 
             for i in range(initial_pos,len(prior)):
                 if prior[i] == curBoard[i]:
-                    game.make_rotate(-1)
                     gg.move_left(screen)
                     pygame.display.flip()
                     time.sleep(delay)
@@ -219,9 +219,7 @@ class Solver:
                     initial_pos = i
                     break
 
-            game.make_move(1)
-
-            gg.update(game)
+            gg.flip_disks(screen)
             gg.display(screen)
             pygame.display.flip()
 

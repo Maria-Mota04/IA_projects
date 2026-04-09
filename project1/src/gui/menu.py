@@ -5,7 +5,7 @@ from src.states.board import Board
 from src.states.game_state import GameState
 from src.utils.leaderboard import Leaderboard
 import time
-
+import copy
 
 class Menu:
     def __init__(self, screen):
@@ -22,8 +22,9 @@ class Menu:
         game_running = True
         font = pygame.font.SysFont("arial", 40)
 
-        board = Board(list(range(1, 21)))
-        board.shuffle_few_moves(4)
+        #board = Board(list(range(1, 21)))
+        #board.shuffle_few_moves(4)
+        board = Board([1,2,3,7,6,5,4,8,9,10,14,13,12,11,15,16,17,18,19,20])
         game = Game(GameState(board))
 
         solver = Solver()
@@ -284,7 +285,9 @@ class Menu:
 
             pygame.display.update()
 
-    def display_algo_result(self, game, path, stats, solver):
+    def display_algo_result(self, game: Game, path, stats, solver):
+        og_game = copy.deepcopy(game)
+
         font = pygame.font.SysFont("arial", 30)
         title_font = pygame.font.SysFont("arial", 40)
         small_font = pygame.font.SysFont("arial", 24)
@@ -369,6 +372,7 @@ class Menu:
                         if step_button.collidepoint(mouse):
                             _, delay = speed_options[selected_speed]
                             solver.animate_path(game, self.screen, path, delay=delay)
+                            game = copy.deepcopy(og_game)
 
             pygame.display.update()
 

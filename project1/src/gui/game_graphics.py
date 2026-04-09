@@ -154,7 +154,6 @@ class GameGraphics:
             distances.append(d)
 
         for _ in range(steps):
-            screen.fill((60,25,60))
 
             for i in range(len(self.pieces)):
                 distances[i] = (distances[i] + move_amount) % total_len
@@ -169,3 +168,27 @@ class GameGraphics:
             self.pieces = [self.pieces[-1]] + self.pieces[:-1]
         else:  # left
             self.pieces = self.pieces[1:] + [self.pieces[0]]
+
+    def flip_disks(self, screen):
+        steps = 15
+
+        for _ in range(steps):
+            for j in range(1,self.turn_size+1):
+                x, y = self.pieces[j].position
+
+                # Translate to origin
+                rel_x = x - self.center_circle[0]
+                rel_y = y - self.center_circle[1]
+
+                # Rotate
+                new_x = rel_x * math.cos(math.pi/steps) - rel_y * math.sin(math.pi/steps)
+                new_y = rel_x * math.sin(math.pi/steps) + rel_y * math.cos(math.pi/steps)
+
+                # Translate back
+                self.pieces[j].position = [int(self.center_circle[0] + new_x), int(self.center_circle[1] + new_y)]
+
+            self.display(screen)
+            pygame.display.flip()
+            pygame.time.delay(15)
+
+        self.pieces = [self.pieces[0]] + self.pieces[1:self.turn_size+1][::-1] + self.pieces[self.turn_size+1:]
