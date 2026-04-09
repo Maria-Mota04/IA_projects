@@ -217,7 +217,6 @@ class Solver:
                     initial_pos = i
                     break
 
-            print("here")
             gg.flip_disks(screen)
             gg.display(screen)
             pygame.display.flip()
@@ -225,8 +224,7 @@ class Solver:
             prior = curBoard
 
             time.sleep(delay)
-        print("end")
-
+            
     # Heuristics
     def heuristic_misplaced(self, state: GameState) -> int:
         board = state.get_board()

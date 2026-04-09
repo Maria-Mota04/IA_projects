@@ -39,7 +39,6 @@ class Piece:
 class GameGraphics:
     def __init__(self, game: Game):
         self.update(game)
-        print(self.pieces)
         self.turn_size = game.get_segment_size()
         self.initial = [0,0]
         self.diameter = (self.pieces)[1].get_radius() * (self.turn_size-1) + self.spacing * (self.turn_size -1)
