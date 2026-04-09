@@ -18,7 +18,6 @@ class Menu:
         self.BG = (60, 25, 60)
 
     def run(self):
-        n = 20
         game_running = True
         font = pygame.font.SysFont("arial", 40)
 
@@ -92,11 +91,15 @@ class Menu:
                                 game._game_stats.moves,
                                 game.get_game_time(),
                             )
-                            self.display_win(game)
+                            
+                            if self.display_win(game) == -1:
+                                game_running = False
+                                break
 
                         # pressed x
                         elif ret == -1:
                             game_running = False
+                            break
 
                         # pressed quit button
                         else:
@@ -113,6 +116,7 @@ class Menu:
                             # pressed x
                             if ret1 == -1:
                                 game_running = False
+                                break
 
                             # pressed back to main menu
                             elif ret1 == 1:
@@ -124,11 +128,13 @@ class Menu:
                         game = Game(state)
 
                     if ia_button.collidepoint(mouse):
+                        print("this?")
                         ret = self.display_algorithm_choice()
 
                         # pressed x
                         if ret == -1:
                             game_running = False
+                            break
 
                         # pressed go back
                         elif ret == -2:
@@ -144,7 +150,9 @@ class Menu:
                                 game=game, screen=self.screen, mode=1, strategy=ret
                             )
 
-                            self.display_algo_result(game, path, stats, solver)
+                            if(self.display_algo_result(game, path, stats, solver) == -1):
+                                game_running = False
+                                break
 
                             board.shuffle_few_moves(4)
                             state = GameState(board)
@@ -365,7 +373,7 @@ class Menu:
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
-                    return
+                    return -1
                 if event.type == pygame.MOUSEBUTTONUP:
                     if back_button.collidepoint(mouse):
                         return
@@ -421,12 +429,14 @@ class Menu:
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
-                    return
+                    return -1
                 if event.type == pygame.MOUSEBUTTONUP:
                     if stats_button.collidepoint(mouse) and game is not None:
-                        self.display_stats(game)
+                        if self.display_stats(game) == -1:
+                            return -1
                     elif leaderboard_button.collidepoint(mouse):
-                        self.display_leaderboard()
+                        if self.display_leaderboard() == -1:
+                            return -1
                     elif continue_button.collidepoint(mouse):
                         return
 
@@ -476,7 +486,7 @@ class Menu:
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
-                    return
+                    return -1
                 if event.type == pygame.MOUSEBUTTONUP:
                     if back_button.collidepoint(mouse):
                         return
@@ -520,7 +530,7 @@ class Menu:
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
-                    return
+                    return -1
 
                 if event.type == pygame.MOUSEBUTTONUP:
                     if back_button.collidepoint(mouse):
