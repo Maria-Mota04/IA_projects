@@ -120,12 +120,19 @@ class Menu:
 
                         # chose an algorithm
                         else:
+                            algo_board = Board(list(range(1, 21)))
+                            algo_board.shuffle_few_moves(4)
+                            algo_game = Game(GameState(algo_board))
+
                             self.screen.fill(self.BG)
                             self.screen.blit(loading_text, (335, 305))
                             pygame.display.update()
-                            solver.solve(
-                                game=game, screen=self.screen, mode=1, strategy=ret
+
+                            path, stats = solver.solve(
+                                game=algo_game, screen=self.screen, mode=1, strategy=ret
                             )
+
+                            self.display_algo_result(algo_game, path, stats, solver)
 
                             board.shuffle_board()
                             state = GameState(board)
@@ -267,35 +274,103 @@ class Menu:
 
             pygame.display.update()
 
+    def display_algo_result(self, game, path, stats, solver):
+        font = pygame.font.SysFont("arial", 30)
+        title_font = pygame.font.SysFont("arial", 40)
+
+        back_button = pygame.Rect(30, 30, 85, 50)
+        back_text = font.render("Back", True, self.WHITE)
+
+        step_button = pygame.Rect(270, 460, 250, 50)
+        step_text = font.render("Show Step by Step", True, self.WHITE)
+
+        if stats["found"]:
+            labels = [
+                f"Solution found!",
+                f"Nodes explored: {stats['nodes']}",
+                f"Solution depth: {stats['depth']}",
+                f"Time: {stats['time']:.3f}s",
+            ]
+        else:
+            labels = [
+                "No solution found.",
+                f"Nodes explored: {stats['nodes']}",
+                f"Time: {stats['time']:.3f}s",
+            ]
+
+        while True:
+            self.screen.fill(self.BG)
+            mouse = pygame.mouse.get_pos()
+
+            title = title_font.render("Algorithm Result", True, self.WHITE)
+            self.screen.blit(title, (220, 100))
+
+            for i, label in enumerate(labels):
+                text = font.render(label, True, self.WHITE)
+                self.screen.blit(text, (240, 180 + i * 50))
+
+            pygame.draw.rect(
+                self.screen,
+                self.LIGHT if back_button.collidepoint(mouse) else self.DARK,
+                back_button,
+            )
+            self.screen.blit(back_text, (35, 38))
+
+            if stats["found"] and path:
+                pygame.draw.rect(
+                    self.screen,
+                    self.LIGHT if step_button.collidepoint(mouse) else self.DARK,
+                    step_button,
+                )
+                self.screen.blit(step_text, (278, 467))
+
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    return
+                if event.type == pygame.MOUSEBUTTONUP:
+                    if back_button.collidepoint(mouse):
+                        return
+                    if stats["found"] and path and step_button.collidepoint(mouse):
+                        solver.animate_path(game, self.screen, path)
+
+            pygame.display.update()
+
     def display_win(self, game=None):
         font = pygame.font.SysFont("arial", 40)
         win_text = font.render("YOU WIN!", True, (255, 255, 255))
 
-        stats_button = pygame.Rect(300, 340, 160, 50)
+        stats_button = pygame.Rect(270, 320, 200, 50)
         stats_text = font.render("Stats", True, self.WHITE)
+        continue_button = pygame.Rect(270, 390, 200, 50)
+        continue_text = font.render("Continue", True, self.WHITE)
 
-        game_running = True
-        while game_running:
+        while True:
             self.screen.fill(self.BG)
             mouse = pygame.mouse.get_pos()
 
-            self.screen.blit(win_text, (310, 240))
+            self.screen.blit(win_text, (310, 220))
 
             pygame.draw.rect(
                 self.screen,
                 self.LIGHT if stats_button.collidepoint(mouse) else self.DARK,
                 stats_button,
             )
-            self.screen.blit(stats_text, (352, 347))
+            self.screen.blit(stats_text, (340, 327))
+
+            pygame.draw.rect(
+                self.screen,
+                self.LIGHT if continue_button.collidepoint(mouse) else self.DARK,
+                continue_button,
+            )
+            self.screen.blit(continue_text, (310, 397))
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     return
-
                 if event.type == pygame.MOUSEBUTTONUP:
                     if stats_button.collidepoint(mouse) and game is not None:
                         self.display_stats(game)
-                    else:
+                    elif continue_button.collidepoint(mouse):
                         return
 
             pygame.display.update()

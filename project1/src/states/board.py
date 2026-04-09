@@ -68,6 +68,16 @@ class Board:
         self._tiles = list(range(1, n + 1))
         self._shuffle_solvable(self._segment_size)
 
+    def shuffle_few_moves(self, n_moves: int = 8) -> None:
+        """Shuffle by applying n_moves random moves from solved state."""
+        import random as _random
+
+        n = len(self._tiles)
+        self._tiles = list(range(1, n + 1))
+        for _ in range(n_moves):
+            start = _random.randrange(n)
+            self.reverse_segment(start, self._segment_size)
+
     @staticmethod
     def is_solvable(board: list[int], segment_size: int) -> bool:
         n = len(board)

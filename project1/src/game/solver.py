@@ -138,8 +138,14 @@ class Solver:
         if mode != gameMode.SEARCH_ALGORITHM:
             raise ValueError(f"Unsupported game mode: {mode}")
 
+        nodes_explored = [0]
+        _inner_ops = lambda state: self.generate_possible_moves(state, segment_size)
+
+        def operators_func(state):
+            nodes_explored[0] += 1
+            return _inner_ops(state)
+
         goal_state_func = lambda state: state.is_goal()
-        operators_func = lambda state: self.generate_possible_moves(state, segment_size)
 
         heuristic = heuristic_func
         if heuristic is None:
@@ -162,48 +168,37 @@ class Solver:
             if strategy == SearchStrategy.WEIGHTED_A_STAR:
                 kwargs["w"] = weight
 
+        t0 = time.time()
         result = SearchAlgorithms.search(strategy, *args, **kwargs)
+        elapsed = time.time() - t0
+
+        if result is None:
+            return None, {
+                "nodes": nodes_explored[0],
+                "time": elapsed,
+                "depth": 0,
+                "found": False,
+            }
 
         path = SearchAlgorithms.extract_path(result)
+        stats = {
+            "nodes": nodes_explored[0],
+            "time": elapsed,
+            "depth": len(path) - 1,
+            "found": True,
+        }
+        return path, stats
 
+    def animate_path(self, game: Game, screen, path):
         gg = GameGraphics(game)
-
-        # display first state (og problem)
-        gg.display(screen)
-        pygame.display.flip()
-        time.sleep(1)
-
-        prior = path[0].get_board().get_tiles()
-        initial_pos = 0
-        game.make_rotate(1)
-
-        for n in path[1:]:
-
-            curBoard = n.get_board().get_tiles()
-
-            for i in range(initial_pos, len(prior)):
-                if prior[i] == curBoard[i]:
-                    game.make_rotate(-1)
-
-                    print(game.get_board_state().get_board().get_tiles())
-                    gg.update(game)
-                    gg.display(screen)
-                    pygame.display.flip()
-                    time.sleep(1)
-                else:
-                    initial_pos = i
-                    break
-
-            time.sleep(1)
-            game.make_move(1)
-
+        for state in path:
+            game.state = state
             gg.update(game)
+            screen.fill((60, 25, 60))
             gg.display(screen)
+            pygame.event.pump()
             pygame.display.flip()
-
-            prior = curBoard
-
-            time.sleep(2)
+            time.sleep(1)
 
     # Heuristics
     def heuristic_misplaced(self, state: GameState) -> int:

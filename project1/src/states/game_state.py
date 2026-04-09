@@ -35,14 +35,10 @@ class GameState:
     def move(func) -> Callable:
 
         def wrapper(self, *args, **kwargs) -> GameState | None:
-            new_state = GameState(
-                Board(self._board.get_tiles()), list(self._move_history)
-            )
+            new_state = GameState(Board(self._board.get_tiles()))
 
             value = func(new_state, *args, **kwargs)
             if value:
-                if args:
-                    new_state._move_history.append(args[0])
                 return new_state
             else:
                 return None
