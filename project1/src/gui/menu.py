@@ -371,6 +371,7 @@ class Menu:
                                 selected_speed = i
                         if step_button.collidepoint(mouse):
                             _, delay = speed_options[selected_speed]
+                            self.screen.fill(self.BG)
                             solver.animate_path(game, self.screen, path, delay=delay)
                             game = copy.deepcopy(og_game)
 

@@ -197,8 +197,7 @@ class Solver:
         prior = path[0].get_board().get_tiles()
         initial_pos = 0
         # compensate (rotate begins at 1) TODO: CHANGE THAT
-        game.make_rotate(1)
-        gg.update(game)
+        gg.alter_pieces(1)
         
         # display first state (og problem)
         gg.display(screen)
@@ -206,7 +205,6 @@ class Solver:
         time.sleep(delay)
 
         for n in path[1:]:
-            print("n", n)
 
             curBoard = n.get_board().get_tiles()
 
@@ -219,6 +217,7 @@ class Solver:
                     initial_pos = i
                     break
 
+            print("here")
             gg.flip_disks(screen)
             gg.display(screen)
             pygame.display.flip()
@@ -226,6 +225,7 @@ class Solver:
             prior = curBoard
 
             time.sleep(delay)
+        print("end")
 
     # Heuristics
     def heuristic_misplaced(self, state: GameState) -> int:

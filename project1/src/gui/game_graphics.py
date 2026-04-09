@@ -39,6 +39,7 @@ class Piece:
 class GameGraphics:
     def __init__(self, game: Game):
         self.update(game)
+        print(self.pieces)
         self.turn_size = game.get_segment_size()
         self.initial = [0,0]
         self.diameter = (self.pieces)[1].get_radius() * (self.turn_size-1) + self.spacing * (self.turn_size -1)
@@ -49,6 +50,14 @@ class GameGraphics:
     
     def get_radius_circle(self):
         return self.diameter / 2 - 5
+    
+    def alter_pieces(self, direction):
+        if direction == 1:  # right
+            self.pieces = [self.pieces[-1]] + self.pieces[:-1]
+        else:  # left
+            self.pieces = self.pieces[1:] + [self.pieces[0]]
+
+        self.update_pieces_position()
 
     def get_position_on_track(self, d, cx, cy, width, r):
 
@@ -92,8 +101,16 @@ class GameGraphics:
         self.pieces = []
         radius = 30
 
-        num = game.get_board_state().get_board().get_tiles()
-        total = len(num)
+        tiles = game.get_board_state().get_board().get_tiles()
+        total = len(tiles)
+
+        for i in range(total):
+            self.pieces.append(Piece([0,0], tiles[i], radius))
+
+        self.update_pieces_position()
+
+    def update_pieces_position(self):
+        total = len(self.pieces)
 
         cx, cy = 400, 300
         width = 350
@@ -107,7 +124,7 @@ class GameGraphics:
         for i in range(total):
             d = i * self.spacing
             x, y = self.get_position_on_track(d, cx, cy, width, r)
-            self.pieces.append(Piece([int(x), int(y)], num[i], radius))
+            self.pieces[i].position = [x,y]
 
     def display(self, screen, highlight_indices=None):
         # grey background
@@ -164,10 +181,7 @@ class GameGraphics:
             pygame.display.flip()
             pygame.time.delay(15)
 
-        if direction == 1:  # right
-            self.pieces = [self.pieces[-1]] + self.pieces[:-1]
-        else:  # left
-            self.pieces = self.pieces[1:] + [self.pieces[0]]
+        self.alter_pieces(direction)
 
     def flip_disks(self, screen):
         steps = 15
