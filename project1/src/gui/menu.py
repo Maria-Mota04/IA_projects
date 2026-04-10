@@ -5,7 +5,7 @@ from src.states.board import Board
 from src.states.game_state import GameState
 from src.utils.leaderboard import Leaderboard
 import time
-
+import copy
 
 class Menu:
     def __init__(self, screen):
@@ -18,16 +18,13 @@ class Menu:
         self.BG = (60, 25, 60)
 
     def run(self):
-        n = 20
         game_running = True
         font = pygame.font.SysFont("arial", 40)
 
-        board = Board(
-            [1, 2, 3, 7, 6, 5, 4, 8, 9, 10, 14, 13, 12, 11, 15, 16, 17, 18, 19, 20]
-        )
-        board.shuffle_board()
-        state = GameState(board)
-        game = Game(state)
+        #board = Board(list(range(1, 21)))
+        #board.shuffle_few_moves(4)
+        board = Board([2, 1, 20, 4, 5, 6, 7, 8, 9, 10, 11, 12, 16, 15, 18, 17, 13, 14, 19, 3])
+        game = Game(GameState(board))
 
         solver = Solver()
         try_again = False
@@ -94,11 +91,15 @@ class Menu:
                                 game._game_stats.moves,
                                 game.get_game_time(),
                             )
-                            self.display_win(game)
+                            
+                            if self.display_win(game) == -1:
+                                game_running = False
+                                break
 
                         # pressed x
                         elif ret == -1:
                             game_running = False
+                            break
 
                         # pressed quit button
                         else:
@@ -115,9 +116,14 @@ class Menu:
                             # pressed x
                             if ret1 == -1:
                                 game_running = False
+                                break
+
+                            # pressed back to main menu
+                            elif ret1 == 1:
+                                continue
 
                         # make a new board, for next try
-                        board.shuffle_board()
+                        board.shuffle_few_moves(4)
                         state = GameState(board)
                         game = Game(state)
 
@@ -127,6 +133,7 @@ class Menu:
                         # pressed x
                         if ret == -1:
                             game_running = False
+                            break
 
                         # pressed go back
                         elif ret == -2:
@@ -134,21 +141,19 @@ class Menu:
 
                         # chose an algorithm
                         else:
-                            algo_board = Board(list(range(1, 21)))
-                            algo_board.shuffle_few_moves(4)
-                            algo_game = Game(GameState(algo_board))
-
                             self.screen.fill(self.BG)
                             self.screen.blit(loading_text, (335, 305))
                             pygame.display.update()
 
                             path, stats = solver.solve(
-                                game=algo_game, screen=self.screen, mode=1, strategy=ret
+                                game=game, screen=self.screen, mode=1, strategy=ret
                             )
 
-                            self.display_algo_result(algo_game, path, stats, solver)
+                            if(self.display_algo_result(game, path, stats, solver) == -1):
+                                game_running = False
+                                break
 
-                            board.shuffle_board()
+                            board.shuffle_few_moves(4)
                             state = GameState(board)
                             game = Game(state)
 
@@ -291,7 +296,9 @@ class Menu:
 
             pygame.display.update()
 
-    def display_algo_result(self, game, path, stats, solver):
+    def display_algo_result(self, game: Game, path, stats, solver):
+        og_game = copy.deepcopy(game)
+
         font = pygame.font.SysFont("arial", 30)
         title_font = pygame.font.SysFont("arial", 40)
         small_font = pygame.font.SysFont("arial", 24)
@@ -365,7 +372,7 @@ class Menu:
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
-                    return
+                    return -1
                 if event.type == pygame.MOUSEBUTTONUP:
                     if back_button.collidepoint(mouse):
                         return
@@ -375,7 +382,9 @@ class Menu:
                                 selected_speed = i
                         if step_button.collidepoint(mouse):
                             _, delay = speed_options[selected_speed]
+                            self.screen.fill(self.BG)
                             solver.animate_path(game, self.screen, path, delay=delay)
+                            game = copy.deepcopy(og_game)
 
             pygame.display.update()
 
@@ -419,12 +428,14 @@ class Menu:
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
-                    return
+                    return -1
                 if event.type == pygame.MOUSEBUTTONUP:
                     if stats_button.collidepoint(mouse) and game is not None:
-                        self.display_stats(game)
+                        if self.display_stats(game) == -1:
+                            return -1
                     elif leaderboard_button.collidepoint(mouse):
-                        self.display_leaderboard()
+                        if self.display_leaderboard() == -1:
+                            return -1
                     elif continue_button.collidepoint(mouse):
                         return
 
@@ -474,7 +485,7 @@ class Menu:
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
-                    return
+                    return -1
                 if event.type == pygame.MOUSEBUTTONUP:
                     if back_button.collidepoint(mouse):
                         return
@@ -518,7 +529,7 @@ class Menu:
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
-                    return
+                    return -1
 
                 if event.type == pygame.MOUSEBUTTONUP:
                     if back_button.collidepoint(mouse):

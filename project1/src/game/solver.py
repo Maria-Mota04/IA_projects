@@ -8,9 +8,7 @@ from src.algorithms.search_strategy import SearchStrategy
 from src.states.board import Board
 from src.states.game_state import GameState
 from .game_modes import gameMode
-from src.gui.game_graphics import *
 from src.gui.controls_helper import ControlHelper
-from src.game.game import *
 import pygame
 from src.game.pdb_heuristic import pattern_state_from_positions
 
@@ -240,7 +238,6 @@ class Solver:
             is_last = state is path[-1]
             time.sleep(delay * 3 if is_last else delay)
 
-    # Heuristics
     def heuristic_misplaced(self, state: GameState) -> int:
         board = state.get_board()
         tiles = board.get_tiles()
@@ -311,7 +308,6 @@ class Solver:
 
         return best
 
-    # Move generator
     def generate_possible_moves(
         self, state: GameState, segment_size: int
     ) -> List[tuple[GameState, int]]:
@@ -329,13 +325,12 @@ class Solver:
 
         return moves
 
-    # Next best move
     def next_best_move(
-    self,
-    state: GameState,
-    segment_size: int = 4,
-    heuristic_func: Callable[[GameState], float] | None = None,
-) -> GameState | None:
+        self,
+        state: GameState,
+        segment_size: int = 4,
+        heuristic_func: Callable[[GameState], float] | None = None,
+    ) -> GameState | None:
         if heuristic_func is None:
             heuristic_func = self.heuristic_misplaced
 
@@ -355,7 +350,6 @@ class Solver:
 
         return best_state
 
-    # Utils
     def get_move_cost(self, move: int) -> int:
         _ = move
         return 1
