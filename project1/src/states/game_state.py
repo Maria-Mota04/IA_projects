@@ -53,6 +53,7 @@ class GameState:
         self.reverse_segment(move, segment_size)
         return self
 
+    @move
     def apply_rotate(self, steps: int = 1) -> GameState:
         self.rotate_wheel(steps)
         return self
