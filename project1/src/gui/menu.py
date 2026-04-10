@@ -604,6 +604,8 @@ class Menu:
         i_string = ""
         max_size = 20
 
+        shift = False
+
         while(game_running):
             self.screen.fill(self.BG)
             rendered_text = i_string
@@ -619,10 +621,21 @@ class Menu:
                     return -1
                 
                 if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_BACKSPACE and len(i_string)>0:
+                    if event.key == pygame.K_BACKSPACE:
                         i_string = i_string[:-1]
+                    elif event.key == pygame.K_RSHIFT or event.key == pygame.K_LSHIFT:
+                        shift = True
+                    elif shift:
+                        if event.key == pygame.K_MINUS:
+                            i_string += "_"
+                        else:
+                            i_string += pygame.key.name(event.key).upper()
                     else:
                         i_string += pygame.key.name(event.key)
+
+                if event.type == pygame.KEYUP:
+                    if event.key == pygame.K_RSHIFT or event.key == pygame.K_LSHIFT:
+                        shift = False
 
             pygame.display.update()
 
