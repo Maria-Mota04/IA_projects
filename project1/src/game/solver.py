@@ -1,14 +1,14 @@
 import math
 import time
 from typing import Callable, List
-from src.game.game import Game
-from src.gui.game_graphics import GameGraphics
 from src.algorithms.search import SearchAlgorithms
 from src.algorithms.search_strategy import SearchStrategy
 from src.states.board import Board
 from src.states.game_state import GameState
 from .game_modes import gameMode
+from src.gui.game_graphics import *
 from src.gui.controls_helper import ControlHelper
+from src.game.game import *
 import pygame
 from src.game.pdb_heuristic import pattern_state_from_positions
 
@@ -42,11 +42,11 @@ class Solver:
             undo_button = pygame.Rect(650, 30, 120, 50)
             undo_text = font.render("Undo", True, (255, 255, 255))
 
-            hint_button = pygame.Rect(500, 30, 120, 50)
-            hint_text = font.render("Hint", True, (255, 255, 255))
-
             control_helper_menu_button = pygame.Rect(650, 500, 50, 50)
             control_helper_menu_text = font.render("?", True, (255, 255, 255))
+
+            hint_button = pygame.Rect(500, 30, 120, 50)
+            hint_text = font.render("Hint", True, (255, 255, 255))            
 
             BG = (60, 25, 60)
 
@@ -74,18 +74,8 @@ class Solver:
                     ),
                     undo_button,
                 )
-                screen.blit(undo_text, (660, 32))
 
-                pygame.draw.rect(
-                    screen,
-                    (
-                        (170, 170, 170)
-                        if hint_button.collidepoint(mouse)
-                        else (100, 100, 100)
-                    ),
-                    hint_button,
-                )
-                screen.blit(hint_text, (520, 32))
+                screen.blit(undo_text, (660, 32))
 
                 pygame.draw.rect(
                     screen,
@@ -96,25 +86,32 @@ class Solver:
                     ),
                     control_helper_menu_button,
                 )
+
                 screen.blit(control_helper_menu_text, (660, 502))
 
                 for event in pygame.event.get():
 
+                    # event closing the window
                     if event.type == pygame.QUIT:
                         game_running = False
                         return -1
 
+                    # event a key is pushed
                     if event.type == pygame.KEYDOWN:
+                        # right key
                         if event.key == pygame.K_RIGHT:
                             game.make_rotate(1)
-                            gg.update(game)
+                            gg.move_right(screen)
 
+                        # left key
                         if event.key == pygame.K_LEFT:
                             game.make_rotate(-1)
-                            gg.update(game)
+                            gg.move_left(screen)
 
+                    # event is a mouse click
                     if event.type == pygame.MOUSEBUTTONUP:
 
+                        # the mouse is in the circle (turn circle)
                         if (
                             math.sqrt(
                                 math.pow(mouse[0] - center_circle[0], 2)
@@ -123,26 +120,14 @@ class Solver:
                             <= radius_circle
                         ):
                             game.make_move(1)
-                            gg.update(game)
+                            #gg.update(game)
+                            gg.flip_disks(screen)
 
                         elif quit_button.collidepoint(mouse):
                             return 1
-
                         elif undo_button.collidepoint(mouse):
                             game.undo_move()
                             gg.update(game)
-
-                        elif hint_button.collidepoint(mouse):
-                            current_state = game.get_board_state()
-                            current_segment_size = game.get_segment_size()
-                            hinted_state = self.next_best_move(
-                                current_state,
-                                segment_size=current_segment_size,
-                            )
-
-                            if hinted_state is not None:
-                                game.set_board_state(hinted_state)
-                                gg.update(game)
 
                         elif control_helper_menu_button.collidepoint(mouse):
                             ControlHelper(screen).run()
@@ -215,29 +200,58 @@ class Solver:
 
     def animate_path(self, game: Game, screen, path, delay=1.0):
         gg = GameGraphics(game)
-        prev_tiles = None
 
-        for state in path:
-            game.state = state
-            gg.update(game)
+        prior = path[0].get_board().get_tiles()
+        initial_pos = 0
+        # compensate (rotate begins at 1)
+        gg.alter_pieces(1)
+        
+        # display first state (og problem)
+        gg.display(screen)
+        pygame.display.flip()
+        time.sleep(delay)
 
-            curr_tiles = state.get_board().get_tiles()
-            if prev_tiles is not None:
-                differing = {
-                    i for i in range(len(curr_tiles)) if curr_tiles[i] != prev_tiles[i]
-                }
-                highlight = None if len(differing) == len(curr_tiles) else differing
-            else:
-                highlight = None
-            prev_tiles = list(curr_tiles)
+        for n in path[1:]:
+            curBoard = n.get_board().get_tiles()
 
-            screen.fill((60, 25, 60))
-            gg.display(screen, highlight_indices=highlight)
-            pygame.event.pump()
+            print("board: ", curBoard)
+
+            for i in range(initial_pos,len(prior)):
+                if prior[i] == curBoard[i]:
+                    gg.move_left(screen)
+                    print("showing:", end=" ")
+                    for p in gg.pieces:
+                        print(p.num, end=" ")
+
+                    print("end")
+                    pygame.display.flip()
+                    time.sleep(delay)
+                else:
+                    different = True
+                    j = 1
+
+                    while different:
+                        print("compare: ", prior[i-j], " ", curBoard[i-j])
+                        print("index.", i-j)
+                        if prior[i-j] == curBoard[i-j]:
+                            different = False
+                        else:
+                            gg.move_right(screen)
+                            j += 1
+                            time.sleep(delay)
+
+                    initial_pos = i - j +1
+                    break
+
+            gg.flip_disks(screen)
+            gg.display(screen)
             pygame.display.flip()
-            is_last = state is path[-1]
-            time.sleep(delay * 3 if is_last else delay)
 
+            prior = curBoard
+
+            time.sleep(delay)
+
+    # Heuristics
     def heuristic_misplaced(self, state: GameState) -> int:
         board = state.get_board()
         tiles = board.get_tiles()
@@ -308,6 +322,7 @@ class Solver:
 
         return best
 
+    # Move generator
     def generate_possible_moves(
         self, state: GameState, segment_size: int
     ) -> List[tuple[GameState, int]]:
@@ -319,18 +334,18 @@ class Solver:
             if new_state is not None:
                 moves.append((new_state, self.get_move_cost(reverse_start)))
 
-        rotated_state = state.apply_rotate(1)
-        if rotated_state is not None:
-            moves.append((rotated_state, self.get_move_cost(-1)))
+        rotated_state = GameState(Board(state.get_board().get_tiles())).apply_rotate(1)
+        moves.append((rotated_state, self.get_move_cost(-1)))
 
         return moves
 
+    # Next best move
     def next_best_move(
-        self,
-        state: GameState,
-        segment_size: int = 4,
-        heuristic_func: Callable[[GameState], float] | None = None,
-    ) -> GameState | None:
+    self,
+    state: GameState,
+    segment_size: int = 4,
+    heuristic_func: Callable[[GameState], float] | None = None,
+) -> GameState | None:
         if heuristic_func is None:
             heuristic_func = self.heuristic_misplaced
 
@@ -350,6 +365,7 @@ class Solver:
 
         return best_state
 
+    # Utils
     def get_move_cost(self, move: int) -> int:
         _ = move
         return 1
