@@ -29,14 +29,16 @@ class Menu:
         solver = Solver()
         try_again = False
 
-        play_button = pygame.Rect(300, 260, 140, 50)
-        ia_button = pygame.Rect(300, 330, 140, 50)
-        leaderboard_button = pygame.Rect(300, 400, 140, 50)
+        play_button = pygame.Rect(300, 190, 140, 50)
+        ia_button = pygame.Rect(300, 260, 140, 50)
+        leaderboard_button = pygame.Rect(300, 330, 140, 50)
+        read_file_button = pygame.Rect(300, 400, 140, 50)
         quit_button = pygame.Rect(300, 470, 140, 50)
 
         play_text = font.render("Play", True, self.WHITE)
         ia_text = font.render("Algorithms", True, self.WHITE)
         leaderboard_text = font.render("Leaderboard", True, self.WHITE)
+        read_file_text = font.render("Read from File", True, self.WHITE)
         quit_text = font.render("Quit", True, self.WHITE)
 
         loading_text = font.render("Loading...", True, self.WHITE)
@@ -62,13 +64,19 @@ class Menu:
             )
             pygame.draw.rect(
                 self.screen,
+                self.LIGHT if read_file_button.collidepoint(mouse) else self.DARK,
+                read_file_button,
+            )
+            pygame.draw.rect(
+                self.screen,
                 self.LIGHT if quit_button.collidepoint(mouse) else self.DARK,
                 quit_button,
             )
 
-            self.screen.blit(play_text, (335, 265))
-            self.screen.blit(ia_text, (305, 335))
-            self.screen.blit(leaderboard_text, (300, 405))
+            self.screen.blit(play_text, (335, 195))
+            self.screen.blit(ia_text, (305, 265))
+            self.screen.blit(leaderboard_text, (300, 335))
+            self.screen.blit(read_file_text, (300, 405))
             self.screen.blit(quit_text, (335, 475))
 
             for event in pygame.event.get():
@@ -159,6 +167,11 @@ class Menu:
 
                     if leaderboard_button.collidepoint(mouse):
                         self.display_leaderboard()
+
+                    if read_file_button.collidepoint(mouse):
+                        if self.display_choose_file_menu(game) == -1:
+                            game_running = False
+                            break
 
                     if quit_button.collidepoint(mouse):
                         game_running = False
@@ -581,3 +594,37 @@ class Menu:
                         return 1
 
             pygame.display.update()
+
+
+    def display_choose_file_menu(self, game):
+        print("herfe")
+        game_running = True
+        font = pygame.font.SysFont("arial", 40)
+
+        i_string = ""
+        max_size = 20
+
+        while(game_running):
+            self.screen.fill(self.BG)
+            rendered_text = i_string
+            if len(i_string) > max_size:
+                rendered_text = i_string[len(i_string) - max_size:]
+
+            i_text = font.render(rendered_text, True, self.WHITE)
+            self.screen.blit(i_text, (300, 305))
+
+            for event in pygame.event.get():
+
+                if event.type == pygame.QUIT:
+                    return -1
+                
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_BACKSPACE and len(i_string)>0:
+                        i_string = i_string[:-1]
+                    else:
+                        i_string += pygame.key.name(event.key)
+
+            pygame.display.update()
+
+
+        return
