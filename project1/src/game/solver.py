@@ -205,12 +205,18 @@ class Solver:
         time.sleep(delay)
 
         for n in path[1:]:
-
             curBoard = n.get_board().get_tiles()
+
+            print("board: ", curBoard)
 
             for i in range(initial_pos,len(prior)):
                 if prior[i] == curBoard[i]:
                     gg.move_left(screen)
+                    print("showing:", end=" ")
+                    for p in gg.pieces:
+                        print(p.num, end=" ")
+
+                    print("end")
                     pygame.display.flip()
                     time.sleep(delay)
                 else:
@@ -218,15 +224,16 @@ class Solver:
                     j = 1
 
                     while different:
+                        print("compare: ", prior[i-j], " ", curBoard[i-j])
+                        print("index.", i-j)
                         if prior[i-j] == curBoard[i-j]:
                             different = False
                         else:
                             gg.move_right(screen)
-                            initial_pos -= 1
                             j += 1
                             time.sleep(delay)
 
-                    initial_pos = i
+                    initial_pos = i - j +1
                     break
 
             gg.flip_disks(screen)
