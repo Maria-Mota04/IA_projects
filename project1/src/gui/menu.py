@@ -4,6 +4,7 @@ from src.game.game import *
 from src.states.board import Board
 from src.states.game_state import GameState
 from src.utils.leaderboard import Leaderboard
+from src.utils.file_manager import FileManager
 import time
 import copy
 
@@ -21,22 +22,24 @@ class Menu:
         game_running = True
         font = pygame.font.SysFont("arial", 40)
 
-        #board = Board(list(range(1, 21)))
-        #board.shuffle_few_moves(4)
-        board = Board([2, 1, 20, 4, 5, 6, 7, 8, 9, 10, 11, 12, 16, 15, 18, 17, 13, 14, 19, 3])
+        board = Board(list(range(1, 21)))
+        board.shuffle_board()
+        #board = Board([2, 1, 20, 4, 5, 6, 7, 8, 9, 10, 11, 12, 16, 15, 18, 17, 13, 14, 19, 3])
         game = Game(GameState(board))
 
         solver = Solver()
         try_again = False
 
-        play_button = pygame.Rect(300, 260, 140, 50)
-        ia_button = pygame.Rect(300, 330, 140, 50)
-        leaderboard_button = pygame.Rect(300, 400, 140, 50)
+        play_button = pygame.Rect(300, 190, 140, 50)
+        ia_button = pygame.Rect(300, 260, 140, 50)
+        leaderboard_button = pygame.Rect(300, 330, 140, 50)
+        read_file_button = pygame.Rect(300, 400, 140, 50)
         quit_button = pygame.Rect(300, 470, 140, 50)
 
         play_text = font.render("Play", True, self.WHITE)
         ia_text = font.render("Algorithms", True, self.WHITE)
         leaderboard_text = font.render("Leaderboard", True, self.WHITE)
+        read_file_text = font.render("Read from File", True, self.WHITE)
         quit_text = font.render("Quit", True, self.WHITE)
 
         loading_text = font.render("Loading...", True, self.WHITE)
@@ -62,13 +65,19 @@ class Menu:
             )
             pygame.draw.rect(
                 self.screen,
+                self.LIGHT if read_file_button.collidepoint(mouse) else self.DARK,
+                read_file_button,
+            )
+            pygame.draw.rect(
+                self.screen,
                 self.LIGHT if quit_button.collidepoint(mouse) else self.DARK,
                 quit_button,
             )
 
-            self.screen.blit(play_text, (335, 265))
-            self.screen.blit(ia_text, (305, 335))
-            self.screen.blit(leaderboard_text, (300, 405))
+            self.screen.blit(play_text, (335, 195))
+            self.screen.blit(ia_text, (305, 265))
+            self.screen.blit(leaderboard_text, (300, 335))
+            self.screen.blit(read_file_text, (300, 405))
             self.screen.blit(quit_text, (335, 475))
 
             for event in pygame.event.get():
@@ -118,12 +127,8 @@ class Menu:
                                 game_running = False
                                 break
 
-                            # pressed back to main menu
-                            elif ret1 == 1:
-                                continue
-
                         # make a new board, for next try
-                        board.shuffle_few_moves(4)
+                        board.shuffle_board()
                         state = GameState(board)
                         game = Game(state)
 
@@ -159,6 +164,11 @@ class Menu:
 
                     if leaderboard_button.collidepoint(mouse):
                         self.display_leaderboard()
+
+                    if read_file_button.collidepoint(mouse):
+                        if self.display_choose_file_menu(game) == -1:
+                            game_running = False
+                            break
 
                     if quit_button.collidepoint(mouse):
                         game_running = False
@@ -579,5 +589,91 @@ class Menu:
 
                     if menu_button.collidepoint(mouse):
                         return 1
+
+            pygame.display.update()
+
+
+    def display_choose_file_menu(self, game: Game):
+        game_running = True
+        font = pygame.font.SysFont("arial", 40)
+        font_small = pygame.font.SysFont("arial", 20)
+
+        text_box = pygame.Rect(90, 300, 85*7, 50)
+        i_string = ""
+        max_size = 20
+
+        shift = False
+
+        back_button = pygame.Rect(30, 30, 85, 50)
+        back_text = font.render("Back", True, self.WHITE)
+
+        confirm_button = pygame.Rect(270, 450, 250, 50)
+        confirm_text = font.render("Confirm", True, self.WHITE)
+
+        explain_text = font.render("Input the file name:", True, self.WHITE)
+        extra_text = font_small.render("Exclude the file extension (.txt)", True, self.WHITE)
+
+
+        while(game_running):
+            self.screen.fill(self.BG)
+            mouse = pygame.mouse.get_pos()
+
+            # title and subtitle
+            self.screen.blit(explain_text, (250, 150))
+            self.screen.blit(extra_text, (270, 200))
+
+            # textbox text
+            pygame.draw.rect(self.screen, self.WHITE, text_box)
+            rendered_text = i_string
+            if len(i_string) > max_size:
+                rendered_text = i_string[len(i_string) - max_size:]
+            i_text = font.render(rendered_text, True, self.DARK)
+            self.screen.blit(i_text, (100, 305))
+
+            # back button
+            pygame.draw.rect(
+                self.screen,
+                self.LIGHT if back_button.collidepoint(mouse) else self.DARK,
+                back_button,
+            )
+            self.screen.blit(back_text, (35, 35))
+
+            # confirm button
+            pygame.draw.rect(
+                self.screen,
+                self.LIGHT if confirm_button.collidepoint(mouse) else self.DARK,
+                confirm_button,
+            )
+            self.screen.blit(confirm_text, (335, 452))
+
+            for event in pygame.event.get():
+
+                if event.type == pygame.QUIT:
+                    return -1
+                
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    if back_button.collidepoint(mouse):
+                        game_running = False
+                    elif confirm_button.collidepoint(mouse):
+                        state,_,_ = FileManager.load_instance("instances/" + i_string + ".txt")
+                        game.set_board_state(state)
+                        game_running = False
+                
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_BACKSPACE:
+                        i_string = i_string[:-1]
+                    elif event.key == pygame.K_RSHIFT or event.key == pygame.K_LSHIFT:
+                        shift = True
+                    elif shift:
+                        if event.key == pygame.K_MINUS:
+                            i_string += "_"
+                        else:
+                            i_string += pygame.key.name(event.key).upper()
+                    else:
+                        i_string += pygame.key.name(event.key)
+
+                if event.type == pygame.KEYUP:
+                    if event.key == pygame.K_RSHIFT or event.key == pygame.K_LSHIFT:
+                        shift = False
 
             pygame.display.update()
