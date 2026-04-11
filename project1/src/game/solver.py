@@ -6,7 +6,7 @@ import pygame
 from src.algorithms.search import SearchAlgorithms
 from src.algorithms.search_strategy import SearchStrategy
 from src.game.game import *
-from src.game.pdb_heuristic import pattern_state_from_positions
+from src.game.pdb_heuristic import pattern_state_from_positions, build_patterns, generate_pdb
 from src.gui.controls_helper import ControlHelper
 from src.gui.game_graphics import *
 from src.states.board import Board
@@ -15,15 +15,19 @@ from src.gui.hint_settings import HintSettings
 from .game_modes import gameMode
 
 class Solver:
-    def __init__(self, pdb_5=None, patterns=None):
-        self._pdb_5 = pdb_5 or {}
-        self._patterns = patterns or []
+    def __init__(self, n=12, k=4, group_size=5):
+        self._patterns = build_patterns(n, group_size)
+        
+        print(f"A gerar PDB para {group_size} peças... (pode demorar)")
+        self._pdb_5 = generate_pdb(n, k, group_size)
+        print("PDB gerada com sucesso!")
+
         self._hint_strategy = SearchStrategy.A_STAR
-        self._hint_heuristic_name = "misplaced"
+        self._hint_heuristic_name = "pdb"
         self._hint_config = {
             "depth_limit": 20,
             "max_cost": None,
-            "weight": 1.5,
+            "weight": 1.0,
         }
 
     def strategy_uses_heuristic(self, strategy: SearchStrategy) -> bool:
@@ -187,6 +191,7 @@ class Solver:
         return mapping.get(heuristic_name, self.heuristic_misplaced)
 
     def heuristic_misplaced(self, state: GameState) -> int:
+        print("Calculando heurística de peças fora do lugar...")
         tiles = state.get_board().get_tiles()
         n, k = len(tiles), state.get_board().get_segment_size()
         start = tiles.index(1)
@@ -194,12 +199,14 @@ class Solver:
         return math.ceil(misplaced / k) if k > 0 else misplaced
 
     def heuristic_breakpoints(self, state: GameState) -> int:
+        print("Calculando heurística de breakpoints...")
         tiles = state.get_board().get_tiles()
         n, k = len(tiles), state.get_board().get_segment_size()
         breakpoints = sum(1 for i in range(n) if tiles[(i + 1) % n] != (1 if tiles[i] == n else tiles[i] + 1))
         return math.ceil(breakpoints / k) if k > 0 else breakpoints
 
     def heuristic_distance(self, state: GameState) -> int:
+        print("Calculando heurística de distância...")
         tiles = state.get_board().get_tiles()
         n, k = len(tiles), state.get_board().get_segment_size()
         if k <= 1: return 0
@@ -211,9 +218,18 @@ class Solver:
         return math.ceil(max_dist / (k - 1))
 
     def heuristic_pdb(self, state: GameState) -> int:
+        print("Calculando heurística PDB...")
         tiles = state.get_board().get_tiles()
+        n = len(tiles)
         pos_map = {tile: i for i, tile in enumerate(tiles)}
-        return max((self._pdb_5.get(pattern_state_from_positions(pos_map, p, len(tiles)), 0) for p in self._patterns), default=0)
+        max_h = 0
+        for pattern in self._patterns:
+            key = pattern_state_from_positions(pos_map, pattern, n)
+            h = self._pdb_5.get(key, 0)
+            if h > max_h:
+                max_h = h
+
+        return max_h
 
     def generate_possible_moves(self, state: GameState, segment_size: int) -> List[tuple[GameState, int]]:
         moves = []
