@@ -26,7 +26,6 @@ class FileManager:
 
     @staticmethod
     def load_instance(filepath: str) -> tuple[GameState, int, int]:
-        print("file path:", filepath)
         """Load a puzzle instance from a .txt file.
 
         Instance file format (.txt):
