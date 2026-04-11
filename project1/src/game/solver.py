@@ -1,16 +1,20 @@
 import math
 import time
 from typing import Callable, List
+
+import pygame
+
 from src.algorithms.search import SearchAlgorithms
 from src.algorithms.search_strategy import SearchStrategy
+from src.game.game import *
+from src.game.pdb_heuristic import pattern_state_from_positions
+from src.gui.controls_helper import ControlHelper
+from src.gui.game_graphics import *
 from src.states.board import Board
 from src.states.game_state import GameState
+from src.gui.hint_settings import HintSettings
+
 from .game_modes import gameMode
-from src.gui.game_graphics import *
-from src.gui.controls_helper import ControlHelper
-from src.game.game import *
-import pygame
-from src.game.pdb_heuristic import pattern_state_from_positions
 
 
 class Solver:
@@ -20,6 +24,11 @@ class Solver:
 
         self._hint_strategy = SearchStrategy.A_STAR
         self._hint_heuristic_name = "misplaced"
+        self._hint_config = {
+            "depth_limit": 20,
+            "max_cost": None,
+            "weight": 1.5,
+        }
 
     def strategy_uses_heuristic(self, strategy: SearchStrategy) -> bool:
         return strategy in (
@@ -27,6 +36,16 @@ class Solver:
             SearchStrategy.A_STAR,
             SearchStrategy.WEIGHTED_A_STAR,
         )
+
+    def strategy_uses_depth_limit(self, strategy: SearchStrategy) -> bool:
+        return strategy in (
+            SearchStrategy.DFS,
+            SearchStrategy.DFS_LIMITED,
+            SearchStrategy.ITERATIVE_DEEPENING,
+        )
+
+    def strategy_uses_weight(self, strategy: SearchStrategy) -> bool:
+        return strategy == SearchStrategy.WEIGHTED_A_STAR
 
     def solve(
         self,
@@ -134,23 +153,6 @@ class Solver:
                 )
                 screen.blit(control_helper_menu_text, (660, 502))
 
-                if self.strategy_uses_heuristic(self._hint_strategy):
-                    hint_label_text = (
-                        f"Hint: {self.get_strategy_label(self._hint_strategy)} / "
-                        f"{self.get_heuristic_label(self._hint_heuristic_name)}"
-                    )
-                else:
-                    hint_label_text = (
-                        f"Hint: {self.get_strategy_label(self._hint_strategy)}"
-                    )
-
-                current_hint_label = small_font.render(
-                    hint_label_text,
-                    True,
-                    (230, 230, 230),
-                )
-                hint_label_rect = current_hint_label.get_rect(center=(400, 520))
-                screen.blit(current_hint_label, hint_label_rect)
 
                 for event in pygame.event.get():
                     if event.type == pygame.QUIT:
@@ -189,7 +191,7 @@ class Solver:
                             hint_highlight = None
 
                         elif settings_button_hint.collidepoint(mouse):
-                            panel_result = self.choose_hint_settings(screen)
+                            panel_result = HintSettings(self).run(screen)
                             if panel_result == -1:
                                 return -1
                             gg.update(game)
@@ -202,9 +204,9 @@ class Solver:
                                 current_state,
                                 strategy=self._hint_strategy,
                                 segment_size=current_segment_size,
-                                depth_limit=depth_limit,
-                                max_cost=max_cost,
-                                weight=weight,
+                                depth_limit=self._hint_config["depth_limit"],
+                                max_cost=self._hint_config["max_cost"],
+                                weight=self._hint_config["weight"],
                                 heuristic_func=self.get_heuristic_by_name(
                                     self._hint_heuristic_name
                                 ),
@@ -289,142 +291,7 @@ class Solver:
             "found": True,
         }
         return path, stats
-
-    def choose_hint_settings(self, screen):
-        font = pygame.font.SysFont("arial", 28)
-        title_font = pygame.font.SysFont("arial", 38)
-        small_font = pygame.font.SysFont("arial", 20)
-
-        WHITE = (255, 255, 255)
-        LIGHT = (170, 170, 170)
-        DARK = (100, 100, 100)
-        BG = (60, 25, 60)
-        SELECTED = (180, 80, 180)
-
-        back_button = pygame.Rect(30, 30, 85, 50)
-        confirm_button = pygame.Rect(300, 510, 200, 50)
-
-        algo_buttons = [
-            (pygame.Rect(60, 140, 320, 42), "BFS", SearchStrategy.BFS),
-            (pygame.Rect(420, 140, 320, 42), "DFS", SearchStrategy.DFS),
-            (pygame.Rect(60, 195, 320, 42), "Limited DFS", SearchStrategy.DFS_LIMITED),
-            (
-                pygame.Rect(420, 195, 320, 42),
-                "Iterative Deepening",
-                SearchStrategy.ITERATIVE_DEEPENING,
-            ),
-            (pygame.Rect(60, 250, 320, 42), "Uniform Cost", SearchStrategy.UNIFORM_COST),
-            (pygame.Rect(420, 250, 320, 42), "Greedy", SearchStrategy.GREEDY),
-            (pygame.Rect(60, 305, 320, 42), "A*", SearchStrategy.A_STAR),
-            (
-                pygame.Rect(420, 305, 320, 42),
-                "Weighted A*",
-                SearchStrategy.WEIGHTED_A_STAR,
-            ),
-        ]
-
-        heur_buttons = [
-            (pygame.Rect(60, 395, 150, 42), "Misplaced", "misplaced"),
-            (pygame.Rect(230, 395, 170, 42), "Breakpoints", "breakpoints"),
-            (pygame.Rect(420, 395, 150, 42), "Distance", "distance"),
-        ]
-
-        if self.has_pdb():
-            heur_buttons.append((pygame.Rect(590, 395, 110, 42), "PDB", "pdb"))
-
-        selected_strategy = self._hint_strategy
-        selected_heuristic_name = self._hint_heuristic_name
-
-        while True:
-            screen.fill(BG)
-            mouse = pygame.mouse.get_pos()
-
-            show_heuristics = self.strategy_uses_heuristic(selected_strategy)
-
-            title = title_font.render("Hint Settings", True, WHITE)
-            algo_title = font.render("Choose algorithm", True, WHITE)
-
-            if show_heuristics:
-                note_text = "These settings are used by the Hint button during the human game."
-            else:
-                note_text = "This algorithm does not use a heuristic."
-
-            note = small_font.render(
-                note_text,
-                True,
-                (220, 220, 220),
-            )
-
-            screen.blit(title, (250, 50))
-            screen.blit(algo_title, (255, 100))
-            screen.blit(note, (110, 470))
-
-            if show_heuristics:
-                heur_title = font.render("Choose heuristic", True, WHITE)
-                screen.blit(heur_title, (260, 355))
-
-            pygame.draw.rect(
-                screen,
-                LIGHT if back_button.collidepoint(mouse) else DARK,
-                back_button,
-            )
-            screen.blit(font.render("Back", True, WHITE), (35, 38))
-
-            pygame.draw.rect(
-                screen,
-                LIGHT if confirm_button.collidepoint(mouse) else DARK,
-                confirm_button,
-            )
-            screen.blit(font.render("Save", True, WHITE), (365, 518))
-
-            for button, label, strategy in algo_buttons:
-                color = (
-                    SELECTED
-                    if strategy == selected_strategy
-                    else (LIGHT if button.collidepoint(mouse) else DARK)
-                )
-                pygame.draw.rect(screen, color, button)
-                screen.blit(
-                    small_font.render(label, True, WHITE),
-                    (button.x + 10, button.y + 11),
-                )
-
-            if show_heuristics:
-                for button, label, heuristic_name in heur_buttons:
-                    color = (
-                        SELECTED
-                        if heuristic_name == selected_heuristic_name
-                        else (LIGHT if button.collidepoint(mouse) else DARK)
-                    )
-                    pygame.draw.rect(screen, color, button)
-                    screen.blit(
-                        small_font.render(label, True, WHITE),
-                        (button.x + 10, button.y + 11),
-                    )
-
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    return -1
-
-                if event.type == pygame.MOUSEBUTTONUP:
-                    if back_button.collidepoint(mouse):
-                        return -2
-
-                    for button, _, strategy in algo_buttons:
-                        if button.collidepoint(mouse):
-                            selected_strategy = strategy
-
-                    if self.strategy_uses_heuristic(selected_strategy):
-                        for button, _, heuristic_name in heur_buttons:
-                            if button.collidepoint(mouse):
-                                selected_heuristic_name = heuristic_name
-
-                    if confirm_button.collidepoint(mouse):
-                        self._hint_strategy = selected_strategy
-                        self._hint_heuristic_name = selected_heuristic_name
-                        return 0
-
-            pygame.display.update()
+    
 
     def has_pdb(self) -> bool:
         return bool(self._pdb_5) and bool(self._patterns)

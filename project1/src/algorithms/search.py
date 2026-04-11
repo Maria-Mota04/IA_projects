@@ -170,8 +170,6 @@ class SearchAlgorithms:
             max_cost=max_cost,
         )
     
-        print("Starting A* Search...")
-
     @staticmethod
     def weighted_a_star(
         initial_state,
