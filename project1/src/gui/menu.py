@@ -596,7 +596,9 @@ class Menu:
     def display_choose_file_menu(self, game: Game):
         game_running = True
         font = pygame.font.SysFont("arial", 40)
+        font_small = pygame.font.SysFont("arial", 20)
 
+        text_box = pygame.Rect(90, 300, 85*7, 50)
         i_string = ""
         max_size = 20
 
@@ -605,19 +607,28 @@ class Menu:
         back_button = pygame.Rect(30, 30, 85, 50)
         back_text = font.render("Back", True, self.WHITE)
 
-        confirm_button = pygame.Rect(270, 505, 250, 50)
+        confirm_button = pygame.Rect(270, 450, 250, 50)
         confirm_text = font.render("Confirm", True, self.WHITE)
+
+        explain_text = font.render("Input the file name:", True, self.WHITE)
+        extra_text = font_small.render("Exclude the file extension (.txt)", True, self.WHITE)
+
 
         while(game_running):
             self.screen.fill(self.BG)
             mouse = pygame.mouse.get_pos()
 
+            # title and subtitle
+            self.screen.blit(explain_text, (250, 150))
+            self.screen.blit(extra_text, (270, 200))
+
             # textbox text
+            pygame.draw.rect(self.screen, self.WHITE, text_box)
             rendered_text = i_string
             if len(i_string) > max_size:
                 rendered_text = i_string[len(i_string) - max_size:]
-            i_text = font.render(rendered_text, True, self.WHITE)
-            self.screen.blit(i_text, (300, 305))
+            i_text = font.render(rendered_text, True, self.DARK)
+            self.screen.blit(i_text, (100, 305))
 
             # back button
             pygame.draw.rect(
@@ -625,7 +636,7 @@ class Menu:
                 self.LIGHT if back_button.collidepoint(mouse) else self.DARK,
                 back_button,
             )
-            self.screen.blit(back_text, (35, 38))
+            self.screen.blit(back_text, (35, 35))
 
             # confirm button
             pygame.draw.rect(
@@ -633,7 +644,7 @@ class Menu:
                 self.LIGHT if confirm_button.collidepoint(mouse) else self.DARK,
                 confirm_button,
             )
-            self.screen.blit(confirm_text, (278, 512))
+            self.screen.blit(confirm_text, (335, 452))
 
             for event in pygame.event.get():
 
