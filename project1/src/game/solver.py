@@ -21,6 +21,13 @@ class Solver:
         self._hint_strategy = SearchStrategy.A_STAR
         self._hint_heuristic_name = "misplaced"
 
+    def strategy_uses_heuristic(self, strategy: SearchStrategy) -> bool:
+        return strategy in (
+            SearchStrategy.GREEDY,
+            SearchStrategy.A_STAR,
+            SearchStrategy.WEIGHTED_A_STAR,
+        )
+
     def solve(
         self,
         game: Game,
@@ -127,9 +134,18 @@ class Solver:
                 )
                 screen.blit(control_helper_menu_text, (660, 502))
 
+                if self.strategy_uses_heuristic(self._hint_strategy):
+                    hint_label_text = (
+                        f"Hint: {self.get_strategy_label(self._hint_strategy)} / "
+                        f"{self.get_heuristic_label(self._hint_heuristic_name)}"
+                    )
+                else:
+                    hint_label_text = (
+                        f"Hint: {self.get_strategy_label(self._hint_strategy)}"
+                    )
+
                 current_hint_label = small_font.render(
-                    f"Hint: {self.get_strategy_label(self._hint_strategy)} / "
-                    f"{self.get_heuristic_label(self._hint_heuristic_name)}",
+                    hint_label_text,
                     True,
                     (230, 230, 230),
                 )
@@ -323,19 +339,29 @@ class Solver:
             screen.fill(BG)
             mouse = pygame.mouse.get_pos()
 
+            show_heuristics = self.strategy_uses_heuristic(selected_strategy)
+
             title = title_font.render("Hint Settings", True, WHITE)
             algo_title = font.render("Choose algorithm", True, WHITE)
-            heur_title = font.render("Choose heuristic", True, WHITE)
+
+            if show_heuristics:
+                note_text = "These settings are used by the Hint button during the human game."
+            else:
+                note_text = "This algorithm does not use a heuristic."
+
             note = small_font.render(
-                "These settings are used by the Hint button during the human game.",
+                note_text,
                 True,
                 (220, 220, 220),
             )
 
             screen.blit(title, (250, 50))
             screen.blit(algo_title, (255, 100))
-            screen.blit(heur_title, (260, 355))
             screen.blit(note, (110, 470))
+
+            if show_heuristics:
+                heur_title = font.render("Choose heuristic", True, WHITE)
+                screen.blit(heur_title, (260, 355))
 
             pygame.draw.rect(
                 screen,
@@ -363,17 +389,18 @@ class Solver:
                     (button.x + 10, button.y + 11),
                 )
 
-            for button, label, heuristic_name in heur_buttons:
-                color = (
-                    SELECTED
-                    if heuristic_name == selected_heuristic_name
-                    else (LIGHT if button.collidepoint(mouse) else DARK)
-                )
-                pygame.draw.rect(screen, color, button)
-                screen.blit(
-                    small_font.render(label, True, WHITE),
-                    (button.x + 10, button.y + 11),
-                )
+            if show_heuristics:
+                for button, label, heuristic_name in heur_buttons:
+                    color = (
+                        SELECTED
+                        if heuristic_name == selected_heuristic_name
+                        else (LIGHT if button.collidepoint(mouse) else DARK)
+                    )
+                    pygame.draw.rect(screen, color, button)
+                    screen.blit(
+                        small_font.render(label, True, WHITE),
+                        (button.x + 10, button.y + 11),
+                    )
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -387,9 +414,10 @@ class Solver:
                         if button.collidepoint(mouse):
                             selected_strategy = strategy
 
-                    for button, _, heuristic_name in heur_buttons:
-                        if button.collidepoint(mouse):
-                            selected_heuristic_name = heuristic_name
+                    if self.strategy_uses_heuristic(selected_strategy):
+                        for button, _, heuristic_name in heur_buttons:
+                            if button.collidepoint(mouse):
+                                selected_heuristic_name = heuristic_name
 
                     if confirm_button.collidepoint(mouse):
                         self._hint_strategy = selected_strategy
@@ -566,9 +594,6 @@ class Solver:
             if new_state is not None:
                 moves.append((new_state, self.get_move_cost(reverse_start)))
 
-        rotated_state = GameState(Board(state.get_board().get_tiles())).apply_rotate(1)
-        moves.append((rotated_state, self.get_move_cost(-1)))
-
         return moves
 
     def next_best_move_with_search(
@@ -590,7 +615,6 @@ class Solver:
             return _inner_ops(s)
 
         goal_state_func = lambda s: s.is_goal()
-        heuristic = lambda node: heuristic_func(node.state)
 
         args = [state, goal_state_func, operators_func]
         kwargs = {"max_cost": max_cost}
@@ -602,11 +626,8 @@ class Solver:
         ):
             args.append(depth_limit)
 
-        elif strategy in (
-            SearchStrategy.GREEDY,
-            SearchStrategy.A_STAR,
-            SearchStrategy.WEIGHTED_A_STAR,
-        ):
+        elif self.strategy_uses_heuristic(strategy):
+            heuristic = lambda node: heuristic_func(node.state)
             args.append(heuristic)
             if strategy == SearchStrategy.WEIGHTED_A_STAR:
                 kwargs["w"] = weight
@@ -651,7 +672,6 @@ class Solver:
                 best_state = next_state
 
         return best_state
-
 
     # Utils
     def get_move_cost(self, move: int) -> int:

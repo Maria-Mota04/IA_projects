@@ -54,6 +54,15 @@ class SearchAlgorithms:
                     visited.add(k)
                     queue.append(new_node)
         return None
+    
+    @staticmethod
+    def _state_in_path(node, state_key):
+        current = node
+        while current is not None:
+            if SearchAlgorithms._key(current.state) == state_key:
+                return True
+            current = current.parent
+        return False
 
     @staticmethod
     def dfs(
@@ -64,9 +73,8 @@ class SearchAlgorithms:
         stack = deque([(root, 0)])
         visited = {key(initial_state)}
 
-        print("Starting DFS...")
-
         while stack:
+            print(f"DFS Stack size: {len(stack)}")
             node, depth = stack.pop()
             if goal_state_func(node.state):
                 return node
@@ -82,7 +90,7 @@ class SearchAlgorithms:
                     visited.add(k)
                     stack.append((new_node, depth + 1))
         return None
-
+    
     @staticmethod
     def dfs_limited(
         initial_state, goal_state_func, operators_func, depth_limit, max_cost=None
