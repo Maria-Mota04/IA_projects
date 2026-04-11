@@ -120,15 +120,13 @@ class SearchAlgorithms:
 
     @staticmethod
     def iterative_deepening_search(
-        initial_state, goal_state_func, operators_func, max_depth, max_cost=None
+        initial_state, goal_state_func, operators_func, depth_limit, max_cost=None
     ) -> TreeNode | None:
-        for depth in range(max_depth + 1):
+        for depth in range(depth_limit + 1):
             result = SearchAlgorithms.dfs_limited(
                 initial_state, goal_state_func, operators_func, depth, max_cost=max_cost
             )
-            print(f"Depth {depth} completed.")
-            if result:
-                return result
+            if result: return result
         return None
 
     @staticmethod
@@ -166,40 +164,30 @@ class SearchAlgorithms:
             goal_state_func,
             operators_func,
             heuristic_func,
-            w=1.0,
+            weight=1.0,
             max_cost=max_cost,
         )
     
     @staticmethod
     def weighted_a_star(
-        initial_state,
-        goal_state_func,
-        operators_func,
-        heuristic_func,
-        w=1.0,
-        max_cost=None,
+        initial_state, goal_state_func, operators_func, heuristic_func, weight=1.0, max_cost=None
     ) -> TreeNode | None:
         key = SearchAlgorithms._key
         root = TreeNode(initial_state)
-        queue = [(heuristic_func(root), root)]
+        queue = [(weight * heuristic_func(root), root)] 
         visited = {key(initial_state)}
 
-
-        print(f"Starting Weighted A* Search with weight {w}...")
         while queue:
             _, node = heapq.heappop(queue)
-            if goal_state_func(node.state):
-                return node
+            if goal_state_func(node.state): return node
             for state, cost in operators_func(node.state):
                 new_total_cost = node.cost + cost
                 k = key(state)
-                if k not in visited and (
-                    max_cost is None or new_total_cost <= max_cost
-                ):
+                if k not in visited and (max_cost is None or new_total_cost <= max_cost):
                     new_node = TreeNode(state, parent=node, operator_cost=cost)
                     visited.add(k)
-                    total_cost = new_node.cost + w * heuristic_func(new_node)
-                    heapq.heappush(queue, (total_cost, new_node))
+                    f_score = new_node.cost + weight * heuristic_func(new_node)
+                    heapq.heappush(queue, (f_score, new_node))
         return None
 
     @staticmethod
