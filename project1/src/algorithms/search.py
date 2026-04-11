@@ -38,6 +38,8 @@ class SearchAlgorithms:
         queue = deque([root])
         visited = {key(initial_state)}
 
+        print("Starting BFS...")
+
         while queue:
             node = queue.popleft()
             if goal_state_func(node.state):
@@ -61,6 +63,8 @@ class SearchAlgorithms:
         root = TreeNode(initial_state)
         stack = deque([(root, 0)])
         visited = {key(initial_state)}
+
+        print("Starting DFS...")
 
         while stack:
             node, depth = stack.pop()
@@ -88,6 +92,7 @@ class SearchAlgorithms:
         stack = deque([(root, 0)])
         visited = {key(initial_state)}
 
+        print(f"Starting DFS with depth limit {depth_limit}...")
         while stack:
             node, depth = stack.pop()
             if goal_state_func(node.state):
@@ -113,6 +118,7 @@ class SearchAlgorithms:
             result = SearchAlgorithms.dfs_limited(
                 initial_state, goal_state_func, operators_func, depth, max_cost=max_cost
             )
+            print(f"Depth {depth} completed.")
             if result:
                 return result
         return None
@@ -125,6 +131,8 @@ class SearchAlgorithms:
         root = TreeNode(initial_state)
         queue = [(heuristic_func(root), root)]
         visited = {key(initial_state)}
+
+        print("Starting Greedy Search...")
 
         while queue:
             _, node = heapq.heappop(queue)
@@ -153,6 +161,8 @@ class SearchAlgorithms:
             w=1.0,
             max_cost=max_cost,
         )
+    
+        print("Starting A* Search...")
 
     @staticmethod
     def weighted_a_star(
@@ -168,6 +178,8 @@ class SearchAlgorithms:
         queue = [(heuristic_func(root), root)]
         visited = {key(initial_state)}
 
+
+        print(f"Starting Weighted A* Search with weight {w}...")
         while queue:
             _, node = heapq.heappop(queue)
             if goal_state_func(node.state):
