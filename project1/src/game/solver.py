@@ -46,8 +46,8 @@ class Solver:
             quit_button = pygame.Rect(30, 30, 85, 50)
             quit_text = font.render("Quit", True, (255, 255, 255))
 
-            settings_button = pygame.Rect(30, 500, 170, 50)
-            settings_text = small_font.render("Hint Settings", True, (255, 255, 255))
+            settings_button_hint = pygame.Rect(40, 510, 200, 50)
+            settings_text = font.render("Hint Settings", True, (255, 255, 255))
 
             hint_button = pygame.Rect(500, 30, 120, 50)
             hint_text = font.render("Hint", True, (255, 255, 255))
@@ -87,10 +87,10 @@ class Solver:
                     screen,
                     (
                         (170, 170, 170)
-                        if settings_button.collidepoint(mouse)
+                        if settings_button_hint.collidepoint(mouse)
                         else (100, 100, 100)
                     ),
-                    settings_button,
+                    settings_button_hint,
                 )
                 screen.blit(settings_text, (45, 515))
 
@@ -172,7 +172,7 @@ class Solver:
                             gg.update(game)
                             hint_highlight = None
 
-                        elif settings_button.collidepoint(mouse):
+                        elif settings_button_hint.collidepoint(mouse):
                             panel_result = self.choose_hint_settings(screen)
                             if panel_result == -1:
                                 return -1
