@@ -127,10 +127,6 @@ class Menu:
                                 game_running = False
                                 break
 
-                            # pressed back to main menu
-                            elif ret1 == 1:
-                                continue
-
                         # make a new board, for next try
                         board.shuffle_board()
                         state = GameState(board)
