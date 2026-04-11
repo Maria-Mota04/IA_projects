@@ -4,6 +4,7 @@ from src.game.game import *
 from src.states.board import Board
 from src.states.game_state import GameState
 from src.utils.leaderboard import Leaderboard
+from src.utils.file_manager import FileManager
 import time
 import copy
 
@@ -21,9 +22,9 @@ class Menu:
         game_running = True
         font = pygame.font.SysFont("arial", 40)
 
-        #board = Board(list(range(1, 21)))
-        #board.shuffle_few_moves(4)
-        board = Board([2, 1, 20, 4, 5, 6, 7, 8, 9, 10, 11, 12, 16, 15, 18, 17, 13, 14, 19, 3])
+        board = Board(list(range(1, 21)))
+        board.shuffle_board()
+        #board = Board([2, 1, 20, 4, 5, 6, 7, 8, 9, 10, 11, 12, 16, 15, 18, 17, 13, 14, 19, 3])
         game = Game(GameState(board))
 
         solver = Solver()
@@ -131,7 +132,7 @@ class Menu:
                                 continue
 
                         # make a new board, for next try
-                        board.shuffle_few_moves(4)
+                        board.shuffle_board()
                         state = GameState(board)
                         game = Game(state)
 
@@ -596,8 +597,7 @@ class Menu:
             pygame.display.update()
 
 
-    def display_choose_file_menu(self, game):
-        print("herfe")
+    def display_choose_file_menu(self, game: Game):
         game_running = True
         font = pygame.font.SysFont("arial", 40)
 
@@ -606,19 +606,51 @@ class Menu:
 
         shift = False
 
+        back_button = pygame.Rect(30, 30, 85, 50)
+        back_text = font.render("Back", True, self.WHITE)
+
+        confirm_button = pygame.Rect(270, 505, 250, 50)
+        confirm_text = font.render("Confirm", True, self.WHITE)
+
         while(game_running):
             self.screen.fill(self.BG)
+            mouse = pygame.mouse.get_pos()
+
+            # textbox text
             rendered_text = i_string
             if len(i_string) > max_size:
                 rendered_text = i_string[len(i_string) - max_size:]
-
             i_text = font.render(rendered_text, True, self.WHITE)
             self.screen.blit(i_text, (300, 305))
+
+            # back button
+            pygame.draw.rect(
+                self.screen,
+                self.LIGHT if back_button.collidepoint(mouse) else self.DARK,
+                back_button,
+            )
+            self.screen.blit(back_text, (35, 38))
+
+            # confirm button
+            pygame.draw.rect(
+                self.screen,
+                self.LIGHT if confirm_button.collidepoint(mouse) else self.DARK,
+                confirm_button,
+            )
+            self.screen.blit(confirm_text, (278, 512))
 
             for event in pygame.event.get():
 
                 if event.type == pygame.QUIT:
                     return -1
+                
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    if back_button.collidepoint(mouse):
+                        game_running = False
+                    elif confirm_button.collidepoint(mouse):
+                        state,_,_ = FileManager.load_instance("instances/" + i_string + ".txt")
+                        game.set_board_state(state)
+                        game_running = False
                 
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_BACKSPACE:
@@ -638,6 +670,3 @@ class Menu:
                         shift = False
 
             pygame.display.update()
-
-
-        return
