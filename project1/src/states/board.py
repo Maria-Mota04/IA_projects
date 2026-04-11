@@ -68,6 +68,8 @@ class Board:
         self._tiles = list(range(1, n + 1))
         self._shuffle_solvable(self._segment_size)
 
+        self._initial_tiles = self._tiles
+
     def shuffle_few_moves(self, n_moves: int = 8) -> None:
         """Shuffle by applying n_moves random moves from solved state."""
         import random as _random
