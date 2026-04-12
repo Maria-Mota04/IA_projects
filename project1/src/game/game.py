@@ -18,7 +18,6 @@ class Game:
 
         @param state Initial game state.
         @param size Board size.
-        @param segment_size Segment length used by move operations.
         """
         self._n = size
         self._segment_size = state.get_board().get_segment_size()

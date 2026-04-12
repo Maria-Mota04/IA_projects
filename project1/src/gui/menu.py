@@ -220,7 +220,7 @@ class Menu:
                             break
                         if loaded is not None:
                             state, n, k = loaded
-                            game = Game(state, size=n, segment_size=k)
+                            game = Game(state, size=n)
 
                     elif quit_button.collidepoint(click_pos):
                         game_running = False
