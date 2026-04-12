@@ -33,6 +33,16 @@ class Menu:
             "hard": (11, 14),
         }
 
+    def _make_solver_for_game(self, game: Game) -> Solver:
+        """
+        @brief Create a solver compatible with the current game instance.
+
+        @param game Current game instance.
+        @return Solver configured for the board size and segment size.
+        """
+        board = game.get_board_state().get_board()
+        return Solver(n=board.size(), k=board.get_segment_size())
+
     def _shuffle_board_for_difficulty(self, board: Board):
         """
         @brief Shuffle the board according to the selected difficulty range.
@@ -54,7 +64,7 @@ class Menu:
         self._shuffle_board_for_difficulty(board)
         game = Game(GameState(board))
 
-        solver = Solver()
+        solver = self._make_solver_for_game(game)
         try_again = False
 
         play_button = pygame.Rect(250, 120, 300, 50)
@@ -109,6 +119,8 @@ class Menu:
 
                     if play_button.collidepoint(click_pos) or try_again:
                         try_again = False
+                        solver = self._make_solver_for_game(game)
+
                         if not self._is_current_game_solvable(game):
                             if self.display_unsolvable_instance() == -1:
                                 game_running = False
@@ -141,6 +153,7 @@ class Menu:
                             if ret1 == 0:
                                 board.reset_board()
                                 game.set_board_state(GameState(board))
+                                solver = self._make_solver_for_game(game)
                                 try_again = True
                                 pygame.event.post(pygame.event.Event(pygame.USEREVENT))
                                 continue
@@ -152,6 +165,7 @@ class Menu:
                         self._shuffle_board_for_difficulty(board)
                         state = GameState(board)
                         game = Game(state)
+                        solver = self._make_solver_for_game(game)
 
                     elif ia_button.collidepoint(click_pos):
                         config = self.display_algorithm_choice()
@@ -162,10 +176,18 @@ class Menu:
                         elif config == -2:
                             continue
                         else:
+                            solver = self._make_solver_for_game(game)
+
                             if not self._is_current_game_solvable(game):
                                 if self.display_unsolvable_instance() == -1:
                                     game_running = False
                                 continue
+
+                            heuristic_func = None
+                            if config["heuristic_name"] is not None:
+                                heuristic_func = solver.get_heuristic_by_name(
+                                    config["heuristic_name"]
+                                )
 
                             self.screen.fill(self.BG)
                             self.screen.blit(loading_text, (300, 280))
@@ -179,7 +201,7 @@ class Menu:
                                 depth_limit=config["depth_limit"],
                                 max_cost=config["max_cost"],
                                 weight=config["weight"],
-                                heuristic_func=config["heuristic_func"],
+                                heuristic_func=heuristic_func,
                             )
 
                             game._game_stats.states_explored = stats["nodes"]
@@ -196,6 +218,7 @@ class Menu:
                             self._shuffle_board_for_difficulty(board)
                             state = GameState(board)
                             game = Game(state)
+                            solver = self._make_solver_for_game(game)
 
                     elif difficulty_button.collidepoint(click_pos):
                         ret = self.display_difficulty_choice()
@@ -207,6 +230,7 @@ class Menu:
                             self.difficulty = ret
                             self._shuffle_board_for_difficulty(board)
                             game = Game(GameState(board))
+                            solver = self._make_solver_for_game(game)
 
                     elif leaderboard_button.collidepoint(click_pos):
                         if self.display_leaderboard() == -1:
@@ -221,6 +245,7 @@ class Menu:
                         if loaded is not None:
                             state, n, k = loaded
                             game = Game(state, size=n)
+                            solver = self._make_solver_for_game(game)
 
                     elif quit_button.collidepoint(click_pos):
                         game_running = False
@@ -487,7 +512,6 @@ class Menu:
             depth_minus = depth_plus = None
             weight_minus = weight_plus = None
             cost_minus = cost_plus = None
-            cost_none = None
 
             if uses_heuristic:
                 h_label = font.render(
@@ -562,19 +586,16 @@ class Menu:
                         return -2
 
                     if confirm_button.collidepoint(click_pos):
-                        solver = Solver()
-                        heuristic_func = None
-                        if uses_heuristic:
-                            heuristic_func = solver.get_heuristic_by_name(
-                                heuristic_names[heuristic_index]
-                            )
+                        heuristic_name = (
+                            heuristic_names[heuristic_index] if uses_heuristic else None
+                        )
 
                         return {
                             "strategy": strategy,
-                            "depth_limit": depth_limit,
+                            "depth_limit": depth_limit if uses_depth else None,
                             "max_cost": max_cost if uses_max_cost else None,
-                            "weight": weight,
-                            "heuristic_func": heuristic_func,
+                            "weight": weight if uses_weight else None,
+                            "heuristic_name": heuristic_name,
                         }
 
                     if heuristic_minus and heuristic_minus.collidepoint(click_pos):
@@ -593,12 +614,11 @@ class Menu:
                         weight = round(weight + 0.1, 1)
 
                     if cost_minus and cost_minus.collidepoint(click_pos):
-                        if max_cost is None:
-                            max_cost = None
-                        elif max_cost <= 1:
+                        if max_cost is None or max_cost <= 1:
                             max_cost = None
                         else:
                             max_cost -= 1
+
                     if cost_plus and cost_plus.collidepoint(click_pos):
                         if max_cost is None:
                             max_cost = 1
