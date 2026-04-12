@@ -69,6 +69,12 @@ class Solver:
             "max_cost": None,
             "weight": 1.0,
         }
+        self._last_search_stats = {
+            "nodes": 0,
+            "depth": 0,
+            "max_memory": 0,
+            "found": False,
+        }
 
     def strategy_uses_heuristic(self, strategy: SearchStrategy) -> bool:
         """
@@ -232,12 +238,13 @@ class Solver:
                         graphics.update(game)
 
                     elif hint_button.collidepoint(mouse_pos):
+                        game._game_stats.hints_used += 1
                         print(
                             f"[UI] Hint requested with heuristic: "
                             f"{self._hint_heuristic_name}"
                         )
 
-                        hinted_state = self.next_best_move_with_search(
+                        hinted_state, hint_stats = self.next_best_move_with_search(
                             game.get_board_state(),
                             strategy=self._hint_strategy,
                             segment_size=game.get_segment_size(),
@@ -247,10 +254,20 @@ class Solver:
                             heuristic_func=self.get_heuristic_by_name(
                                 self._hint_heuristic_name
                             ),
+                            return_stats=True,
+                        )
+
+                        game._game_stats.states_explored += hint_stats["nodes"]
+                        game._game_stats.solution_depth = hint_stats["depth"]
+                        game._game_stats.max_memory = max(
+                            game._game_stats.max_memory,
+                            hint_stats["max_memory"],
                         )
 
                         if hinted_state:
-                            current_tiles = game.get_board_state().get_board().get_tiles()
+                            current_tiles = (
+                                game.get_board_state().get_board().get_tiles()
+                            )
                             hinted_tiles = hinted_state.get_board().get_tiles()
                             hint_highlight = {
                                 i
@@ -310,6 +327,12 @@ class Solver:
         nodes_explored = [0]
 
         def operators_func(state):
+            """
+            @brief Generate neighbors while tracking explored-state count.
+
+            @param state Current state to expand.
+            @return Iterable of successor states.
+            """
             nodes_explored[0] += 1
             return self.generate_possible_moves(state, segment_size)
 
@@ -368,9 +391,7 @@ class Solver:
             "misplaced": self.heuristic_misplaced,
             "breakpoints": self.heuristic_breakpoints,
             "distance": self.heuristic_distance,
-            "pdb": self.heuristic_pdb
-            if self.has_pdb()
-            else self.heuristic_misplaced,
+            "pdb": self.heuristic_pdb if self.has_pdb() else self.heuristic_misplaced,
         }
         return mapping.get(heuristic_name, self.heuristic_misplaced)
 
@@ -481,6 +502,7 @@ class Solver:
         max_cost=None,
         weight: float = 1.0,
         heuristic_func=None,
+        return_stats: bool = False,
     ):
         """
         @brief Returns the next move from the best search path.
@@ -492,13 +514,16 @@ class Solver:
         @param max_cost Maximum cost.
         @param weight Heuristic weight.
         @param heuristic_func Heuristic function.
+        @param return_stats If True, returns a tuple (state, stats).
         @return Next best state or fallback result.
         """
         heuristic = heuristic_func or self.heuristic_misplaced
+        nodes_explored = [0]
 
-        operators = lambda current_state: self.generate_possible_moves(
-            current_state, segment_size
-        )
+        def operators(current_state):
+            nodes_explored[0] += 1
+            return self.generate_possible_moves(current_state, segment_size)
+
         goal = lambda current_state: current_state.is_goal()
 
         args = [state, goal, operators]
@@ -515,11 +540,30 @@ class Solver:
 
         if result:
             path = SearchAlgorithms.extract_path(result)
+            stats = {
+                "nodes": nodes_explored[0],
+                "depth": max(0, len(path) - 1),
+                "max_memory": nodes_explored[0],
+                "found": True,
+            }
+            self._last_search_stats = stats
             if len(path) >= 2:
-                return path[1]
+                return (path[1], stats) if return_stats else path[1]
 
-        print("[SOLVER] Search failed or already complete, using 1-step Greedy fallback")
-        return self.next_best_move(state, segment_size, heuristic)
+            return (path[0], stats) if return_stats else path[0]
+
+        print(
+            "[SOLVER] Search failed or already complete, using 1-step Greedy fallback"
+        )
+        fallback_state = self.next_best_move(state, segment_size, heuristic)
+        stats = {
+            "nodes": nodes_explored[0],
+            "depth": 0,
+            "max_memory": nodes_explored[0],
+            "found": False,
+        }
+        self._last_search_stats = stats
+        return (fallback_state, stats) if return_stats else fallback_state
 
     def next_best_move(self, state, segment_size: int = 4, heuristic_func=None):
         """

@@ -111,93 +111,11 @@ class TestLoadInstanceDefaultDir:
         assert n > 0
 
 
-class TestSaveResultDefaultDir:
-
-    def _default_stats(self) -> GameStats:
-        stats = GameStats()
-        stats.moves = 3
-        stats.solution_depth = 3
-        stats.states_explored = 10
-        stats.max_memory = 50
-        return stats
-
-    def test_bare_name_saves_to_results_dir(self):
-        FileManager.save_result(
-            "test_output", "BFS", self._default_stats(), solved=True
-        )
-        out = _RESULTS_DIR / "test_output.txt"
-        assert out.exists()
-        out.unlink()
-
-
-class TestSaveResult:
-
-    def _default_stats(self) -> GameStats:
-        stats = GameStats()
-        stats.moves = 5
-        stats.solution_depth = 5
-        stats.states_explored = 42
-        stats.max_memory = 100
-        return stats
-
-    def test_creates_file(self, tmp_path):
-        out = str(tmp_path / "result.txt")
-        FileManager.save_result(out, "BFS", self._default_stats(), solved=True)
-        assert os.path.exists(out)
-
-    def test_creates_parent_dirs(self, tmp_path):
-        out = str(tmp_path / "nested" / "dir" / "result.txt")
-        FileManager.save_result(out, "DFS", self._default_stats(), solved=False)
-        assert os.path.exists(out)
-
-    def test_content_fields_present(self, tmp_path):
-        out = str(tmp_path / "result.txt")
-        FileManager.save_result(
-            out,
-            "A_STAR",
-            self._default_stats(),
-            solved=True,
-            heuristic_name="misplaced",
-        )
-        content = open(out).read()
-        assert "Algorithm:        A_STAR" in content
-        assert "Heuristic:        misplaced" in content
-        assert "Solved:           True" in content
-        assert "Moves:            5" in content
-        assert "States explored:  42" in content
-        assert "Time (s):" in content
-
-    def test_no_heuristic_writes_none(self, tmp_path):
-        out = str(tmp_path / "result.txt")
-        FileManager.save_result(out, "BFS", self._default_stats(), solved=True)
-        assert "Heuristic:        None" in open(out).read()
-
-    def test_solution_path_written(self, tmp_path):
-        out = str(tmp_path / "result.txt")
-        path = [_make_state([3, 1, 2]), _make_state([1, 2, 3])]
-        FileManager.save_result(
-            out, "BFS", self._default_stats(), solved=True, solution_path=path
-        )
-        content = open(out).read()
-        assert "Solution path:" in content
-        assert "3 1 2" in content
-        assert "1 2 3" in content
-
-    def test_no_solution_path_writes_none(self, tmp_path):
-        out = str(tmp_path / "result.txt")
-        FileManager.save_result(out, "BFS", self._default_stats(), solved=False)
-        assert "Solution path:    None" in open(out).read()
-
-    def test_unsolved_flag(self, tmp_path):
-        out = str(tmp_path / "result.txt")
-        FileManager.save_result(out, "BFS", self._default_stats(), solved=False)
-        assert "Solved:           False" in open(out).read()
-
-
 class TestGameTimer:
 
     def test_get_time_increases(self):
         import time
+
         timer = GameTimer()
         t1 = timer.get_time()
         time.sleep(0.05)
@@ -210,6 +128,7 @@ class TestGameTimer:
 
     def test_pause_freezes_time(self):
         import time
+
         timer = GameTimer()
         time.sleep(0.02)
         timer.pause()
@@ -219,6 +138,7 @@ class TestGameTimer:
 
     def test_resume_continues_time(self):
         import time
+
         timer = GameTimer()
         time.sleep(0.02)
         timer.pause()
@@ -230,16 +150,18 @@ class TestGameTimer:
 
     def test_paused_time_not_counted(self):
         import time
+
         timer = GameTimer()
         time.sleep(0.02)
         timer.pause()
-        time.sleep(0.1)   # this should not count
+        time.sleep(0.1)  # this should not count
         timer.resume()
         elapsed = timer.get_time()
         assert elapsed < 0.08  # well under 0.12 (0.02 running + 0.1 paused)
 
     def test_reset_restarts_clock(self):
         import time
+
         timer = GameTimer()
         time.sleep(0.05)
         timer.reset()
@@ -253,6 +175,7 @@ class TestGameTimer:
 
     def test_double_pause_has_no_effect(self):
         import time
+
         timer = GameTimer()
         timer.pause()
         first_pause_start = timer.pause_start
@@ -262,6 +185,7 @@ class TestGameTimer:
 
     def test_double_resume_has_no_effect(self):
         import time
+
         timer = GameTimer()
         timer.pause()
         time.sleep(0.02)
@@ -283,23 +207,8 @@ class TestGameStatsTimer:
 
     def test_reset_restarts_timer(self):
         import time
+
         stats = GameStats()
         time.sleep(0.05)
         stats.reset()
         assert stats.timer.get_time() < 0.05
-
-    def test_save_result_writes_time(self, tmp_path):
-        import time
-        stats = GameStats()
-        time.sleep(0.02)
-        out = str(tmp_path / "result.txt")
-        FileManager.save_result(out, "BFS", stats, solved=True)
-        content = open(out).read()
-        # extract the time value written
-        for line in content.splitlines():
-            if line.startswith("Time (s):"):
-                written_time = float(line.split()[-1])
-                assert written_time >= 0.02
-                break
-        else:
-            pytest.fail("Time (s): line not found in output")

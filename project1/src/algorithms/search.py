@@ -107,29 +107,13 @@ class SearchAlgorithms:
                 if state_key not in visited and (
                     max_cost is None or new_cost <= max_cost
                 ):
-                    child = TreeNode(next_state, parent=node, operator_cost=operator_cost)
+                    child = TreeNode(
+                        next_state, parent=node, operator_cost=operator_cost
+                    )
                     visited.add(state_key)
                     frontier.append(child)
 
         return None
-
-    @staticmethod
-    def _state_in_path(node: TreeNode, state_key: tuple) -> bool:
-        """
-        @brief Checks whether a state already exists in the current node path.
-
-        Useful for cycle detection in path-based depth-first variants.
-
-        @param node Current tree node.
-        @param state_key Hashable state key.
-        @return True if the state is already in the path, otherwise False.
-        """
-        current = node
-        while current is not None:
-            if SearchAlgorithms._key(current.state) == state_key:
-                return True
-            current = current.parent
-        return False
 
     @staticmethod
     def dfs(
@@ -173,7 +157,9 @@ class SearchAlgorithms:
                 if state_key not in visited and (
                     max_cost is None or new_cost <= max_cost
                 ):
-                    child = TreeNode(next_state, parent=node, operator_cost=operator_cost)
+                    child = TreeNode(
+                        next_state, parent=node, operator_cost=operator_cost
+                    )
                     visited.add(state_key)
                     frontier.append((child, depth + 1))
 
@@ -221,7 +207,9 @@ class SearchAlgorithms:
                 if state_key not in visited and (
                     max_cost is None or new_cost <= max_cost
                 ):
-                    child = TreeNode(next_state, parent=node, operator_cost=operator_cost)
+                    child = TreeNode(
+                        next_state, parent=node, operator_cost=operator_cost
+                    )
                     visited.add(state_key)
                     frontier.append((child, depth + 1))
 
@@ -301,7 +289,9 @@ class SearchAlgorithms:
                 if state_key not in visited and (
                     max_cost is None or new_cost <= max_cost
                 ):
-                    child = TreeNode(next_state, parent=node, operator_cost=operator_cost)
+                    child = TreeNode(
+                        next_state, parent=node, operator_cost=operator_cost
+                    )
                     visited.add(state_key)
                     heapq.heappush(frontier, (heuristic_func(child), child))
 
@@ -380,7 +370,9 @@ class SearchAlgorithms:
                 if state_key not in best_cost or new_cost < best_cost[state_key]:
                     if max_cost is None or new_cost <= max_cost:
                         best_cost[state_key] = new_cost
-                        child = TreeNode(next_state, parent=node, operator_cost=operator_cost)
+                        child = TreeNode(
+                            next_state, parent=node, operator_cost=operator_cost
+                        )
                         f_score = child.cost + weight * heuristic_func(child)
                         heapq.heappush(frontier, (f_score, child))
 
@@ -426,10 +418,12 @@ class SearchAlgorithms:
                 new_cost = current_cost + operator_cost
                 state_key = key(next_state)
 
-                if (state_key not in cost_so_far or new_cost < cost_so_far[state_key]) and (
-                    max_cost is None or new_cost <= max_cost
-                ):
-                    child = TreeNode(next_state, parent=node, operator_cost=operator_cost)
+                if (
+                    state_key not in cost_so_far or new_cost < cost_so_far[state_key]
+                ) and (max_cost is None or new_cost <= max_cost):
+                    child = TreeNode(
+                        next_state, parent=node, operator_cost=operator_cost
+                    )
                     cost_so_far[state_key] = new_cost
                     heapq.heappush(frontier, (new_cost, child))
 

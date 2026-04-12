@@ -5,35 +5,50 @@ import random
 class Board:
 
     def __init__(self, tiles: int | List[int], segment_size: int = 4) -> None:
+        """
+        @brief Build a board with initial tiles and segment size.
+
+        @param tiles Initial tile sequence.
+        @param segment_size Segment length used by reverse moves.
+        """
         self._segment_size = segment_size
         self._tiles = list(tiles)
         self._initial_tiles = list(tiles)
 
     def get_tiles(self) -> List[int]:
+        """@brief Return the current tile list."""
         return self._tiles
 
     def set_tiles(self, tiles: List[int]) -> None:
+        """
+        @brief Replace board tiles.
+
+        @param tiles New tile sequence.
+        """
         self._tiles = list(tiles)
 
     def get_segment_size(self) -> int:
+        """@brief Return the configured segment size."""
         return self._segment_size
 
     def size(self) -> int:
+        """@brief Return number of tiles."""
         return len(self._tiles)
 
-    def at(self, index: int) -> int:
-        return self._tiles[index]
-
-    def set(self, index: int, value: int) -> int:
-        self._tiles[index] = value
-
     def is_ordered(self) -> bool:
+        """@brief Check if tiles are in circular ascending order."""
         n = len(self._tiles)
         return all(
             self._tiles[(i + 1) % n] == (self._tiles[i] % n) + 1 for i in range(n)
         )
 
     def reverse_segment(self, start: int, segment_size: int) -> None:
+        """
+        @brief Reverse a circular segment of the board in-place.
+
+        @param start Start index.
+        @param segment_size Segment length.
+        """
         n = self.size()
 
         for i in range(segment_size // 2):
@@ -45,31 +60,39 @@ class Board:
             )
 
     def rotate_wheel(self, steps=1) -> None:
+        """
+        @brief Rotate all tiles circularly.
+
+        @param steps Number of steps to rotate.
+        """
         n = self.size()
         steps = steps % n
         self._tiles = self._tiles[-steps:] + self._tiles[:-steps]
 
     def print(self) -> None:
+        """@brief Print the board in a single line."""
         print("Board:", " ".join(str(tile) for tile in self._tiles))
 
     def reset_board(self) -> None:
+        """@brief Reset tiles to the initial configuration."""
         self.set_tiles(self._initial_tiles)
 
     def shuffle_board(self, n_moves: int = 8) -> None:
         """
-        Shuffle seguro: aplica jogadas válidas a partir do estado resolvido.
-        Mantém a funcionalidade de embaralhar, mas evita instâncias absurdamente difíceis.
-        """
-        self._tiles = list(range(1, len(self._tiles) + 1))
-        self._shuffle_by_moves(n_moves)
-        self._initial_tiles = list(self._tiles)
+        @brief Shuffle the board from solved state using valid random moves.
 
-    def shuffle_few_moves(self, n_moves: int = 8) -> None:
+        @param n_moves Number of random moves to apply.
+        """
         self._tiles = list(range(1, len(self._tiles) + 1))
         self._shuffle_by_moves(n_moves)
         self._initial_tiles = list(self._tiles)
 
     def _shuffle_by_moves(self, n_moves: int) -> None:
+        """
+        @brief Internal helper that shuffles via reverse moves.
+
+        @param n_moves Number of moves to apply.
+        """
         n = len(self._tiles)
         last_start = None
 
@@ -86,6 +109,13 @@ class Board:
 
     @staticmethod
     def is_solvable(board: list[int], segment_size: int) -> bool:
+        """
+        @brief Heuristic solvability check for given board and segment size.
+
+        @param board Tile sequence to evaluate.
+        @param segment_size Segment length used by the puzzle.
+        @return True if considered solvable.
+        """
         n = len(board)
         t = segment_size
         inversions = 0
@@ -113,9 +143,3 @@ class Board:
             return True
 
         return inversions % 2 == 0
-
-    def _shuffle_solvable(self, segment_size: int) -> None:
-        while True:
-            random.shuffle(self._tiles)
-            if Board.is_solvable(self._tiles, segment_size):
-                break

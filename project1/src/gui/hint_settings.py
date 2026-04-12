@@ -4,9 +4,20 @@ from src.algorithms.search_strategy import SearchStrategy
 
 class HintSettings:
     def __init__(self, solver):
+        """
+        @brief Initialize hint settings UI.
+
+        @param solver Solver instance whose hint configuration is edited.
+        """
         self.solver = solver
 
     def run(self, screen):
+        """
+        @brief Render and handle the interactive hint settings screen.
+
+        @param screen Pygame surface used for rendering.
+        @return 0 on save, -2 on back, or -1 when quitting.
+        """
         font = pygame.font.SysFont("arial", 22, bold=True)
         title_font = pygame.font.SysFont("arial", 32, bold=True)
         small_font = pygame.font.SysFont("arial", 16, bold=True)
@@ -31,6 +42,9 @@ class HintSettings:
             text_font=None,
             special=False,
         ):
+            """
+            @brief Draw a styled button with optional selected and hover states.
+            """
             if text_font is None:
                 text_font = small_font
 
@@ -50,13 +64,18 @@ class HintSettings:
 
             pygame.draw.rect(screen, color, rect, border_radius=10)
 
-            border_color = WHITE if selected else (BORDER if hovered else (100, 70, 100))
+            border_color = (
+                WHITE if selected else (BORDER if hovered else (100, 70, 100))
+            )
             pygame.draw.rect(screen, border_color, rect, width=2, border_radius=10)
 
             txt = text_font.render(text, True, WHITE)
             screen.blit(txt, txt.get_rect(center=rect.center))
 
         def draw_panel(rect, title):
+            """
+            @brief Draw a labeled panel container.
+            """
             pygame.draw.rect(screen, PANEL, rect, border_radius=12)
             pygame.draw.rect(screen, BORDER, rect, width=1, border_radius=12)
 
@@ -64,6 +83,11 @@ class HintSettings:
             screen.blit(title_surf, (rect.x + 15, rect.y + 8))
 
         def draw_value_selector(y, label, value_text, mouse_pos):
+            """
+            @brief Draw a numeric selector with minus and plus controls.
+
+            @return Tuple with minus and plus button rectangles.
+            """
             label_surf = small_font.render(label, True, WHITE)
             screen.blit(label_surf, (160, y + 8))
 
@@ -103,11 +127,23 @@ class HintSettings:
             (pygame.Rect(65, 105, 300, 32), "BFS", SearchStrategy.BFS),
             (pygame.Rect(435, 105, 300, 32), "DFS", SearchStrategy.DFS),
             (pygame.Rect(65, 142, 300, 32), "Limited DFS", SearchStrategy.DFS_LIMITED),
-            (pygame.Rect(435, 142, 300, 32), "Iterative Deepening", SearchStrategy.ITERATIVE_DEEPENING),
-            (pygame.Rect(65, 179, 300, 32), "Uniform Cost", SearchStrategy.UNIFORM_COST),
+            (
+                pygame.Rect(435, 142, 300, 32),
+                "Iterative Deepening",
+                SearchStrategy.ITERATIVE_DEEPENING,
+            ),
+            (
+                pygame.Rect(65, 179, 300, 32),
+                "Uniform Cost",
+                SearchStrategy.UNIFORM_COST,
+            ),
             (pygame.Rect(435, 179, 300, 32), "Greedy", SearchStrategy.GREEDY),
             (pygame.Rect(65, 216, 300, 32), "A*", SearchStrategy.A_STAR),
-            (pygame.Rect(435, 216, 300, 32), "Weighted A*", SearchStrategy.WEIGHTED_A_STAR),
+            (
+                pygame.Rect(435, 216, 300, 32),
+                "Weighted A*",
+                SearchStrategy.WEIGHTED_A_STAR,
+            ),
         ]
 
         heur_buttons = [
@@ -136,7 +172,9 @@ class HintSettings:
             title = title_font.render("HINT SETTINGS", True, WHITE)
             screen.blit(title, title.get_rect(center=(screen_w // 2, 35)))
 
-            draw_button(back_button, "BACK", hovered=back_button.collidepoint(mouse_pos))
+            draw_button(
+                back_button, "BACK", hovered=back_button.collidepoint(mouse_pos)
+            )
 
             draw_panel(algo_panel, "ALGORITHM")
             for button, label, strategy in algo_buttons:

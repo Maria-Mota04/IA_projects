@@ -9,17 +9,32 @@ from src.states.game_state import GameState
 
 class Piece:
     def __init__(self, position, num, radius):
+        """
+        @brief Create a drawable game piece.
+
+        @param position Initial piece position.
+        @param num Tile number shown on piece.
+        @param radius Piece radius in pixels.
+        """
         self.position = position
         self.radius = radius
         self.num = num
 
     def get_radius(self):
+        """@brief Return piece radius."""
         return self.radius
 
     def get_position(self):
+        """@brief Return piece position."""
         return self.position
 
     def display(self, screen, highlight=False):
+        """
+        @brief Draw the piece, optionally highlighted.
+
+        @param screen Pygame surface used for rendering.
+        @param highlight Whether to draw highlighted style.
+        """
         color = (230, 80, 80) if highlight else (220, 184, 4)
         pygame.draw.circle(screen, color, self.position, self.radius)
         if highlight:
@@ -38,19 +53,40 @@ class Piece:
 
 class GameGraphics:
     def __init__(self, game: Game):
+        """
+        @brief Initialize graphics helper from a game state.
+
+        @param game Game instance to be visualized.
+        """
         self.update(game)
         self.turn_size = game.get_segment_size()
-        self.initial = [0,0]
-        self.diameter = (self.pieces)[1].get_radius() * (self.turn_size-1) + self.spacing * (self.turn_size -1)
-        self.center_circle = [self.pieces[1].get_position()[0] + self.diameter/2 - (self.pieces)[1].get_radius() - self.spacing/4 + 5, self.pieces[0].get_position()[1]]
+        self.initial = [0, 0]
+        self.diameter = (self.pieces)[1].get_radius() * (
+            self.turn_size - 1
+        ) + self.spacing * (self.turn_size - 1)
+        self.center_circle = [
+            self.pieces[1].get_position()[0]
+            + self.diameter / 2
+            - (self.pieces)[1].get_radius()
+            - self.spacing / 4
+            + 5,
+            self.pieces[0].get_position()[1],
+        ]
 
     def get_center_circle(self):
+        """@brief Return center point of the inner circle."""
         return self.center_circle
-    
+
     def get_radius_circle(self):
+        """@brief Return radius of the inner circle."""
         return self.diameter / 2 - 5
-    
+
     def alter_pieces(self, direction):
+        """
+        @brief Reorder piece list after side rotation animation.
+
+        @param direction Rotation direction (1 right, otherwise left).
+        """
         if direction == 1:  # right
             self.pieces = [self.pieces[-1]] + self.pieces[:-1]
         else:  # left
@@ -59,6 +95,16 @@ class GameGraphics:
         self.update_pieces_position()
 
     def get_position_on_track(self, d, cx, cy, width, r):
+        """
+        @brief Convert path distance to board track coordinates.
+
+        @param d Distance along the track.
+        @param cx Track center x.
+        @param cy Track center y.
+        @param width Straight segment width.
+        @param r Curve radius.
+        @return Coordinate tuple (x, y).
+        """
 
         top_len = width
         curve_len = math.pi * r
@@ -97,6 +143,11 @@ class GameGraphics:
         return x, y
 
     def update(self, game: Game):
+        """
+        @brief Rebuild piece objects from current game tiles.
+
+        @param game Game instance providing tile values.
+        """
         self.pieces = []
         radius = 30
 
@@ -104,11 +155,12 @@ class GameGraphics:
         total = len(tiles)
 
         for i in range(total):
-            self.pieces.append(Piece([0,0], tiles[i], radius))
+            self.pieces.append(Piece([0, 0], tiles[i], radius))
 
         self.update_pieces_position()
 
     def update_pieces_position(self):
+        """@brief Recalculate screen positions for all pieces."""
         total = len(self.pieces)
 
         cx, cy = 400, 300
@@ -123,9 +175,15 @@ class GameGraphics:
         for i in range(total):
             d = i * self.spacing
             x, y = self.get_position_on_track(d, cx, cy, width, r)
-            self.pieces[i].position = [x,y]
+            self.pieces[i].position = [x, y]
 
     def display(self, screen, highlight_indices=None):
+        """
+        @brief Draw the board and all pieces.
+
+        @param screen Pygame surface used for rendering.
+        @param highlight_indices Optional iterable of piece indices to highlight.
+        """
         # grey background
         pygame.draw.rect(
             screen,
@@ -137,8 +195,9 @@ class GameGraphics:
 
         # purple circle
 
-        pygame.draw.circle(screen, (69, 92, 168), self.center_circle, self.diameter/2-5)
-
+        pygame.draw.circle(
+            screen, (69, 92, 168), self.center_circle, self.diameter / 2 - 5
+        )
 
         for i, piece in enumerate(self.pieces):
             piece.display(
@@ -147,12 +206,28 @@ class GameGraphics:
             )
 
     def move_left(self, screen):
+        """
+        @brief Animate a one-step left rotation.
+
+        @param screen Pygame surface used for rendering.
+        """
         self.animate_side_move(-1, screen)
 
     def move_right(self, screen):
+        """
+        @brief Animate a one-step right rotation.
+
+        @param screen Pygame surface used for rendering.
+        """
         self.animate_side_move(1, screen)
 
     def animate_side_move(self, direction, screen):
+        """
+        @brief Animate circular side movement of all pieces.
+
+        @param direction Rotation direction multiplier.
+        @param screen Pygame surface used for rendering.
+        """
         steps = 10
         move_amount = self.spacing * direction / steps
 
@@ -183,10 +258,15 @@ class GameGraphics:
         self.alter_pieces(direction)
 
     def flip_disks(self, screen):
+        """
+        @brief Animate and apply the segment flip operation.
+
+        @param screen Pygame surface used for rendering.
+        """
         steps = 15
 
         for _ in range(steps):
-            for j in range(1,self.turn_size+1):
+            for j in range(1, self.turn_size + 1):
                 x, y = self.pieces[j].position
 
                 # Translate to origin
@@ -194,14 +274,25 @@ class GameGraphics:
                 rel_y = y - self.center_circle[1]
 
                 # Rotate
-                new_x = rel_x * math.cos(math.pi/steps) - rel_y * math.sin(math.pi/steps)
-                new_y = rel_x * math.sin(math.pi/steps) + rel_y * math.cos(math.pi/steps)
+                new_x = rel_x * math.cos(math.pi / steps) - rel_y * math.sin(
+                    math.pi / steps
+                )
+                new_y = rel_x * math.sin(math.pi / steps) + rel_y * math.cos(
+                    math.pi / steps
+                )
 
                 # Translate back
-                self.pieces[j].position = [int(self.center_circle[0] + new_x), int(self.center_circle[1] + new_y)]
+                self.pieces[j].position = [
+                    int(self.center_circle[0] + new_x),
+                    int(self.center_circle[1] + new_y),
+                ]
 
             self.display(screen)
             pygame.display.flip()
             pygame.time.delay(15)
 
-        self.pieces = [self.pieces[0]] + self.pieces[1:self.turn_size+1][::-1] + self.pieces[self.turn_size+1:]
+        self.pieces = (
+            [self.pieces[0]]
+            + self.pieces[1 : self.turn_size + 1][::-1]
+            + self.pieces[self.turn_size + 1 :]
+        )

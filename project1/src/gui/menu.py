@@ -1,4 +1,3 @@
-
 import pygame
 import random
 from src.game.solver import Solver
@@ -13,6 +12,11 @@ import copy
 
 class Menu:
     def __init__(self, screen):
+        """
+        @brief Initialize the main menu UI state and shared resources.
+
+        @param screen Pygame display surface used to render menu screens.
+        """
         self.screen = screen
         self.leaderboard = Leaderboard()
 
@@ -30,11 +34,19 @@ class Menu:
         }
 
     def _shuffle_board_for_difficulty(self, board: Board):
+        """
+        @brief Shuffle the board according to the selected difficulty range.
+
+        @param board Board instance to shuffle in-place.
+        """
         min_moves, max_moves = self.difficulty_moves[self.difficulty]
         n_moves = random.randint(min_moves, max_moves)
         board.shuffle_board(n_moves=n_moves)
 
     def run(self):
+        """
+        @brief Run the main menu loop and dispatch selected game modes.
+        """
         game_running = True
         font = pygame.font.SysFont("arial", 40)
 
@@ -91,14 +103,19 @@ class Menu:
                     game_running = False
 
                 if event.type == pygame.MOUSEBUTTONUP or try_again:
-                    click_pos = event.pos if event.type == pygame.MOUSEBUTTONUP else mouse
+                    click_pos = (
+                        event.pos if event.type == pygame.MOUSEBUTTONUP else mouse
+                    )
 
                     if play_button.collidepoint(click_pos) or try_again:
                         try_again = False
+                        game.start_game()
                         self.screen.fill(self.BG)
                         ret = solver.solve(game=game, screen=self.screen, mode=2)
 
                         if ret == 0:
+                            game._game_stats.solution_depth = game._game_stats.moves
+                            game.finalize_game_time()
                             time.sleep(0.5)
                             self.leaderboard.add_entry(
                                 game._game_stats.moves,
@@ -155,7 +172,14 @@ class Menu:
                                 heuristic_func=config["heuristic_func"],
                             )
 
-                            if self.display_algo_result(game, path, stats, solver) == -1:
+                            game._game_stats.states_explored = stats["nodes"]
+                            game._game_stats.solution_depth = stats["depth"]
+                            game._game_stats.max_memory = stats["nodes"]
+
+                            if (
+                                self.display_algo_result(game, path, stats, solver)
+                                == -1
+                            ):
                                 game_running = False
                                 break
 
@@ -190,6 +214,11 @@ class Menu:
             pygame.display.update()
 
     def display_difficulty_choice(self):
+        """
+        @brief Show the difficulty selection screen.
+
+        @return Selected difficulty string, None for back, or -1 when quitting.
+        """
         font = pygame.font.SysFont("arial", 40)
 
         back_button = pygame.Rect(30, 30, 85, 50)
@@ -218,14 +247,20 @@ class Menu:
 
             self.screen.blit(title_text, (260, 90))
 
-            easy_color = self.SELECTED if self.difficulty == "easy" else (
-                self.LIGHT if easy_button.collidepoint(mouse) else self.DARK
+            easy_color = (
+                self.SELECTED
+                if self.difficulty == "easy"
+                else (self.LIGHT if easy_button.collidepoint(mouse) else self.DARK)
             )
-            medium_color = self.SELECTED if self.difficulty == "medium" else (
-                self.LIGHT if medium_button.collidepoint(mouse) else self.DARK
+            medium_color = (
+                self.SELECTED
+                if self.difficulty == "medium"
+                else (self.LIGHT if medium_button.collidepoint(mouse) else self.DARK)
             )
-            hard_color = self.SELECTED if self.difficulty == "hard" else (
-                self.LIGHT if hard_button.collidepoint(mouse) else self.DARK
+            hard_color = (
+                self.SELECTED
+                if self.difficulty == "hard"
+                else (self.LIGHT if hard_button.collidepoint(mouse) else self.DARK)
             )
 
             pygame.draw.rect(self.screen, easy_color, easy_button)
@@ -255,6 +290,11 @@ class Menu:
             pygame.display.update()
 
     def display_algorithm_choice(self):
+        """
+        @brief Show available search algorithms and open the configuration screen.
+
+        @return Configuration dictionary, -2 for back, or -1 when quitting.
+        """
         game_running = True
 
         font = pygame.font.SysFont("arial", 32)
@@ -351,6 +391,12 @@ class Menu:
             pygame.display.update()
 
     def display_algorithm_config(self, strategy):
+        """
+        @brief Configure parameters for the selected search strategy.
+
+        @param strategy Numeric identifier of the selected algorithm.
+        @return Configuration dictionary, -2 for back, or -1 when quitting.
+        """
         font = pygame.font.SysFont("arial", 28)
         title_font = pygame.font.SysFont("arial", 36)
         small_font = pygame.font.SysFont("arial", 20)
@@ -388,7 +434,9 @@ class Menu:
             mouse = pygame.mouse.get_pos()
 
             title = title_font.render("Algorithm Config", True, self.WHITE)
-            algo_text = font.render(f"Algorithm: {strategy_names[strategy]}", True, self.WHITE)
+            algo_text = font.render(
+                f"Algorithm: {strategy_names[strategy]}", True, self.WHITE
+            )
 
             self.screen.blit(title, (240, 70))
             self.screen.blit(algo_text, (170, 145))
@@ -524,6 +572,15 @@ class Menu:
             pygame.display.update()
 
     def display_algo_result(self, game: Game, path, stats, solver):
+        """
+        @brief Display algorithm execution metrics and optional step-by-step animation.
+
+        @param game Game instance used to render the replay.
+        @param path Sequence of states/moves returned by the solver.
+        @param stats Dictionary with execution metrics.
+        @param solver Solver instance used to animate the path.
+        @return -1 when quitting; otherwise returns to the previous menu.
+        """
         og_game = copy.deepcopy(game)
 
         font = pygame.font.SysFont("arial", 28)
@@ -616,6 +673,12 @@ class Menu:
             pygame.display.update()
 
     def display_win(self, game=None):
+        """
+        @brief Show the win screen with shortcuts to stats and leaderboard.
+
+        @param game Optional game instance used to show final stats.
+        @return -1 when quitting; otherwise returns after continue.
+        """
         font = pygame.font.SysFont("arial", 40)
         win_text = font.render("YOU WIN!", True, self.WHITE)
 
@@ -670,6 +733,11 @@ class Menu:
             pygame.display.update()
 
     def display_leaderboard(self):
+        """
+        @brief Render the leaderboard screen with best results.
+
+        @return -1 when quitting; otherwise returns to the previous menu.
+        """
         font = pygame.font.SysFont("arial", 28)
         title_font = pygame.font.SysFont("arial", 40)
         back_button = pygame.Rect(30, 30, 85, 50)
@@ -721,6 +789,12 @@ class Menu:
             pygame.display.update()
 
     def display_stats(self, game):
+        """
+        @brief Show current game statistics and timing information.
+
+        @param game Game instance that owns the statistics object.
+        @return -1 when quitting; otherwise returns to the previous menu.
+        """
         font = pygame.font.SysFont("arial", 28)
         title_font = pygame.font.SysFont("arial", 36)
         back_button = pygame.Rect(30, 30, 85, 50)
@@ -728,18 +802,18 @@ class Menu:
 
         stats = game._game_stats
 
-        labels = [
-            f"Moves: {stats.moves}",
-            f"Score: {stats.score}",
-            f"Time: {game.get_game_time():.2f}s",
-            f"States explored: {stats.states_explored}",
-            f"Solution depth: {stats.solution_depth}",
-            f"Max memory: {stats.max_memory}",
-        ]
-
         while True:
             self.screen.fill(self.BG)
             mouse = pygame.mouse.get_pos()
+
+            labels = [
+                f"Moves: {stats.moves}",
+                f"Hints used: {stats.hints_used}",
+                f"Time: {game.get_game_time():.2f}s",
+                f"States explored: {stats.states_explored}",
+                f"Solution depth: {stats.solution_depth}",
+                f"Max memory: {stats.max_memory}",
+            ]
 
             title = title_font.render("Game Stats", True, self.WHITE)
             self.screen.blit(title, (300, 100))
@@ -765,6 +839,11 @@ class Menu:
             pygame.display.update()
 
     def display_lose(self):
+        """
+        @brief Show the lose screen and ask whether to retry or go back.
+
+        @return 0 to retry, 1 to return to menu, or -1 when quitting.
+        """
         while True:
             self.screen.fill(self.BG)
             mouse = pygame.mouse.get_pos()
@@ -805,6 +884,12 @@ class Menu:
             pygame.display.update()
 
     def display_choose_file_menu(self, game: Game):
+        """
+        @brief Show file input UI and load an instance from the instances folder.
+
+        @param game Game instance where the loaded state will be applied.
+        @return -1 when quitting; otherwise returns after success/back.
+        """
         font = pygame.font.SysFont("arial", 38)
         font_small = pygame.font.SysFont("arial", 20)
 
@@ -821,7 +906,9 @@ class Menu:
         confirm_text = font.render("Confirm", True, self.WHITE)
 
         explain_text = font.render("Input the file name:", True, self.WHITE)
-        extra_text = font_small.render("Exclude the file extension (.txt)", True, self.WHITE)
+        extra_text = font_small.render(
+            "Exclude the file extension (.txt)", True, self.WHITE
+        )
         error_text = None
 
         while True:
@@ -834,7 +921,7 @@ class Menu:
             pygame.draw.rect(self.screen, self.WHITE, text_box)
             rendered_text = i_string
             if len(i_string) > max_size:
-                rendered_text = i_string[len(i_string) - max_size:]
+                rendered_text = i_string[len(i_string) - max_size :]
             i_text = font.render(rendered_text, True, self.DARK)
             self.screen.blit(i_text, (110, 285))
 
@@ -865,7 +952,9 @@ class Menu:
                         return
                     elif confirm_button.collidepoint(click_pos):
                         try:
-                            state, _, _ = FileManager.load_instance("instances/" + i_string + ".txt")
+                            state, _, _ = FileManager.load_instance(
+                                "instances/" + i_string + ".txt"
+                            )
                             game.set_board_state(state)
                             return
                         except Exception:
@@ -880,7 +969,9 @@ class Menu:
                         shift = True
                     elif event.key == pygame.K_RETURN:
                         try:
-                            state, _, _ = FileManager.load_instance("instances/" + i_string + ".txt")
+                            state, _, _ = FileManager.load_instance(
+                                "instances/" + i_string + ".txt"
+                            )
                             game.set_board_state(state)
                             return
                         except Exception:

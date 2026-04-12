@@ -3,6 +3,11 @@ import pygame
 
 class ControlHelper:
     def __init__(self, screen):
+        """
+        @brief Initialize controls overlay component.
+
+        @param screen Pygame surface used to render the overlay.
+        """
         self.screen = screen
 
         self.WHITE = (255, 255, 255)
@@ -17,6 +22,9 @@ class ControlHelper:
         ]
 
     def run(self):
+        """
+        @brief Run the controls overlay loop until the user closes it.
+        """
         running = True
         font = pygame.font.SysFont("arial", 36)
         close_font = pygame.font.SysFont("arial", 28)

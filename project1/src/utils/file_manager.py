@@ -17,6 +17,13 @@ class FileManager:
 
     @staticmethod
     def _resolve_path(filepath: str, default_dir: Path) -> Path:
+        """
+        @brief Resolve a user filepath to an absolute .txt path.
+
+        @param filepath Input path or bare filename.
+        @param default_dir Default directory for bare names.
+        @return Resolved path.
+        """
         p = Path(filepath)
         if not p.suffix:
             p = p.with_suffix(".txt")
@@ -26,18 +33,11 @@ class FileManager:
 
     @staticmethod
     def load_instance(filepath: str) -> tuple[GameState, int, int]:
-        """Load a puzzle instance from a .txt file.
+        """
+        @brief Load a puzzle instance from a text file.
 
-        Instance file format (.txt):
-            N K
-            t1 t2 ... tN
-
-        Example:
-            8 4
-            3 1 4 2 7 5 6 8
-
-                Returns:
-                    (initial_state, N, K)
+        @param filepath Relative or absolute instance file path.
+        @return Tuple with initial state, board size (N), and segment size (K).
         """
         path = FileManager._resolve_path(filepath, _INSTANCES_DIR)
         if not path.exists():
@@ -62,38 +62,3 @@ class FileManager:
             raise ValueError(f"Expected {n} tiles, got {len(tiles)}")
 
         state = GameState(Board(tiles, segment_size=k))
-        return state, n, k
-
-    @staticmethod
-    def save_result(
-        filepath: str,
-        algorithm_name: str,
-        stats: GameStats,
-        solved: bool,
-        solution_path: list[GameState] | None = None,
-        heuristic_name: str | None = None,
-    ) -> None:
-
-        path = FileManager._resolve_path(filepath, _RESULTS_DIR)
-        os.makedirs(path.parent, exist_ok=True)
-
-        with open(path, "w") as f:
-            f.write(
-                f"Timestamp:        {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n"
-            )
-            f.write(f"Algorithm:        {algorithm_name}\n")
-            f.write(f"Heuristic:        {heuristic_name or 'None'}\n")
-            f.write(f"Solved:           {solved}\n")
-            f.write(f"Moves:            {stats.moves}\n")
-            f.write(f"Solution depth:   {stats.solution_depth}\n")
-            f.write(f"States explored:  {stats.states_explored}\n")
-            f.write(f"Max memory:       {stats.max_memory}\n")
-            f.write(f"Time (s):         {stats.timer.get_time():.4f}\n")
-
-            if solution_path:
-                f.write("Solution path:\n")
-                for state in solution_path:
-                    tiles_str = " ".join(str(t) for t in state.get_board().get_tiles())
-                    f.write(f"  {tiles_str}\n")
-            else:
-                f.write("Solution path:    None\n")
