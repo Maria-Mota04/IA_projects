@@ -125,8 +125,20 @@ class Board:
                 if board[i] > board[j]:
                     inversions += 1
 
+        def is_circular_with_step(step: int) -> bool:
+            for i in range(n):
+                expected = ((board[i] - 1 + step) % n) + 1
+                if board[(i + 1) % n] != expected:
+                    return False
+            return True
+
+        if t == n:
+            return is_circular_with_step(1) or is_circular_with_step(-1)
+
         if t == 2 and n >= 3:
             return True
+        if t % 4 == 0:
+            return inversions % 2 == 0
         if n % 2 == 0 and t % 2 == 0:
             return True
 

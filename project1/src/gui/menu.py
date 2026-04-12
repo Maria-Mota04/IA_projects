@@ -214,9 +214,13 @@ class Menu:
                             break
 
                     elif read_file_button.collidepoint(click_pos):
-                        if self.display_choose_file_menu(game) == -1:
+                        loaded = self.display_choose_file_menu(game)
+                        if loaded == -1:
                             game_running = False
                             break
+                        if loaded is not None:
+                            state, n, k = loaded
+                            game = Game(state, size=n, segment_size=k)
 
                     elif quit_button.collidepoint(click_pos):
                         game_running = False
@@ -956,8 +960,8 @@ class Menu:
         """
         @brief Show file input UI and load an instance from the instances folder.
 
-        @param game Game instance where the loaded state will be applied.
-        @return -1 when quitting; otherwise returns after success/back.
+        @param game Game instance where the loaded state may be previewed.
+        @return -1 when quitting, (state, n, k) when loaded, or None on back.
         """
         font = pygame.font.SysFont("arial", 38)
         font_small = pygame.font.SysFont("arial", 20)
@@ -1021,9 +1025,8 @@ class Menu:
                         return
                     elif confirm_button.collidepoint(click_pos):
                         try:
-                            state, _, _ = FileManager.load_instance(i_string)
-                            game.set_board_state(state)
-                            return
+                            state, n, k = FileManager.load_instance(i_string)
+                            return state, n, k
                         except Exception:
                             error_text = font_small.render(
                                 "Could not load that file.", True, (255, 180, 180)
@@ -1036,9 +1039,8 @@ class Menu:
                         shift = True
                     elif event.key == pygame.K_RETURN:
                         try:
-                            state, _, _ = FileManager.load_instance(i_string)
-                            game.set_board_state(state)
-                            return
+                            state, n, k = FileManager.load_instance(i_string)
+                            return state, n, k
                         except Exception:
                             error_text = font_small.render(
                                 "Could not load that file.", True, (255, 180, 180)

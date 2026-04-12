@@ -6,17 +6,32 @@ from src.utils.file_manager import FileManager
 
 
 def test_is_solvable_k2_instance_named_unsolvable_is_true() -> None:
-    state, _, k = FileManager.load_instance("test_n8_k2_unsolvable")
-    tiles = state.get_board().get_tiles()
-
-    assert k == 2
-    assert Board.is_solvable(tiles, k) is True
+    tiles = [2, 1, 3, 4, 5, 6, 7, 8]
+    assert Board.is_solvable(tiles, 2) is True
 
 
 def test_is_solvable_even_n_odd_k_reports_unsolvable() -> None:
     tiles = [1, 2, 3, 4, 5, 6, 7, 8]
 
     assert Board.is_solvable(tiles, 3) is False
+
+
+def test_is_solvable_k4_unsolvable_instance_is_false() -> None:
+    state, _, k = FileManager.load_instance("test_n20_k4_unsolvable")
+    tiles = state.get_board().get_tiles()
+
+    assert k == 4
+    assert Board.is_solvable(tiles, k) is False
+
+
+def test_is_solvable_k_equals_n_false_positive_regression_even() -> None:
+    tiles = [1, 2, 3, 4, 6, 5]
+    assert Board.is_solvable(tiles, 6) is False
+
+
+def test_is_solvable_k_equals_n_false_positive_regression_odd() -> None:
+    tiles = [1, 2, 3, 4, 5, 7, 6]
+    assert Board.is_solvable(tiles, 7) is False
 
 
 def test_menu_uses_same_unsolvable_rule_as_board() -> None:
