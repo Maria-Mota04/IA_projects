@@ -58,6 +58,8 @@ class GameGraphics:
 
         @param game Game instance to be visualized.
         """
+
+        print("segment ", game.get_segment_size())
         self.update(game)
         self.turn_size = game.get_segment_size()
         self.initial = [0, 0]

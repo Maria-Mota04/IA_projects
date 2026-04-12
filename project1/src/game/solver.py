@@ -595,21 +595,60 @@ class Solver:
         """
         if not path:
             return
+        
+        print(len(path))
 
         gg = GameGraphics(game)
-        bg = (60, 25, 60)
 
-        for state in path:
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    return -1
+        prior = path[0].get_board().get_tiles()
+        initial_pos = 0
+        # compensate (rotate begins at 1)
+        gg.alter_pieces(1)
 
-            game.set_board_state(state)
-            gg.update(game)
+        # display first state (og problem)
+        gg.display(screen)
+        pygame.display.flip()
+        time.sleep(delay)
 
-            screen.fill(bg)
+        for n in path[1:]:
+
+            curBoard = n.get_board().get_tiles()
+
+            print("board: ", curBoard)
+
+            for i in range(initial_pos,len(prior)):
+                if prior[i] == curBoard[i]:
+                    gg.move_left(screen)
+                    print("showing:", end=" ")
+                    for p in gg.pieces:
+                        print(p.num, end=" ")
+
+                    print("end")
+                    pygame.display.flip()
+                    time.sleep(delay)
+                else:
+                    different = True
+                    j = 1
+
+                    while different:
+                        print("compare: ", prior[i-j], " ", curBoard[i-j])
+                        print("index.", i-j)
+                        if prior[i-j] == curBoard[i-j]:
+                            different = False
+                        else:
+                            gg.move_right(screen)
+                            initial_pos -= 1
+                            j += 1
+                            time.sleep(delay)
+
+                    initial_pos = i
+                    initial_pos = i - j +1
+                    break
+
+            gg.flip_disks(screen)
             gg.display(screen)
             pygame.display.flip()
-            pygame.time.wait(int(delay * 1000))
 
-        return 0
+            prior = curBoard
+
+            time.sleep(delay)

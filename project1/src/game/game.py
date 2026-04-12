@@ -11,8 +11,7 @@ class Game:
     def __init__(
         self,
         state: GameState,
-        size: int = 20,
-        segment_size: int = 4,
+        size: int = 20
     ):
         """
         @brief Initialize a game session with state and board configuration.
@@ -22,7 +21,7 @@ class Game:
         @param segment_size Segment length used by move operations.
         """
         self._n = size
-        self._segment_size = segment_size
+        self._segment_size = state.get_board().get_segment_size()
         self.state = state
         self._last_state = None
         self._game_stats = GameStats()
@@ -42,6 +41,8 @@ class Game:
 
         @param state New game state.
         """
+        self._segment_size = state.get_board().get_segment_size()
+        self._n = len(state.get_board().get_tiles())
         self.state = state
 
     def won(self) -> bool:
