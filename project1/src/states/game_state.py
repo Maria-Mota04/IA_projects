@@ -98,12 +98,6 @@ class GameState:
         self.rotate_wheel(steps)
         return self
 
-    # Utils
-
-    def reset_state(self) -> None:
-        """@brief Reset board to initial tiles."""
-        self._board.reset_board()
-
     def __eq__(self, other: object) -> bool:
         """@brief Compare two states by tile arrangement."""
         if not isinstance(other, GameState):

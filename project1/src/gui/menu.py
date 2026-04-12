@@ -109,6 +109,11 @@ class Menu:
 
                     if play_button.collidepoint(click_pos) or try_again:
                         try_again = False
+                        if not self._is_current_game_solvable(game):
+                            if self.display_unsolvable_instance() == -1:
+                                game_running = False
+                            continue
+
                         game.start_game()
                         self.screen.fill(self.BG)
                         ret = solver.solve(game=game, screen=self.screen, mode=2)
@@ -157,6 +162,11 @@ class Menu:
                         elif config == -2:
                             continue
                         else:
+                            if not self._is_current_game_solvable(game):
+                                if self.display_unsolvable_instance() == -1:
+                                    game_running = False
+                                continue
+
                             self.screen.fill(self.BG)
                             self.screen.blit(loading_text, (300, 280))
                             pygame.display.update()
@@ -212,6 +222,17 @@ class Menu:
                         game_running = False
 
             pygame.display.update()
+
+    def _is_current_game_solvable(self, game: Game) -> bool:
+        """
+        @brief Check if the current board can be solved for its segment size.
+
+        @param game Game instance with the current board state.
+        @return True when the instance is considered solvable.
+        """
+        tiles = game.get_board_state().get_board().get_tiles()
+        segment_size = game.get_segment_size()
+        return Board.is_solvable(tiles, segment_size)
 
     def display_difficulty_choice(self):
         """
@@ -513,7 +534,8 @@ class Menu:
                 y += 70
 
             if uses_max_cost:
-                c_label = font.render(f"Max cost: {max_cost}", True, self.WHITE)
+                max_cost_text = "None" if max_cost is None else str(max_cost)
+                c_label = font.render(f"Max cost: {max_cost_text}", True, self.WHITE)
                 self.screen.blit(c_label, (160, y))
 
                 cost_minus = pygame.Rect(600, y, 40, 35)
@@ -573,9 +595,17 @@ class Menu:
                         weight = round(weight + 0.1, 1)
 
                     if cost_minus and cost_minus.collidepoint(click_pos):
-                        max_cost = max(1, max_cost - 1)
+                        if max_cost is None:
+                            max_cost = 100
+                        elif max_cost <= 1:
+                            max_cost = None
+                        else:
+                            max_cost -= 1
                     if cost_plus and cost_plus.collidepoint(click_pos):
-                        max_cost += 1
+                        if max_cost is None:
+                            max_cost = 1
+                        else:
+                            max_cost += 1
 
             pygame.display.update()
 
@@ -885,6 +915,46 @@ class Menu:
                         return 0
                     if menu_button.collidepoint(click_pos):
                         return 1
+
+            pygame.display.update()
+
+    def display_unsolvable_instance(self):
+        """
+        @brief Show a warning when trying to run an unsolvable instance.
+
+        @return -1 when quitting; otherwise returns to previous menu.
+        """
+        while True:
+            self.screen.fill(self.BG)
+            mouse = pygame.mouse.get_pos()
+
+            title_font = pygame.font.SysFont("arial", 36)
+            text_font = pygame.font.SysFont("arial", 24)
+
+            title = title_font.render("Unsolvable Instance", True, self.WHITE)
+            line1 = text_font.render("This board cannot be solved", True, self.WHITE)
+            line2 = text_font.render("with the current segment size.", True, self.WHITE)
+
+            back_button = pygame.Rect(250, 380, 300, 50)
+            back_text = title_font.render("Back", True, self.WHITE)
+
+            self.screen.blit(title, (220, 180))
+            self.screen.blit(line1, (240, 250))
+            self.screen.blit(line2, (235, 285))
+
+            pygame.draw.rect(
+                self.screen,
+                self.LIGHT if back_button.collidepoint(mouse) else self.DARK,
+                back_button,
+            )
+            self.screen.blit(back_text, (350, 388))
+
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    return -1
+                if event.type == pygame.MOUSEBUTTONUP:
+                    if back_button.collidepoint(event.pos):
+                        return
 
             pygame.display.update()
 

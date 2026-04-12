@@ -582,3 +582,34 @@ class Solver:
             return None
 
         return min(moves, key=lambda move: heuristic(move[0]))[0]
+
+    def animate_path(self, game: Game, screen, path, delay: float = 1.0):
+        """
+        @brief Animate a full solution path on screen.
+
+        @param game Game instance to update while animating.
+        @param screen Pygame screen used for drawing.
+        @param path Sequence of states from initial to goal.
+        @param delay Delay in seconds between frames.
+        @return -1 if user closes window during animation, else 0.
+        """
+        if not path:
+            return
+
+        gg = GameGraphics(game)
+        bg = (60, 25, 60)
+
+        for state in path:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    return -1
+
+            game.set_board_state(state)
+            gg.update(game)
+
+            screen.fill(bg)
+            gg.display(screen)
+            pygame.display.flip()
+            pygame.time.wait(int(delay * 1000))
+
+        return 0

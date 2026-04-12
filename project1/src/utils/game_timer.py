@@ -9,18 +9,6 @@ class GameTimer:
         self.pause_start = None
         self.is_paused = False
 
-    def pause(self):
-        """@brief Pause the timer if it is currently running."""
-        if not self.is_paused:
-            self.pause_start = time.time()
-            self.is_paused = True
-
-    def resume(self):
-        """@brief Resume the timer and accumulate paused duration."""
-        if self.is_paused:
-            self.paused_time += time.time() - self.pause_start
-            self.is_paused = False
-
     def get_time(self):
         """
         @brief Return elapsed active time in seconds.
