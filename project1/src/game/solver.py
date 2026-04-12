@@ -91,7 +91,6 @@ class Solver:
         @return True if depth-limited.
         """
         return strategy in (
-            SearchStrategy.DFS,
             SearchStrategy.DFS_LIMITED,
             SearchStrategy.ITERATIVE_DEEPENING,
         )
