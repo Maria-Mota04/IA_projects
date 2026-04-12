@@ -1,3 +1,5 @@
+# src/game/pdb_heuristic.py
+
 from collections import deque
 from typing import Deque, Dict, List, Tuple
 
@@ -6,12 +8,9 @@ def precompute_flips(n: int, k: int) -> List[Dict[int, int]]:
     """
     @brief Precomputes all flip mappings for a circular board.
 
-    For each possible starting index, this function computes how the positions
-    in a segment of size @p k are remapped when reversed.
-
     @param n Total number of positions on the board.
     @param k Size of the flipped segment.
-    @return A list of mappings, one for each possible move.
+    @return List of flip mappings.
     """
     flip_mappings: List[Dict[int, int]] = []
 
@@ -30,9 +29,6 @@ def normalize_state(state: Tuple[int, ...], n: int) -> Tuple[int, ...]:
     """
     @brief Normalizes a state relative to its first element.
 
-    The first element is used as an anchor, and all positions are shifted so
-    that equivalent rotational configurations share the same representation.
-
     @param state Tuple representing piece positions.
     @param n Total number of positions on the board.
     @return Normalized state.
@@ -41,21 +37,18 @@ def normalize_state(state: Tuple[int, ...], n: int) -> Tuple[int, ...]:
     return tuple((position - anchor) % n for position in state)
 
 
-def get_neighbors_pro(
+def get_pattern_neighbors(
     state: Tuple[int, ...],
     n: int,
     flip_mappings: List[Dict[int, int]],
 ) -> List[Tuple[int, ...]]:
     """
-    @brief Generates all neighboring states from the current state.
-
-    Each neighbor is produced by applying one of the precomputed flip mappings,
-    followed by normalization.
+    @brief Generates all neighboring normalized pattern states.
 
     @param state Current pattern state.
     @param n Total number of positions on the board.
     @param flip_mappings Precomputed flip mappings.
-    @return List of neighboring normalized states.
+    @return Neighboring normalized states.
     """
     neighbors: List[Tuple[int, ...]] = []
 
@@ -71,16 +64,12 @@ def get_neighbors_pro(
 
 def generate_pdb(n: int, k: int, num_pieces: int) -> Dict[Tuple[int, ...], int]:
     """
-    @brief Generates a Pattern Database (PDB) using breadth-first search.
-
-    The search starts from the canonical solved pattern state and explores all
-    reachable normalized states. The resulting dictionary maps each state to its
-    minimum distance from the start state.
+    @brief Generates a Pattern Database using breadth-first search.
 
     @param n Total number of positions on the board.
     @param k Size of the flipped segment.
     @param num_pieces Number of pieces included in the pattern.
-    @return Dictionary mapping normalized states to their optimal distance.
+    @return Dictionary mapping normalized states to optimal distances.
     """
     print(f"Generating PDB for n={n}, k={k}, pieces={num_pieces}...")
 
@@ -94,7 +83,7 @@ def generate_pdb(n: int, k: int, num_pieces: int) -> Dict[Tuple[int, ...], int]:
         current_state = queue.popleft()
         current_distance = pdb[current_state]
 
-        for next_state in get_neighbors_pro(current_state, n, flip_mappings):
+        for next_state in get_pattern_neighbors(current_state, n, flip_mappings):
             if next_state not in pdb:
                 pdb[next_state] = current_distance + 1
                 queue.append(next_state)
@@ -105,14 +94,7 @@ def generate_pdb(n: int, k: int, num_pieces: int) -> Dict[Tuple[int, ...], int]:
 
 def build_patterns(n: int, group_size: int = 5) -> List[List[int]]:
     """
-    @brief Splits the full set of pieces into pattern groups.
-
-    Patterns are created as consecutive groups of tile identifiers starting at 1.
-
-    Example for n=10 and group_size=4:
-    - [1, 2, 3, 4]
-    - [5, 6, 7, 8]
-    - [9, 10]
+    @brief Splits piece identifiers into consecutive pattern groups.
 
     @param n Total number of pieces.
     @param group_size Number of pieces per pattern.
@@ -130,15 +112,12 @@ def pattern_state_from_positions(
     n: int,
 ) -> Tuple[int, ...]:
     """
-    @brief Extracts a normalized pattern state from a full board position map.
-
-    The positions of the pieces in the given pattern are collected and then
-    normalized relative to the first piece in that pattern.
+    @brief Extracts a normalized pattern state from a full position map.
 
     @param pos_map Mapping from tile value to board position.
-    @param pattern List of tile identifiers belonging to the pattern.
+    @param pattern Pattern tile identifiers.
     @param n Total number of positions on the board.
-    @return Normalized tuple representing the pattern state.
+    @return Normalized pattern state.
     """
     positions = [pos_map[piece] for piece in pattern]
     anchor = positions[0]
