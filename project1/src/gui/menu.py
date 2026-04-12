@@ -395,13 +395,7 @@ class Menu:
                     if bfs_button.collidepoint(click_pos):
                         return self.display_algorithm_config(0)
                     if dfs_button.collidepoint(click_pos):
-                        return {
-                            "strategy": 1,
-                            "depth_limit": 20,
-                            "max_cost": None,
-                            "weight": 1.0,
-                            "heuristic_func": None,
-                        }
+                        return self.display_algorithm_config(1)
                     if dfs_limited_button.collidepoint(click_pos):
                         return self.display_algorithm_config(2)
                     if id_button.collidepoint(click_pos):
@@ -450,11 +444,11 @@ class Menu:
 
         depth_limit = 20
         weight = 1.5
-        max_cost = 50
+        max_cost = None
 
         uses_heuristic = strategy in [4, 5, 6]
         uses_depth = strategy in [2, 3]
-        uses_max_cost = strategy != 1
+        uses_max_cost = True
         uses_weight = strategy == 6
 
         while True:
@@ -489,6 +483,7 @@ class Menu:
             depth_minus = depth_plus = None
             weight_minus = weight_plus = None
             cost_minus = cost_plus = None
+            cost_none = None
 
             if uses_heuristic:
                 h_label = font.render(
@@ -540,7 +535,6 @@ class Menu:
 
                 cost_minus = pygame.Rect(600, y, 40, 35)
                 cost_plus = pygame.Rect(650, y, 40, 35)
-
                 pygame.draw.rect(self.screen, self.DARK, cost_minus)
                 pygame.draw.rect(self.screen, self.DARK, cost_plus)
                 self.screen.blit(font.render("-", True, self.WHITE), (613, y - 2))
@@ -596,7 +590,7 @@ class Menu:
 
                     if cost_minus and cost_minus.collidepoint(click_pos):
                         if max_cost is None:
-                            max_cost = 100
+                            max_cost = None
                         elif max_cost <= 1:
                             max_cost = None
                         else:
