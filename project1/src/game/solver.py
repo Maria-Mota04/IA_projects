@@ -214,9 +214,10 @@ class Solver:
                         hint_highlight = None
 
                 if event.type == pygame.MOUSEBUTTONUP:
+                    click_pos = event.pos
                     distance_to_center = math.sqrt(
-                        (mouse_pos[0] - center_circle[0]) ** 2
-                        + (mouse_pos[1] - center_circle[1]) ** 2
+                        (click_pos[0] - center_circle[0]) ** 2
+                        + (click_pos[1] - center_circle[1]) ** 2
                     )
 
                     if distance_to_center <= radius_circle:
@@ -224,20 +225,20 @@ class Solver:
                         graphics.flip_disks(screen)
                         hint_highlight = None
 
-                    elif quit_button.collidepoint(mouse_pos):
+                    elif quit_button.collidepoint(click_pos):
                         return 1
 
-                    elif undo_button.collidepoint(mouse_pos):
+                    elif undo_button.collidepoint(click_pos):
                         game.undo_move()
                         graphics.update(game)
                         hint_highlight = None
 
-                    elif settings_button.collidepoint(mouse_pos):
+                    elif settings_button.collidepoint(click_pos):
                         if HintSettings(self).run(screen) == -1:
                             return -1
                         graphics.update(game)
 
-                    elif hint_button.collidepoint(mouse_pos):
+                    elif hint_button.collidepoint(click_pos):
                         game._game_stats.hints_used += 1
                         print(
                             f"[UI] Hint requested with heuristic: "
@@ -279,7 +280,7 @@ class Solver:
 
                         graphics.update(game)
 
-                    elif help_button.collidepoint(mouse_pos):
+                    elif help_button.collidepoint(click_pos):
                         ControlHelper(screen).run()
                         graphics.update(game)
 

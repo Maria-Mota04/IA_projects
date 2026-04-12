@@ -374,7 +374,13 @@ class Menu:
                     if bfs_button.collidepoint(click_pos):
                         return self.display_algorithm_config(0)
                     if dfs_button.collidepoint(click_pos):
-                        return self.display_algorithm_config(1)
+                        return {
+                            "strategy": 1,
+                            "depth_limit": 20,
+                            "max_cost": None,
+                            "weight": 1.0,
+                            "heuristic_func": None,
+                        }
                     if dfs_limited_button.collidepoint(click_pos):
                         return self.display_algorithm_config(2)
                     if id_button.collidepoint(click_pos):
@@ -426,7 +432,8 @@ class Menu:
         max_cost = 50
 
         uses_heuristic = strategy in [4, 5, 6]
-        uses_depth = strategy in [1, 2, 3]
+        uses_depth = strategy in [2, 3]
+        uses_max_cost = strategy != 1
         uses_weight = strategy == 6
 
         while True:
@@ -505,16 +512,17 @@ class Menu:
                 self.screen.blit(font.render("+", True, self.WHITE), (661, y - 2))
                 y += 70
 
-            c_label = font.render(f"Max cost: {max_cost}", True, self.WHITE)
-            self.screen.blit(c_label, (160, y))
+            if uses_max_cost:
+                c_label = font.render(f"Max cost: {max_cost}", True, self.WHITE)
+                self.screen.blit(c_label, (160, y))
 
-            cost_minus = pygame.Rect(600, y, 40, 35)
-            cost_plus = pygame.Rect(650, y, 40, 35)
+                cost_minus = pygame.Rect(600, y, 40, 35)
+                cost_plus = pygame.Rect(650, y, 40, 35)
 
-            pygame.draw.rect(self.screen, self.DARK, cost_minus)
-            pygame.draw.rect(self.screen, self.DARK, cost_plus)
-            self.screen.blit(font.render("-", True, self.WHITE), (613, y - 2))
-            self.screen.blit(font.render("+", True, self.WHITE), (661, y - 2))
+                pygame.draw.rect(self.screen, self.DARK, cost_minus)
+                pygame.draw.rect(self.screen, self.DARK, cost_plus)
+                self.screen.blit(font.render("-", True, self.WHITE), (613, y - 2))
+                self.screen.blit(font.render("+", True, self.WHITE), (661, y - 2))
 
             help_text = small_font.render(
                 "Choose parameters, then click Run.",
@@ -544,7 +552,7 @@ class Menu:
                         return {
                             "strategy": strategy,
                             "depth_limit": depth_limit,
-                            "max_cost": max_cost,
+                            "max_cost": max_cost if uses_max_cost else None,
                             "weight": weight,
                             "heuristic_func": heuristic_func,
                         }
@@ -810,9 +818,6 @@ class Menu:
                 f"Moves: {stats.moves}",
                 f"Hints used: {stats.hints_used}",
                 f"Time: {game.get_game_time():.2f}s",
-                f"States explored: {stats.states_explored}",
-                f"Solution depth: {stats.solution_depth}",
-                f"Max memory: {stats.max_memory}",
             ]
 
             title = title_font.render("Game Stats", True, self.WHITE)

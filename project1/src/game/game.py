@@ -66,6 +66,7 @@ class Game:
 
         self._last_state = self.state
         self.state = self.state.apply_move(move, self._segment_size)
+        self._game_stats.moves += 1
         self._game_stats.history.append(move)
 
     def make_rotate(self, steps: int = 1) -> None:
@@ -79,7 +80,6 @@ class Game:
 
         self._last_state = self.state
         self.state = self.state.apply_rotate(steps)
-        self._game_stats.moves += 1
         self._game_stats.history.append(f"rotate({steps})")
 
     def undo_move(self) -> None:
