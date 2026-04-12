@@ -238,7 +238,7 @@ class Menu:
                             break
 
                     elif read_file_button.collidepoint(click_pos):
-                        loaded = self.display_choose_file_menu(game)
+                        loaded = self.display_choose_file_menu()
                         if loaded == -1:
                             game_running = False
                             break
@@ -976,13 +976,14 @@ class Menu:
 
             pygame.display.update()
 
-    def display_choose_file_menu(self, game: Game):
+    def display_choose_file_menu(self):
         """
         @brief Show file input UI and load an instance from the instances folder.
 
         @param game Game instance where the loaded state may be previewed.
         @return -1 when quitting, (state, n, k) when loaded, or None on back.
         """
+
         font = pygame.font.SysFont("arial", 38)
         font_small = pygame.font.SysFont("arial", 20)
 
@@ -1039,7 +1040,7 @@ class Menu:
                 if event.type == pygame.QUIT:
                     return -1
 
-                if event.type == pygame.MOUSEBUTTONDOWN:
+                if event.type == pygame.MOUSEBUTTONUP:
                     click_pos = event.pos
                     if back_button.collidepoint(click_pos):
                         return
