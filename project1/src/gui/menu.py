@@ -952,9 +952,7 @@ class Menu:
                         return
                     elif confirm_button.collidepoint(click_pos):
                         try:
-                            state, _, _ = FileManager.load_instance(
-                                "instances/" + i_string + ".txt"
-                            )
+                            state, _, _ = FileManager.load_instance(i_string)
                             game.set_board_state(state)
                             return
                         except Exception:
@@ -969,9 +967,7 @@ class Menu:
                         shift = True
                     elif event.key == pygame.K_RETURN:
                         try:
-                            state, _, _ = FileManager.load_instance(
-                                "instances/" + i_string + ".txt"
-                            )
+                            state, _, _ = FileManager.load_instance(i_string)
                             game.set_board_state(state)
                             return
                         except Exception:

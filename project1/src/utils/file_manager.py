@@ -62,3 +62,4 @@ class FileManager:
             raise ValueError(f"Expected {n} tiles, got {len(tiles)}")
 
         state = GameState(Board(tiles, segment_size=k))
+        return state, n, k
