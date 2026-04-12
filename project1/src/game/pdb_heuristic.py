@@ -26,6 +26,7 @@ def get_neighbors_pro(state, n, flips):
 
 
 def generate_pdb(n, k, num_pieces):
+    print(f"Generating PDB for n={n}, k={k}, pieces={num_pieces}...")
     flips = precompute_flips(n, k)
     start_state = tuple(range(num_pieces))
 
@@ -41,6 +42,7 @@ def generate_pdb(n, k, num_pieces):
                 pdb[nxt] = dist + 1
                 queue.append(nxt)
 
+    print(f"PDB generated with {len(pdb)} entries.")
     return pdb
 
 

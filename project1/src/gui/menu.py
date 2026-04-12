@@ -1,4 +1,6 @@
+
 import pygame
+import random
 from src.game.solver import Solver
 from src.game.game import *
 from src.states.board import Board
@@ -7,6 +9,7 @@ from src.utils.leaderboard import Leaderboard
 from src.utils.file_manager import FileManager
 import time
 import copy
+
 
 class Menu:
     def __init__(self, screen):
@@ -17,27 +20,41 @@ class Menu:
         self.LIGHT = (170, 170, 170)
         self.DARK = (100, 100, 100)
         self.BG = (60, 25, 60)
+        self.SELECTED = (180, 80, 180)
+
+        self.difficulty = "medium"
+        self.difficulty_moves = {
+            "easy": (4, 6),
+            "medium": (7, 10),
+            "hard": (11, 14),
+        }
+
+    def _shuffle_board_for_difficulty(self, board: Board):
+        min_moves, max_moves = self.difficulty_moves[self.difficulty]
+        n_moves = random.randint(min_moves, max_moves)
+        board.shuffle_board(n_moves=n_moves)
 
     def run(self):
         game_running = True
         font = pygame.font.SysFont("arial", 40)
 
         board = Board(list(range(1, 21)))
-        board.shuffle_board()
-        #board = Board([2, 1, 20, 4, 5, 6, 7, 8, 9, 10, 11, 12, 16, 15, 18, 17, 13, 14, 19, 3])
+        self._shuffle_board_for_difficulty(board)
         game = Game(GameState(board))
 
         solver = Solver()
         try_again = False
 
-        play_button = pygame.Rect(300, 190, 140, 50)
-        ia_button = pygame.Rect(300, 260, 140, 50)
-        leaderboard_button = pygame.Rect(300, 330, 140, 50)
-        read_file_button = pygame.Rect(300, 400, 140, 50)
-        quit_button = pygame.Rect(300, 470, 140, 50)
+        play_button = pygame.Rect(250, 120, 300, 50)
+        ia_button = pygame.Rect(250, 185, 300, 50)
+        difficulty_button = pygame.Rect(250, 250, 300, 50)
+        leaderboard_button = pygame.Rect(250, 315, 300, 50)
+        read_file_button = pygame.Rect(250, 380, 300, 50)
+        quit_button = pygame.Rect(250, 445, 300, 50)
 
         play_text = font.render("Play", True, self.WHITE)
         ia_text = font.render("Algorithms", True, self.WHITE)
+        difficulty_text = font.render("Difficulty", True, self.WHITE)
         leaderboard_text = font.render("Leaderboard", True, self.WHITE)
         read_file_text = font.render("Read from File", True, self.WHITE)
         quit_text = font.render("Quit", True, self.WHITE)
@@ -48,156 +65,215 @@ class Menu:
             self.screen.fill(self.BG)
             mouse = pygame.mouse.get_pos()
 
-            pygame.draw.rect(
-                self.screen,
-                self.LIGHT if play_button.collidepoint(mouse) else self.DARK,
+            for button in [
                 play_button,
-            )
-            pygame.draw.rect(
-                self.screen,
-                self.LIGHT if ia_button.collidepoint(mouse) else self.DARK,
                 ia_button,
-            )
-            pygame.draw.rect(
-                self.screen,
-                self.LIGHT if leaderboard_button.collidepoint(mouse) else self.DARK,
+                difficulty_button,
                 leaderboard_button,
-            )
-            pygame.draw.rect(
-                self.screen,
-                self.LIGHT if read_file_button.collidepoint(mouse) else self.DARK,
                 read_file_button,
-            )
-            pygame.draw.rect(
-                self.screen,
-                self.LIGHT if quit_button.collidepoint(mouse) else self.DARK,
                 quit_button,
-            )
+            ]:
+                pygame.draw.rect(
+                    self.screen,
+                    self.LIGHT if button.collidepoint(mouse) else self.DARK,
+                    button,
+                )
 
-            self.screen.blit(play_text, (335, 195))
-            self.screen.blit(ia_text, (305, 265))
-            self.screen.blit(leaderboard_text, (300, 335))
-            self.screen.blit(read_file_text, (300, 405))
-            self.screen.blit(quit_text, (335, 475))
+            self.screen.blit(play_text, (355, 125))
+            self.screen.blit(ia_text, (290, 190))
+            self.screen.blit(difficulty_text, (290, 255))
+            self.screen.blit(leaderboard_text, (275, 320))
+            self.screen.blit(read_file_text, (255, 385))
+            self.screen.blit(quit_text, (355, 450))
 
             for event in pygame.event.get():
-
                 if event.type == pygame.QUIT:
                     game_running = False
 
                 if event.type == pygame.MOUSEBUTTONUP or try_again:
+                    click_pos = event.pos if event.type == pygame.MOUSEBUTTONUP else mouse
 
-                    if play_button.collidepoint(mouse) or try_again:
+                    if play_button.collidepoint(click_pos) or try_again:
                         try_again = False
                         self.screen.fill(self.BG)
                         ret = solver.solve(game=game, screen=self.screen, mode=2)
 
-                        # won
                         if ret == 0:
-                            # give it a time so the player can see his final play
                             time.sleep(0.5)
                             self.leaderboard.add_entry(
                                 game._game_stats.moves,
                                 game.get_game_time(),
                             )
-                            
+
                             if self.display_win(game) == -1:
                                 game_running = False
                                 break
 
-                        # pressed x
                         elif ret == -1:
                             game_running = False
                             break
 
-                        # pressed quit button
                         else:
                             ret1 = self.display_lose()
 
-                            # they want to retry the level
                             if ret1 == 0:
                                 board.reset_board()
                                 game.set_board_state(GameState(board))
                                 try_again = True
-                                pygame.event.post(pygame.event.Event(1))
+                                pygame.event.post(pygame.event.Event(pygame.USEREVENT))
                                 continue
 
-                            # pressed x
                             if ret1 == -1:
                                 game_running = False
                                 break
 
-                        # make a new board, for next try
-                        board.shuffle_board()
+                        self._shuffle_board_for_difficulty(board)
                         state = GameState(board)
                         game = Game(state)
 
-                    if ia_button.collidepoint(mouse):
-                        ret = self.display_algorithm_choice()
+                    elif ia_button.collidepoint(click_pos):
+                        config = self.display_algorithm_choice()
 
-                        # pressed x
-                        if ret == -1:
+                        if config == -1:
                             game_running = False
                             break
-
-                        # pressed go back
-                        elif ret == -2:
+                        elif config == -2:
                             continue
-
-                        # chose an algorithm
                         else:
                             self.screen.fill(self.BG)
-                            self.screen.blit(loading_text, (335, 305))
+                            self.screen.blit(loading_text, (300, 280))
                             pygame.display.update()
 
                             path, stats = solver.solve(
-                                game=game, screen=self.screen, mode=1, strategy=ret
+                                game=game,
+                                screen=self.screen,
+                                mode=1,
+                                strategy=config["strategy"],
+                                depth_limit=config["depth_limit"],
+                                max_cost=config["max_cost"],
+                                weight=config["weight"],
+                                heuristic_func=config["heuristic_func"],
                             )
 
-                            if(self.display_algo_result(game, path, stats, solver) == -1):
+                            if self.display_algo_result(game, path, stats, solver) == -1:
                                 game_running = False
                                 break
 
-                            board.shuffle_few_moves(4)
+                            self._shuffle_board_for_difficulty(board)
                             state = GameState(board)
                             game = Game(state)
 
-                    if leaderboard_button.collidepoint(mouse):
-                        self.display_leaderboard()
+                    elif difficulty_button.collidepoint(click_pos):
+                        ret = self.display_difficulty_choice()
 
-                    if read_file_button.collidepoint(mouse):
+                        if ret == -1:
+                            game_running = False
+                            break
+                        elif ret is not None:
+                            self.difficulty = ret
+                            self._shuffle_board_for_difficulty(board)
+                            game = Game(GameState(board))
+
+                    elif leaderboard_button.collidepoint(click_pos):
+                        if self.display_leaderboard() == -1:
+                            game_running = False
+                            break
+
+                    elif read_file_button.collidepoint(click_pos):
                         if self.display_choose_file_menu(game) == -1:
                             game_running = False
                             break
 
-                    if quit_button.collidepoint(mouse):
+                    elif quit_button.collidepoint(click_pos):
                         game_running = False
+
+            pygame.display.update()
+
+    def display_difficulty_choice(self):
+        font = pygame.font.SysFont("arial", 40)
+
+        back_button = pygame.Rect(30, 30, 85, 50)
+        back_text = font.render("Back", True, self.WHITE)
+
+        title_text = font.render("DIFFICULTY", True, self.WHITE)
+
+        easy_button = pygame.Rect(250, 180, 300, 60)
+        medium_button = pygame.Rect(250, 270, 300, 60)
+        hard_button = pygame.Rect(250, 360, 300, 60)
+
+        easy_text = font.render("Easy", True, self.WHITE)
+        medium_text = font.render("Medium", True, self.WHITE)
+        hard_text = font.render("Hard", True, self.WHITE)
+
+        while True:
+            self.screen.fill(self.BG)
+            mouse = pygame.mouse.get_pos()
+
+            pygame.draw.rect(
+                self.screen,
+                self.LIGHT if back_button.collidepoint(mouse) else self.DARK,
+                back_button,
+            )
+            self.screen.blit(back_text, (35, 32))
+
+            self.screen.blit(title_text, (260, 90))
+
+            easy_color = self.SELECTED if self.difficulty == "easy" else (
+                self.LIGHT if easy_button.collidepoint(mouse) else self.DARK
+            )
+            medium_color = self.SELECTED if self.difficulty == "medium" else (
+                self.LIGHT if medium_button.collidepoint(mouse) else self.DARK
+            )
+            hard_color = self.SELECTED if self.difficulty == "hard" else (
+                self.LIGHT if hard_button.collidepoint(mouse) else self.DARK
+            )
+
+            pygame.draw.rect(self.screen, easy_color, easy_button)
+            pygame.draw.rect(self.screen, medium_color, medium_button)
+            pygame.draw.rect(self.screen, hard_color, hard_button)
+
+            self.screen.blit(easy_text, (360, 190))
+            self.screen.blit(medium_text, (330, 280))
+            self.screen.blit(hard_text, (365, 370))
+
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    return -1
+
+                if event.type == pygame.MOUSEBUTTONUP:
+                    click_pos = event.pos
+
+                    if back_button.collidepoint(click_pos):
+                        return None
+                    if easy_button.collidepoint(click_pos):
+                        return "easy"
+                    if medium_button.collidepoint(click_pos):
+                        return "medium"
+                    if hard_button.collidepoint(click_pos):
+                        return "hard"
 
             pygame.display.update()
 
     def display_algorithm_choice(self):
         game_running = True
 
-        font = pygame.font.SysFont("arial", 40)
+        font = pygame.font.SysFont("arial", 32)
+        title_font = pygame.font.SysFont("arial", 40)
 
-        # back button
         back_button = pygame.Rect(30, 30, 85, 50)
-        back_text = font.render("Back", True, (255, 255, 255))
+        back_text = font.render("Back", True, self.WHITE)
 
-        # title
-        title_text = font.render("ALGORITHMS", True, self.WHITE)
+        title_text = title_font.render("ALGORITHMS", True, self.WHITE)
 
-        # button background
-        bfs_button = pygame.Rect(76, 200, 285, 58)
-        dfs_button = pygame.Rect(437, 200, 285, 58)
-        dfs_limited_button = pygame.Rect(76, 287, 285, 58)
-        id_button = pygame.Rect(437, 287, 285, 58)
-        greedy_button = pygame.Rect(76, 374, 285, 58)
-        a_star_button = pygame.Rect(437, 374, 285, 58)
-        weighted_a_star_button = pygame.Rect(76, 461, 285, 58)
-        uniform_button = pygame.Rect(437, 461, 285, 58)
+        bfs_button = pygame.Rect(60, 170, 300, 58)
+        dfs_button = pygame.Rect(440, 170, 300, 58)
+        dfs_limited_button = pygame.Rect(60, 250, 300, 58)
+        id_button = pygame.Rect(440, 250, 300, 58)
+        greedy_button = pygame.Rect(60, 330, 300, 58)
+        a_star_button = pygame.Rect(440, 330, 300, 58)
+        weighted_a_star_button = pygame.Rect(60, 410, 300, 58)
+        uniform_button = pygame.Rect(440, 410, 300, 58)
 
-        # button text
         bfs_text = font.render("BFS", True, self.WHITE)
         dfs_text = font.render("DFS", True, self.WHITE)
         dfs_limited_text = font.render("Limited DFS", True, self.WHITE)
@@ -213,125 +289,265 @@ class Menu:
 
             pygame.draw.rect(
                 self.screen,
-                (170, 170, 170) if back_button.collidepoint(mouse) else (100, 100, 100),
+                self.LIGHT if back_button.collidepoint(mouse) else self.DARK,
                 back_button,
             )
-            self.screen.blit(back_text, (35, 32))
+            self.screen.blit(back_text, (35, 38))
 
-            self.screen.blit(title_text, (335, 100))
+            self.screen.blit(title_text, (285, 90))
 
-            pygame.draw.rect(
-                self.screen,
-                self.LIGHT if bfs_button.collidepoint(mouse) else self.DARK,
+            for button in [
                 bfs_button,
-            )
-            pygame.draw.rect(
-                self.screen,
-                self.LIGHT if dfs_button.collidepoint(mouse) else self.DARK,
                 dfs_button,
-            )
-            pygame.draw.rect(
-                self.screen,
-                self.LIGHT if dfs_limited_button.collidepoint(mouse) else self.DARK,
                 dfs_limited_button,
-            )
-            pygame.draw.rect(
-                self.screen,
-                self.LIGHT if id_button.collidepoint(mouse) else self.DARK,
                 id_button,
-            )
-            pygame.draw.rect(
-                self.screen,
-                self.LIGHT if greedy_button.collidepoint(mouse) else self.DARK,
                 greedy_button,
-            )
-            pygame.draw.rect(
-                self.screen,
-                self.LIGHT if a_star_button.collidepoint(mouse) else self.DARK,
                 a_star_button,
-            )
-            pygame.draw.rect(
-                self.screen,
-                self.LIGHT if weighted_a_star_button.collidepoint(mouse) else self.DARK,
                 weighted_a_star_button,
-            )
-            pygame.draw.rect(
-                self.screen,
-                self.LIGHT if uniform_button.collidepoint(mouse) else self.DARK,
                 uniform_button,
-            )
+            ]:
+                pygame.draw.rect(
+                    self.screen,
+                    self.LIGHT if button.collidepoint(mouse) else self.DARK,
+                    button,
+                )
 
-            self.screen.blit(bfs_text, (94, 204))
-            self.screen.blit(dfs_text, (500, 204))
-            self.screen.blit(dfs_limited_text, (80, 291))
-            self.screen.blit(id_text, (440, 291))
-            self.screen.blit(greedy_text, (84, 378))
-            self.screen.blit(a_star_text, (500, 378))
-            self.screen.blit(weighted_a_star_text, (84, 465))
-            self.screen.blit(uniform_text, (500, 465))
+            self.screen.blit(bfs_text, (175, 182))
+            self.screen.blit(dfs_text, (560, 182))
+            self.screen.blit(dfs_limited_text, (120, 262))
+            self.screen.blit(id_text, (470, 262))
+            self.screen.blit(greedy_text, (155, 342))
+            self.screen.blit(a_star_text, (575, 342))
+            self.screen.blit(weighted_a_star_text, (110, 422))
+            self.screen.blit(uniform_text, (500, 422))
 
             for event in pygame.event.get():
-
                 if event.type == pygame.QUIT:
                     return -1
 
                 if event.type == pygame.MOUSEBUTTONUP:
+                    click_pos = event.pos
 
-                    if back_button.collidepoint(mouse):
+                    if back_button.collidepoint(click_pos):
                         return -2
 
-                    if bfs_button.collidepoint(mouse):
-                        return 0
+                    if bfs_button.collidepoint(click_pos):
+                        return self.display_algorithm_config(0)
+                    if dfs_button.collidepoint(click_pos):
+                        return self.display_algorithm_config(1)
+                    if dfs_limited_button.collidepoint(click_pos):
+                        return self.display_algorithm_config(2)
+                    if id_button.collidepoint(click_pos):
+                        return self.display_algorithm_config(3)
+                    if greedy_button.collidepoint(click_pos):
+                        return self.display_algorithm_config(4)
+                    if a_star_button.collidepoint(click_pos):
+                        return self.display_algorithm_config(5)
+                    if weighted_a_star_button.collidepoint(click_pos):
+                        return self.display_algorithm_config(6)
+                    if uniform_button.collidepoint(click_pos):
+                        return self.display_algorithm_config(7)
 
-                    if dfs_button.collidepoint(mouse):
-                        return 1
+            pygame.display.update()
 
-                    if dfs_limited_button.collidepoint(mouse):
-                        return 2
+    def display_algorithm_config(self, strategy):
+        font = pygame.font.SysFont("arial", 28)
+        title_font = pygame.font.SysFont("arial", 36)
+        small_font = pygame.font.SysFont("arial", 20)
 
-                    if id_button.collidepoint(mouse):
-                        return 3
+        back_button = pygame.Rect(30, 30, 85, 50)
+        confirm_button = pygame.Rect(275, 520, 250, 50)
 
-                    if greedy_button.collidepoint(mouse):
-                        return 4
+        back_text = font.render("Back", True, self.WHITE)
+        confirm_text = font.render("Run", True, self.WHITE)
 
-                    if a_star_button.collidepoint(mouse):
-                        return 5
+        strategy_names = {
+            0: "BFS",
+            1: "DFS",
+            2: "Limited DFS",
+            3: "Iterative Deepening",
+            4: "Greedy",
+            5: "A*",
+            6: "Weighted A*",
+            7: "Uniform Cost",
+        }
 
-                    if weighted_a_star_button.collidepoint(mouse):
-                        return 6
+        heuristic_names = ["misplaced", "breakpoints", "distance", "pdb"]
+        heuristic_index = 0
 
-                    if uniform_button.collidepoint(mouse):
-                        return 7
+        depth_limit = 20
+        weight = 1.5
+        max_cost = 50
+
+        uses_heuristic = strategy in [4, 5, 6]
+        uses_depth = strategy in [1, 2, 3]
+        uses_weight = strategy == 6
+
+        while True:
+            self.screen.fill(self.BG)
+            mouse = pygame.mouse.get_pos()
+
+            title = title_font.render("Algorithm Config", True, self.WHITE)
+            algo_text = font.render(f"Algorithm: {strategy_names[strategy]}", True, self.WHITE)
+
+            self.screen.blit(title, (240, 70))
+            self.screen.blit(algo_text, (170, 145))
+
+            pygame.draw.rect(
+                self.screen,
+                self.LIGHT if back_button.collidepoint(mouse) else self.DARK,
+                back_button,
+            )
+            self.screen.blit(back_text, (35, 38))
+
+            pygame.draw.rect(
+                self.screen,
+                self.LIGHT if confirm_button.collidepoint(mouse) else self.DARK,
+                confirm_button,
+            )
+            self.screen.blit(confirm_text, (360, 528))
+
+            y = 220
+
+            heuristic_minus = heuristic_plus = None
+            depth_minus = depth_plus = None
+            weight_minus = weight_plus = None
+            cost_minus = cost_plus = None
+
+            if uses_heuristic:
+                h_label = font.render(
+                    f"Heuristic: {heuristic_names[heuristic_index]}",
+                    True,
+                    self.WHITE,
+                )
+                self.screen.blit(h_label, (160, y))
+
+                heuristic_minus = pygame.Rect(600, y, 40, 35)
+                heuristic_plus = pygame.Rect(650, y, 40, 35)
+
+                pygame.draw.rect(self.screen, self.DARK, heuristic_minus)
+                pygame.draw.rect(self.screen, self.DARK, heuristic_plus)
+                self.screen.blit(font.render("-", True, self.WHITE), (613, y - 2))
+                self.screen.blit(font.render("+", True, self.WHITE), (661, y - 2))
+                y += 70
+
+            if uses_depth:
+                d_label = font.render(f"Depth limit: {depth_limit}", True, self.WHITE)
+                self.screen.blit(d_label, (160, y))
+
+                depth_minus = pygame.Rect(600, y, 40, 35)
+                depth_plus = pygame.Rect(650, y, 40, 35)
+
+                pygame.draw.rect(self.screen, self.DARK, depth_minus)
+                pygame.draw.rect(self.screen, self.DARK, depth_plus)
+                self.screen.blit(font.render("-", True, self.WHITE), (613, y - 2))
+                self.screen.blit(font.render("+", True, self.WHITE), (661, y - 2))
+                y += 70
+
+            if uses_weight:
+                w_label = font.render(f"Weight: {weight:.1f}", True, self.WHITE)
+                self.screen.blit(w_label, (160, y))
+
+                weight_minus = pygame.Rect(600, y, 40, 35)
+                weight_plus = pygame.Rect(650, y, 40, 35)
+
+                pygame.draw.rect(self.screen, self.DARK, weight_minus)
+                pygame.draw.rect(self.screen, self.DARK, weight_plus)
+                self.screen.blit(font.render("-", True, self.WHITE), (613, y - 2))
+                self.screen.blit(font.render("+", True, self.WHITE), (661, y - 2))
+                y += 70
+
+            c_label = font.render(f"Max cost: {max_cost}", True, self.WHITE)
+            self.screen.blit(c_label, (160, y))
+
+            cost_minus = pygame.Rect(600, y, 40, 35)
+            cost_plus = pygame.Rect(650, y, 40, 35)
+
+            pygame.draw.rect(self.screen, self.DARK, cost_minus)
+            pygame.draw.rect(self.screen, self.DARK, cost_plus)
+            self.screen.blit(font.render("-", True, self.WHITE), (613, y - 2))
+            self.screen.blit(font.render("+", True, self.WHITE), (661, y - 2))
+
+            help_text = small_font.render(
+                "Choose parameters, then click Run.",
+                True,
+                self.WHITE,
+            )
+            self.screen.blit(help_text, (240, 485))
+
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    return -1
+
+                if event.type == pygame.MOUSEBUTTONUP:
+                    click_pos = event.pos
+
+                    if back_button.collidepoint(click_pos):
+                        return -2
+
+                    if confirm_button.collidepoint(click_pos):
+                        solver = Solver()
+                        heuristic_func = None
+                        if uses_heuristic:
+                            heuristic_func = solver.get_heuristic_by_name(
+                                heuristic_names[heuristic_index]
+                            )
+
+                        return {
+                            "strategy": strategy,
+                            "depth_limit": depth_limit,
+                            "max_cost": max_cost,
+                            "weight": weight,
+                            "heuristic_func": heuristic_func,
+                        }
+
+                    if heuristic_minus and heuristic_minus.collidepoint(click_pos):
+                        heuristic_index = (heuristic_index - 1) % len(heuristic_names)
+                    if heuristic_plus and heuristic_plus.collidepoint(click_pos):
+                        heuristic_index = (heuristic_index + 1) % len(heuristic_names)
+
+                    if depth_minus and depth_minus.collidepoint(click_pos):
+                        depth_limit = max(1, depth_limit - 1)
+                    if depth_plus and depth_plus.collidepoint(click_pos):
+                        depth_limit += 1
+
+                    if weight_minus and weight_minus.collidepoint(click_pos):
+                        weight = max(1.0, round(weight - 0.1, 1))
+                    if weight_plus and weight_plus.collidepoint(click_pos):
+                        weight = round(weight + 0.1, 1)
+
+                    if cost_minus and cost_minus.collidepoint(click_pos):
+                        max_cost = max(1, max_cost - 1)
+                    if cost_plus and cost_plus.collidepoint(click_pos):
+                        max_cost += 1
 
             pygame.display.update()
 
     def display_algo_result(self, game: Game, path, stats, solver):
         og_game = copy.deepcopy(game)
 
-        font = pygame.font.SysFont("arial", 30)
+        font = pygame.font.SysFont("arial", 28)
         title_font = pygame.font.SysFont("arial", 40)
-        small_font = pygame.font.SysFont("arial", 24)
+        small_font = pygame.font.SysFont("arial", 22)
 
         back_button = pygame.Rect(30, 30, 85, 50)
         back_text = font.render("Back", True, self.WHITE)
 
-        step_button = pygame.Rect(270, 505, 250, 50)
+        step_button = pygame.Rect(240, 500, 320, 50)
         step_text = font.render("Show Step by Step", True, self.WHITE)
 
-        SELECTED = (180, 80, 180)
         speed_options = [("Slow", 2.0), ("Normal", 1.0), ("Fast", 0.3)]
         speed_buttons = [
-            pygame.Rect(240 + i * 110, 455, 100, 38) for i in range(len(speed_options))
+            pygame.Rect(220 + i * 120, 440, 100, 38) for i in range(len(speed_options))
         ]
         speed_texts = [
             small_font.render(label, True, self.WHITE) for label, _ in speed_options
         ]
-        selected_speed = 1  # default: Normal
+        selected_speed = 1
 
         if stats["found"]:
             labels = [
-                f"Solution found!",
+                "Solution found!",
                 f"Nodes explored: {stats['nodes']}",
                 f"Solution depth: {stats['depth']}",
                 f"Time: {stats['time']:.3f}s",
@@ -348,11 +564,11 @@ class Menu:
             mouse = pygame.mouse.get_pos()
 
             title = title_font.render("Algorithm Result", True, self.WHITE)
-            self.screen.blit(title, (220, 100))
+            self.screen.blit(title, (230, 90))
 
             for i, label in enumerate(labels):
                 text = font.render(label, True, self.WHITE)
-                self.screen.blit(text, (240, 180 + i * 50))
+                self.screen.blit(text, (210, 180 + i * 50))
 
             pygame.draw.rect(
                 self.screen,
@@ -363,34 +579,35 @@ class Menu:
 
             if stats["found"] and path:
                 speed_label = small_font.render("Speed:", True, self.WHITE)
-                self.screen.blit(speed_label, (172, 465))
+                self.screen.blit(speed_label, (150, 448))
                 for i, (btn, txt) in enumerate(zip(speed_buttons, speed_texts)):
                     color = (
-                        SELECTED
+                        self.SELECTED
                         if i == selected_speed
                         else (self.LIGHT if btn.collidepoint(mouse) else self.DARK)
                     )
                     pygame.draw.rect(self.screen, color, btn)
-                    self.screen.blit(txt, (btn.x + 10, btn.y + 8))
+                    self.screen.blit(txt, (btn.x + 14, btn.y + 8))
 
                 pygame.draw.rect(
                     self.screen,
                     self.LIGHT if step_button.collidepoint(mouse) else self.DARK,
                     step_button,
                 )
-                self.screen.blit(step_text, (278, 512))
+                self.screen.blit(step_text, (275, 508))
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     return -1
                 if event.type == pygame.MOUSEBUTTONUP:
-                    if back_button.collidepoint(mouse):
+                    click_pos = event.pos
+                    if back_button.collidepoint(click_pos):
                         return
                     if stats["found"] and path:
                         for i, btn in enumerate(speed_buttons):
-                            if btn.collidepoint(mouse):
+                            if btn.collidepoint(click_pos):
                                 selected_speed = i
-                        if step_button.collidepoint(mouse):
+                        if step_button.collidepoint(click_pos):
                             _, delay = speed_options[selected_speed]
                             self.screen.fill(self.BG)
                             solver.animate_path(game, self.screen, path, delay=delay)
@@ -400,59 +617,60 @@ class Menu:
 
     def display_win(self, game=None):
         font = pygame.font.SysFont("arial", 40)
-        win_text = font.render("YOU WIN!", True, (255, 255, 255))
+        win_text = font.render("YOU WIN!", True, self.WHITE)
 
-        stats_button = pygame.Rect(270, 290, 200, 50)
+        stats_button = pygame.Rect(250, 240, 300, 50)
         stats_text = font.render("Stats", True, self.WHITE)
-        leaderboard_button = pygame.Rect(270, 360, 200, 50)
+        leaderboard_button = pygame.Rect(250, 320, 300, 50)
         leaderboard_text = font.render("Leaderboard", True, self.WHITE)
-        continue_button = pygame.Rect(270, 430, 200, 50)
+        continue_button = pygame.Rect(250, 400, 300, 50)
         continue_text = font.render("Continue", True, self.WHITE)
 
         while True:
             self.screen.fill(self.BG)
             mouse = pygame.mouse.get_pos()
 
-            self.screen.blit(win_text, (310, 200))
+            self.screen.blit(win_text, (285, 140))
 
             pygame.draw.rect(
                 self.screen,
                 self.LIGHT if stats_button.collidepoint(mouse) else self.DARK,
                 stats_button,
             )
-            self.screen.blit(stats_text, (340, 297))
+            self.screen.blit(stats_text, (360, 247))
 
             pygame.draw.rect(
                 self.screen,
                 self.LIGHT if leaderboard_button.collidepoint(mouse) else self.DARK,
                 leaderboard_button,
             )
-            self.screen.blit(leaderboard_text, (285, 367))
+            self.screen.blit(leaderboard_text, (285, 327))
 
             pygame.draw.rect(
                 self.screen,
                 self.LIGHT if continue_button.collidepoint(mouse) else self.DARK,
                 continue_button,
             )
-            self.screen.blit(continue_text, (310, 437))
+            self.screen.blit(continue_text, (310, 407))
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     return -1
                 if event.type == pygame.MOUSEBUTTONUP:
-                    if stats_button.collidepoint(mouse) and game is not None:
+                    click_pos = event.pos
+                    if stats_button.collidepoint(click_pos) and game is not None:
                         if self.display_stats(game) == -1:
                             return -1
-                    elif leaderboard_button.collidepoint(mouse):
+                    elif leaderboard_button.collidepoint(click_pos):
                         if self.display_leaderboard() == -1:
                             return -1
-                    elif continue_button.collidepoint(mouse):
+                    elif continue_button.collidepoint(click_pos):
                         return
 
             pygame.display.update()
 
     def display_leaderboard(self):
-        font = pygame.font.SysFont("arial", 30)
+        font = pygame.font.SysFont("arial", 28)
         title_font = pygame.font.SysFont("arial", 40)
         back_button = pygame.Rect(30, 30, 85, 50)
         back_text = font.render("Back", True, self.WHITE)
@@ -467,8 +685,8 @@ class Menu:
             entries = self.leaderboard.get_entries()
 
             header = font.render("#    Moves    Time (s)", True, (200, 200, 200))
-            self.screen.blit(header, (195, 130))
-            pygame.draw.line(self.screen, (200, 200, 200), (190, 165), (590, 165), 1)
+            self.screen.blit(header, (225, 130))
+            pygame.draw.line(self.screen, (200, 200, 200), (220, 165), (580, 165), 1)
 
             if entries:
                 for i, entry in enumerate(entries):
@@ -479,12 +697,12 @@ class Menu:
                         True,
                         color,
                     )
-                    self.screen.blit(row, (195, 175 + i * 35))
+                    self.screen.blit(row, (225, 180 + i * 35))
             else:
                 empty = font.render(
                     "No scores yet — play a game!", True, (170, 170, 170)
                 )
-                self.screen.blit(empty, (160, 220))
+                self.screen.blit(empty, (190, 230))
 
             pygame.draw.rect(
                 self.screen,
@@ -497,13 +715,14 @@ class Menu:
                 if event.type == pygame.QUIT:
                     return -1
                 if event.type == pygame.MOUSEBUTTONUP:
-                    if back_button.collidepoint(mouse):
+                    if back_button.collidepoint(event.pos):
                         return
 
             pygame.display.update()
 
     def display_stats(self, game):
-        font = pygame.font.SysFont("arial", 30)
+        font = pygame.font.SysFont("arial", 28)
+        title_font = pygame.font.SysFont("arial", 36)
         back_button = pygame.Rect(30, 30, 85, 50)
         back_text = font.render("Back", True, self.WHITE)
 
@@ -518,17 +737,16 @@ class Menu:
             f"Max memory: {stats.max_memory}",
         ]
 
-        game_running = True
-        while game_running:
+        while True:
             self.screen.fill(self.BG)
             mouse = pygame.mouse.get_pos()
 
-            title = font.render("=== Game Stats ===", True, self.WHITE)
-            self.screen.blit(title, (240, 100))
+            title = title_font.render("Game Stats", True, self.WHITE)
+            self.screen.blit(title, (300, 100))
 
             for i, label in enumerate(labels):
                 text = font.render(label, True, self.WHITE)
-                self.screen.blit(text, (240, 160 + i * 45))
+                self.screen.blit(text, (210, 170 + i * 50))
 
             pygame.draw.rect(
                 self.screen,
@@ -540,26 +758,23 @@ class Menu:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     return -1
-
                 if event.type == pygame.MOUSEBUTTONUP:
-                    if back_button.collidepoint(mouse):
+                    if back_button.collidepoint(event.pos):
                         return
 
             pygame.display.update()
 
     def display_lose(self):
-        game_running = True
-
-        while game_running:
+        while True:
             self.screen.fill(self.BG)
             mouse = pygame.mouse.get_pos()
 
             font = pygame.font.SysFont("arial", 40)
-            win_text = font.render("LOSS", True, self.WHITE)
-            self.screen.blit(win_text, (335, 200))
+            lose_text = font.render("LOSS", True, self.WHITE)
+            self.screen.blit(lose_text, (340, 180))
 
-            retry_button = pygame.Rect(300, 300, 140, 50)
-            menu_button = pygame.Rect(300, 380, 140, 50)
+            retry_button = pygame.Rect(250, 280, 300, 50)
+            menu_button = pygame.Rect(250, 360, 300, 50)
 
             pygame.draw.rect(
                 self.screen,
@@ -574,63 +789,55 @@ class Menu:
             retry_text = font.render("Retry", True, self.WHITE)
             menu_text = font.render("Back to menu", True, self.WHITE)
 
-            self.screen.blit(retry_text, (335, 305))
-            self.screen.blit(menu_text, (335, 385))
+            self.screen.blit(retry_text, (345, 287))
+            self.screen.blit(menu_text, (260, 367))
 
             for event in pygame.event.get():
-
                 if event.type == pygame.QUIT:
                     return -1
-
                 if event.type == pygame.MOUSEBUTTONUP:
-
-                    if retry_button.collidepoint(mouse):
+                    click_pos = event.pos
+                    if retry_button.collidepoint(click_pos):
                         return 0
-
-                    if menu_button.collidepoint(mouse):
+                    if menu_button.collidepoint(click_pos):
                         return 1
 
             pygame.display.update()
 
-
     def display_choose_file_menu(self, game: Game):
-        game_running = True
-        font = pygame.font.SysFont("arial", 40)
+        font = pygame.font.SysFont("arial", 38)
         font_small = pygame.font.SysFont("arial", 20)
 
-        text_box = pygame.Rect(90, 300, 85*7, 50)
+        text_box = pygame.Rect(100, 280, 600, 50)
         i_string = ""
-        max_size = 20
+        max_size = 26
 
         shift = False
 
         back_button = pygame.Rect(30, 30, 85, 50)
         back_text = font.render("Back", True, self.WHITE)
 
-        confirm_button = pygame.Rect(270, 450, 250, 50)
+        confirm_button = pygame.Rect(275, 420, 250, 50)
         confirm_text = font.render("Confirm", True, self.WHITE)
 
         explain_text = font.render("Input the file name:", True, self.WHITE)
         extra_text = font_small.render("Exclude the file extension (.txt)", True, self.WHITE)
+        error_text = None
 
-
-        while(game_running):
+        while True:
             self.screen.fill(self.BG)
             mouse = pygame.mouse.get_pos()
 
-            # title and subtitle
-            self.screen.blit(explain_text, (250, 150))
-            self.screen.blit(extra_text, (270, 200))
+            self.screen.blit(explain_text, (220, 150))
+            self.screen.blit(extra_text, (255, 200))
 
-            # textbox text
             pygame.draw.rect(self.screen, self.WHITE, text_box)
             rendered_text = i_string
             if len(i_string) > max_size:
                 rendered_text = i_string[len(i_string) - max_size:]
             i_text = font.render(rendered_text, True, self.DARK)
-            self.screen.blit(i_text, (100, 305))
+            self.screen.blit(i_text, (110, 285))
 
-            # back button
             pygame.draw.rect(
                 self.screen,
                 self.LIGHT if back_button.collidepoint(mouse) else self.DARK,
@@ -638,39 +845,58 @@ class Menu:
             )
             self.screen.blit(back_text, (35, 35))
 
-            # confirm button
             pygame.draw.rect(
                 self.screen,
                 self.LIGHT if confirm_button.collidepoint(mouse) else self.DARK,
                 confirm_button,
             )
-            self.screen.blit(confirm_text, (335, 452))
+            self.screen.blit(confirm_text, (325, 425))
+
+            if error_text is not None:
+                self.screen.blit(error_text, (165, 360))
 
             for event in pygame.event.get():
-
                 if event.type == pygame.QUIT:
                     return -1
-                
+
                 if event.type == pygame.MOUSEBUTTONDOWN:
-                    if back_button.collidepoint(mouse):
-                        game_running = False
-                    elif confirm_button.collidepoint(mouse):
-                        state,_,_ = FileManager.load_instance("instances/" + i_string + ".txt")
-                        game.set_board_state(state)
-                        game_running = False
-                
+                    click_pos = event.pos
+                    if back_button.collidepoint(click_pos):
+                        return
+                    elif confirm_button.collidepoint(click_pos):
+                        try:
+                            state, _, _ = FileManager.load_instance("instances/" + i_string + ".txt")
+                            game.set_board_state(state)
+                            return
+                        except Exception:
+                            error_text = font_small.render(
+                                "Could not load that file.", True, (255, 180, 180)
+                            )
+
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_BACKSPACE:
                         i_string = i_string[:-1]
                     elif event.key == pygame.K_RSHIFT or event.key == pygame.K_LSHIFT:
                         shift = True
-                    elif shift:
-                        if event.key == pygame.K_MINUS:
-                            i_string += "_"
+                    elif event.key == pygame.K_RETURN:
+                        try:
+                            state, _, _ = FileManager.load_instance("instances/" + i_string + ".txt")
+                            game.set_board_state(state)
+                            return
+                        except Exception:
+                            error_text = font_small.render(
+                                "Could not load that file.", True, (255, 180, 180)
+                            )
+                    elif len(i_string) < 64:
+                        if shift:
+                            if event.key == pygame.K_MINUS:
+                                i_string += "_"
+                            else:
+                                i_string += pygame.key.name(event.key).upper()
                         else:
-                            i_string += pygame.key.name(event.key).upper()
-                    else:
-                        i_string += pygame.key.name(event.key)
+                            key_name = pygame.key.name(event.key)
+                            if len(key_name) == 1 or key_name in ["_", "-"]:
+                                i_string += key_name
 
                 if event.type == pygame.KEYUP:
                     if event.key == pygame.K_RSHIFT or event.key == pygame.K_LSHIFT:

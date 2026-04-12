@@ -4,7 +4,6 @@ import random
 
 class Board:
 
-    # Core functions
     def __init__(self, tiles: int | List[int], segment_size: int = 4) -> None:
         self._segment_size = segment_size
         self._tiles = list(tiles)
@@ -34,17 +33,12 @@ class Board:
             self._tiles[(i + 1) % n] == (self._tiles[i] % n) + 1 for i in range(n)
         )
 
-    # Moves
-
     def reverse_segment(self, start: int, segment_size: int) -> None:
-
         n = self.size()
 
         for i in range(segment_size // 2):
-
             left = (start + i) % n
             right = (start + segment_size - 1 - i) % n
-
             self._tiles[left], self._tiles[right] = (
                 self._tiles[right],
                 self._tiles[left],
@@ -55,30 +49,40 @@ class Board:
         steps = steps % n
         self._tiles = self._tiles[-steps:] + self._tiles[:-steps]
 
-    # Utils
-
     def print(self) -> None:
         print("Board:", " ".join(str(tile) for tile in self._tiles))
 
     def reset_board(self) -> None:
         self.set_tiles(self._initial_tiles)
 
-    def shuffle_board(self) -> None:
-        n = len(self._tiles)
-        self._tiles = list(range(1, n + 1))
-        self._shuffle_solvable(self._segment_size)
-
-        self._initial_tiles = self._tiles
+    def shuffle_board(self, n_moves: int = 8) -> None:
+        """
+        Shuffle seguro: aplica jogadas válidas a partir do estado resolvido.
+        Mantém a funcionalidade de embaralhar, mas evita instâncias absurdamente difíceis.
+        """
+        self._tiles = list(range(1, len(self._tiles) + 1))
+        self._shuffle_by_moves(n_moves)
+        self._initial_tiles = list(self._tiles)
 
     def shuffle_few_moves(self, n_moves: int = 8) -> None:
-        """Shuffle by applying n_moves random moves from solved state."""
-        import random as _random
+        self._tiles = list(range(1, len(self._tiles) + 1))
+        self._shuffle_by_moves(n_moves)
+        self._initial_tiles = list(self._tiles)
 
+    def _shuffle_by_moves(self, n_moves: int) -> None:
         n = len(self._tiles)
-        self._tiles = list(range(1, n + 1))
+        last_start = None
+
         for _ in range(n_moves):
-            start = _random.randrange(n)
+            possible_starts = list(range(n))
+
+            # evita desfazer imediatamente a jogada anterior
+            if last_start is not None and n > 1:
+                possible_starts = [s for s in possible_starts if s != last_start]
+
+            start = random.choice(possible_starts)
             self.reverse_segment(start, self._segment_size)
+            last_start = start
 
     @staticmethod
     def is_solvable(board: list[int], segment_size: int) -> bool:
