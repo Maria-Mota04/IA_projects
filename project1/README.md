@@ -42,7 +42,7 @@ The objective is to transform the initial board into the ordered sequence (1..N)
 - Weighted A* Search
 
 #### Graphical User Interface
-- The ``Read from file`` option allows the user to input the name of the file with the board values. The board is loaded when pressing the ``Confirm`` button. Afterwards, the user can choose to solve this instance with one of the algorithms or solve it themselves. After using that board for one of the tasks, it is shuffled, so to use it again there is a need to choose the ``Read from file`` option once again.
+- The ``Read from file`` option allows the user to input the name of the file with the board values. The board is loaded when pressing the ``Confirm`` button or the enter button on the keyboard. Afterwards, the user can choose to solve this instance with one of the algorithms or solve it themselves. After using that board for one of the tasks, it is shuffled, so to use it again there is a need to choose the ``Read from file`` option once again.
 - The ``Difficulty`` option allows the user to choose the difficulty of the board that will be generated.
 - The ``Leaderboard`` option shows the local leaderboard (ordered first by number of moves, then by time).
 - The ``Algorithms`` option allows the user to choose one of the algorithms to solve a board. Unless the board was chosen with ``Read from file``, it will be randomized. After choosing the algorithm, the user can personalize some of its values. After loading, the user is presented with the statistics of the algorithm and can choose to watch a play by play of the solution. The user can alter the playback speed (slow, normal or fast) and can rewatch it however many times they want.
