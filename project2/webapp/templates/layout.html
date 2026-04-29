@@ -2,7 +2,15 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Theater Recommendation System</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
 
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
@@ -16,15 +24,22 @@
   </head>
 
   <body>
-    <header class="navbar navbar-dark bg-dark px-3">
-      <span class="navbar-brand">🎭 Theater Recommendation System</span>
-    </header>
+    <div class="page-shell">
+      <header class="topbar">
+        <div class="container topbar-content">
+          <span class="brand-mark">TRS</span>
+          <span class="brand-text">Theater Recommendation System</span>
+        </div>
+      </header>
 
-    <main class="container mt-5">{% block content %}{% endblock %}</main>
+      <main class="container page-content">
+        {% block content %}{% endblock %}
+      </main>
 
-    <footer class="text-center mt-5 mb-3 text-muted">
-      <small>Machine Learning POC - Theater Recommendation System</small>
-    </footer>
+      <footer class="container page-footer">
+        <small>Machine Learning POC - Theater Recommendation System</small>
+      </footer>
+    </div>
 
     <script src="{{ url_for('static', filename='js/app.js') }}"></script>
   </body>

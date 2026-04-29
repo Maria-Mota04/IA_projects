@@ -1,21 +1,19 @@
 {% extends "layout.html" %} {% block content %}
 
-<section>
-  <header>
+<section class="result-wrap reveal-up">
+  <article class="panel-card result-card">
+    <p class="eyebrow">Prediction complete</p>
     <h1>Your Recommendation</h1>
-  </header>
+    <p class="hero-lead">Based on your preferences, we recommend:</p>
 
-  <article>
-    <p>Based on your preferences, we recommend:</p>
-
-    <div class="alert alert-success mt-3">
+    <div class="result-badge" role="status">
       <strong>{{ result }}</strong>
     </div>
-  </article>
 
-  <nav class="mt-4">
-    <a href="/" class="btn btn-primary">Try again</a>
-  </nav>
+    <nav class="result-actions">
+      <a href="/" class="cta-btn cta-secondary">Try again</a>
+    </nav>
+  </article>
 </section>
 
 {% endblock %}
