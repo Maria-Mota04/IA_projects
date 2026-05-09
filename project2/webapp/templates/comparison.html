@@ -1,0 +1,88 @@
+{% extends "layout.html" %} {% block content %}
+
+<section class="comparison-wrap reveal-up">
+  <article class="panel-card comparison-card">
+    <p class="eyebrow">Performance Analytics</p>
+    <h1>Model Comparison</h1>
+    <p class="hero-lead">
+      Compare the performance metrics across different model versions:
+    </p>
+
+    <figure class="comparison-table-wrapper">
+      <table class="comparison-table">
+        <thead>
+          <tr>
+            <th>Model</th>
+            <th>Accuracy</th>
+            <th>Precision</th>
+            <th>Recall</th>
+            <th>F1 Score</th>
+            <th>Train Time</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for model in models %}
+          <tr class="{% if 'Current' in model.name %}current-model{% endif %}">
+            <td class="model-name">{{ model.name }}</td>
+            <td>
+              <meter
+                class="performance-meter"
+                low="0.7"
+                high="0.85"
+                max="1"
+                value="{{ model.accuracy }}"
+              >
+                {{ (model.accuracy * 100)|int }}%
+              </meter>
+              <span>{{ (model.accuracy * 100)|int }}%</span>
+            </td>
+            <td>
+              <meter
+                class="performance-meter"
+                low="0.7"
+                high="0.85"
+                max="1"
+                value="{{ model.precision }}"
+              >
+                {{ (model.precision * 100)|int }}%
+              </meter>
+              <span>{{ (model.precision * 100)|int }}%</span>
+            </td>
+            <td>
+              <meter
+                class="performance-meter"
+                low="0.7"
+                high="0.85"
+                max="1"
+                value="{{ model.recall }}"
+              >
+                {{ (model.recall * 100)|int }}%
+              </meter>
+              <span>{{ (model.recall * 100)|int }}%</span>
+            </td>
+            <td>
+              <meter
+                class="performance-meter"
+                low="0.7"
+                high="0.85"
+                max="1"
+                value="{{ model.f1_score }}"
+              >
+                {{ (model.f1_score * 100)|int }}%
+              </meter>
+              <span>{{ (model.f1_score * 100)|int }}%</span>
+            </td>
+            <td>{{ model.train_time }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </figure>
+
+    <nav class="comparison-actions">
+      <a href="/" class="cta-btn cta-secondary">Back to Prediction</a>
+    </nav>
+  </article>
+</section>
+
+{% endblock %}

@@ -17,11 +17,11 @@
 
   <article class="panel-card reveal-up delay-1">
     <form id="predictForm" class="predict-form" novalidate>
-      <div class="input-block">
-        <div class="input-head">
+      <fieldset class="input-block">
+        <legend>
           <label for="genre">Genre preference</label>
           <span class="meter" id="genreValue">5</span>
-        </div>
+        </legend>
         <input
           type="range"
           id="genre"
@@ -31,13 +31,13 @@
           value="5"
           required
         />
-      </div>
+      </fieldset>
 
-      <div class="input-block">
-        <div class="input-head">
+      <fieldset class="input-block">
+        <legend>
           <label for="budget">Budget level</label>
           <span class="meter" id="budgetValue">5</span>
-        </div>
+        </legend>
         <input
           type="range"
           id="budget"
@@ -47,7 +47,7 @@
           value="5"
           required
         />
-      </div>
+      </fieldset>
 
       <button type="submit" id="submitBtn" class="cta-btn">
         Get Recommendation

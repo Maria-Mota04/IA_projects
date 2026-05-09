@@ -53,6 +53,24 @@ h3,
   display: flex;
   align-items: center;
   gap: 12px;
+  justify-content: space-between;
+}
+
+.topbar-nav {
+  display: flex;
+  gap: 24px;
+  margin-left: auto;
+}
+
+.nav-link {
+  text-decoration: none;
+  color: var(--muted);
+  font-weight: 500;
+  transition: color 0.2s ease;
+}
+
+.nav-link:hover {
+  color: var(--accent);
 }
 
 .brand-mark {
@@ -252,6 +270,83 @@ input[type="range"] {
   background: linear-gradient(135deg, #cf7c28, #b8651b);
 }
 
+.comparison-wrap {
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.comparison-card {
+  text-align: left;
+}
+
+.comparison-table-wrapper {
+  overflow-x: auto;
+  margin: 28px 0;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+}
+
+.comparison-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+}
+
+.comparison-table thead {
+  background: rgba(14, 107, 88, 0.08);
+  border-bottom: 2px solid var(--line);
+}
+
+.comparison-table th {
+  padding: 14px;
+  text-align: left;
+  font-weight: 600;
+  color: var(--accent-strong);
+}
+
+.comparison-table td {
+  padding: 14px;
+  border-bottom: 1px solid var(--line);
+}
+
+.comparison-table tbody tr {
+  transition: background-color 0.2s ease;
+}
+
+.comparison-table tbody tr:hover {
+  background-color: rgba(14, 107, 88, 0.04);
+}
+
+.comparison-table tbody tr.current-model {
+  background-color: rgba(217, 140, 50, 0.08);
+  font-weight: 600;
+}
+
+.model-name {
+  font-weight: 600;
+  color: var(--accent-strong);
+}
+
+.performance-meter {
+  display: block;
+  width: 100%;
+  height: 18px;
+  margin-bottom: 4px;
+}
+
+.comparison-table td:not(:first-child) {
+  text-align: center;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px;
+  align-items: center;
+}
+
+.comparison-actions {
+  margin-top: 24px;
+  text-align: center;
+}
+
 .reveal-up {
   opacity: 0;
   transform: translateY(18px);
@@ -287,6 +382,23 @@ input[type="range"] {
 @media (max-width: 576px) {
   .topbar-content {
     min-height: 62px;
+    flex-wrap: wrap;
+  }
+
+  .topbar-nav {
+    order: 3;
+    width: 100%;
+    gap: 12px;
+    margin-left: 0;
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid var(--line);
+  }
+
+  .nav-link {
+    flex: 1;
+    text-align: center;
+    font-size: 0.9rem;
   }
 
   .brand-mark {
@@ -304,5 +416,14 @@ input[type="range"] {
   .panel-card {
     border-radius: 18px;
     padding: 18px;
+  }
+
+  .comparison-table {
+    font-size: 0.85rem;
+  }
+
+  .comparison-table th,
+  .comparison-table td {
+    padding: 10px;
   }
 }

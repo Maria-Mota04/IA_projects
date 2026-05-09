@@ -12,4 +12,6 @@ class Config:
 
     MODEL_PATH = os.getenv("MODEL_PATH", "models_saved/model.pkl")
 
+    METRICS_FILE = os.getenv("METRICS_FILE", "models_saved/metrics.json")
+
     MAX_CONTENT_LENGTH = 16 * 1024 * 1024
