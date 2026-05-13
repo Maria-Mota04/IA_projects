@@ -2,21 +2,12 @@ from sklearn.preprocessing import StandardScaler
 import pandas as pd
 
 
-class ScalerBundle:
-    def __init__(self):
-        self.scaler = StandardScaler()
+def scale_splits(X_train, X_test):
+    scaler = StandardScaler()
+    X_train_scaled = scaler.fit_transform(X_train)
+    X_test_scaled = scaler.transform(X_test)
 
-    def fit(self, X_train):
-        self.scaler.fit(X_train)
-        return self
-
-    def transform(self, X):
-        return pd.DataFrame(
-            self.scaler.transform(X),
-            columns=X.columns,
-            index=X.index,
-        )
-
-    def fit_transform(self, X):
-        self.fit(X)
-        return self.transform(X)
+    return (
+        pd.DataFrame(X_train_scaled, columns=X_train.columns, index=X_train.index),
+        pd.DataFrame(X_test_scaled, columns=X_test.columns, index=X_test.index),
+    )

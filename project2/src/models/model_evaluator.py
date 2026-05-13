@@ -25,18 +25,36 @@ class ModelEvaluator:
         f1 = f1_score(y_test, y_pred, average=self.average, zero_division=0)
 
         roc_auc = None
-        if hasattr(model, "predict_proba"):
-            try:
+
+        try:
+            if hasattr(model, "predict_proba"):
                 y_score = model.predict_proba(X_test)
 
                 if y_score.shape[1] == 2:
                     roc_auc = roc_auc_score(y_test, y_score[:, 1])
                 else:
                     roc_auc = roc_auc_score(
-                        y_test, y_score, multi_class="ovr", average=self.average
+                        y_test,
+                        y_score,
+                        multi_class="ovr",
+                        average=self.average,
                     )
-            except:
-                roc_auc = None
+
+            elif hasattr(model, "decision_function"):
+                y_score = model.decision_function(X_test)
+
+                if len(y_score.shape) == 1:
+                    roc_auc = roc_auc_score(y_test, y_score)
+                else:
+                    roc_auc = roc_auc_score(
+                        y_test,
+                        y_score,
+                        multi_class="ovr",
+                        average=self.average,
+                    )
+
+        except ValueError:
+            roc_auc = None
 
         cm = confusion_matrix(y_test, y_pred)
 

@@ -47,7 +47,6 @@ class ModelTrainer:
 
             estimator = clone(model)
 
-            # KMeans is unsupervised
             if name == "KMeans":
                 estimator.fit(X_train)
             else:
@@ -55,18 +54,12 @@ class ModelTrainer:
 
             y_pred = estimator.predict(X_test)
 
-            # Fix inverted cluster labels for KMeans
             if name == "KMeans":
                 acc_normal = (y_pred == y_test).mean()
                 acc_inverted = ((1 - y_pred) == y_test).mean()
 
                 if acc_inverted > acc_normal:
                     y_pred = 1 - y_pred
-
-            y_score = self._get_scores(
-                estimator,
-                X_test,
-            )
 
             evaluator = ModelEvaluator()
 

@@ -17,15 +17,10 @@ class Preprocessor:
         self.df = df.copy()
 
     def clean(self):
-        """
-        Remove irrelevant + leakage columns.
-        """
-
         cols_to_drop = [
             "id",
             "companhia",
             "espetaculo",
-            "lucro_prejuizo",
             "margem_pct",
             "receita_real",
         ]
@@ -116,17 +111,14 @@ class Preprocessor:
         )
 
     def run(self):
-        """
-        Execute preprocessing pipeline.
-        """
-
-        if "teve_lucro" not in self.df.columns:
-            self.create_target()
-
+        self.create_target()
         self.clean()
         self.handle_missing()
         self.convert_types()
         self.feature_engineering()
         self.encode()
+
+        if "teve_lucro" not in self.df.columns:
+            raise ValueError("Target column missing after preprocessing")
 
         return self.split()

@@ -9,4 +9,8 @@ class ModelSelector:
         if results_df.empty or self.metric not in results_df.columns:
             return None
 
-        return results_df.sort_values(by=self.metric, ascending=False).iloc[0]["Model"]
+        df = results_df.dropna(subset=[self.metric, "Model"])
+        if df.empty:
+            return None
+
+        return df.sort_values(by=self.metric, ascending=False).iloc[0]["Model"]

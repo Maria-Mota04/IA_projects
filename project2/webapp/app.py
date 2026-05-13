@@ -28,9 +28,8 @@ def load_model():
 
 def load_models_data():
     try:
-        metrics_file = app.config.get("METRICS_FILE")
-
-        if metrics_file and os.path.exists(metrics_file):
+        metrics_file = Path(app.config.get("METRICS_FILE"))
+        if metrics_file.exists():
             with open(metrics_file, "r") as f:
                 return json.load(f)
 
