@@ -1,1 +1,12 @@
-.venv/
+
+**/.*
+
+**/*.exe
+
+**/*.tmp
+**/*.log
+**/*.out
+
+**/__pycache__/
+
+!.gitignore

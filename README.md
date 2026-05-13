@@ -153,49 +153,162 @@ Notes:
 - The GUI layer is currently a prototype and still under active development.
 - Some solver/game helper methods are placeholders and may not expose full gameplay/analysis flows yet.
 
+Perfeito, isto já está bem definido e dá para montar um README muito mais realista e alinhado com o enunciado.
+
+Aqui tens a versão **corrigida e completa da secção do Project 2**, já estruturada como um projeto de IA + POC + web app (como o professor quer):
+
+---
 
 ## Practical Assignment 2
-To be defined in the second phase of the course.
 
 ### Chosen Topic
-TODO
+
+Machine Learning applied to Cost Estimation in Theatre Productions
 
 ### Chosen Project
-TODO
+
+POC for a Machine Learning System to Estimate Theatre Production Costs
 
 ### Project Overview
-TODO
+
+This project is a Proof of Concept (POC) developed for a consulting startup scenario. The goal is to demonstrate how machine learning can be used to estimate and analyse the total cost of a theatre production based on multiple real-world factors.
+
+The problem is inspired by a realistic scenario involving production planning in performing arts. The system models how different cost components contribute to the final budget and provides predictions based on synthetic data.
+
+The project includes:
+
+* Definition of a cost estimation problem
+* Generation of synthetic training data
+* Training a machine learning model
+* Deployment of a simple web application to demonstrate predictions
+
+### Problem Description
+
+The system aims to estimate the total cost of a theatre production based on several real-world variables:
+
+#### Transportation
+
+* Distance between base location and event venue
+* Need for private van or bus
+* Fuel and toll costs
+* Transport of set materials (including weight limitations)
+* Transport of technical crew and artistic team
+
+#### Artistic Team
+
+* Cachet of external actors and professionals
+* Payment for non-resident performers
+
+#### Set Design and Visual Production
+
+* Construction of scenery (materials and labour)
+* Set designer costs
+* Rental of pre-made scenography
+* Props, painting, and decoration
+* Storage and transport of set pieces
+
+#### Costumes and Characterisation
+
+* Purchase or rental of costumes
+* Costume designer or tailor
+* Makeup and hair services
+
+#### Food and Accommodation
+
+* Catering for staff and performers (often provided)
+* Snacks and water during rehearsals and performances
+* Accommodation for external members (hotel, hostel, local lodging)
+
+#### Technical Production
+
+* Lighting system and technician
+* Sound system and technician
+* Stage crew for setup and operation
+
+#### Venue and Logistics
+
+* Licenses and author rights fees (e.g., playwright associations such as AAVP)
+
+#### Communication
+
+* Marketing and social media promotion (often handled by theatre company)
+
+#### Unexpected Costs
+
+* Reserve budget (5%–15%)
+* Material damage replacement
+* Delays affecting technical or venue costs
 
 ### Main Objectives
-TODO
+
+* Model theatre production cost estimation as a regression problem
+* Generate synthetic dataset based on realistic cost factors
+* Train and evaluate a machine learning model
+* Build a simple web application for predictions
+* Provide a clear demonstration of AI applied to a real-world problem
+* Support a consulting-style POC presentation for a client
 
 ### Features
 
-#### Algorithmic Component
+#### Machine Learning Component
+
 TODO
 
-#### Performance Evaluation
+#### Data Pipeline
+
 TODO
 
-#### Graphical User Interface
+---
+
+#### Web Application
+
 TODO
 
 ### Input and Output
 
 #### Input
+
 TODO
+
+---
 
 #### Output
+
 TODO
 
-### Technologies Used
-TODO
+---
+
+### Technologies Used -> VERIFICAR
+
+* Python
+* Flask
+* Scikit-learn
+* NumPy / Pandas
+* HTML / CSS / JavaScript
+* Synthetic data generation techniques
+* Basic regression models
+
+---
 
 ### Project Structure
-TODO
+
+Uses a modular architecture:
+
+* `src/data/` → data generation and preprocessing
+* `src/features/` → feature engineering
+* `src/models/` → training, prediction, evaluation
+* `src/api/` → backend API (Flask)
+* `webapp/` → frontend interface
+* `tests/` → unit testing
+* `models_saved/` → trained models
+
+---
 
 ### Development Approach
+
 TODO
+
+---
 
 ### Authors
 - Camila de Almeida Correia - Up202304507@up.pt

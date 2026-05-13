@@ -1,0 +1,60 @@
+{% extends "layout.html" %} {% block content %}
+
+<section class="hero-grid">
+  <article class="hero-copy reveal-up">
+    <p class="eyebrow">Smart suggestions for your next night out</p>
+    <h1>Find Your Next Theater Experience</h1>
+    <p class="hero-lead">
+      Tune your mood and your budget, then get a recommendation generated from
+      the model in real time.
+    </p>
+    <ul class="value-points">
+      <li>Fast prediction flow</li>
+      <li>Simple preference controls</li>
+      <li>Clear recommendation result</li>
+    </ul>
+  </article>
+
+  <article class="panel-card reveal-up delay-1">
+    <form id="predictForm" class="predict-form" novalidate>
+      <fieldset class="input-block">
+        <legend>
+          <label for="genre">Genre preference</label>
+          <span class="meter" id="genreValue">5</span>
+        </legend>
+        <input
+          type="range"
+          id="genre"
+          name="genre"
+          min="0"
+          max="10"
+          value="5"
+          required
+        />
+      </fieldset>
+
+      <fieldset class="input-block">
+        <legend>
+          <label for="budget">Budget level</label>
+          <span class="meter" id="budgetValue">5</span>
+        </legend>
+        <input
+          type="range"
+          id="budget"
+          name="budget"
+          min="0"
+          max="10"
+          value="5"
+          required
+        />
+      </fieldset>
+
+      <button type="submit" id="submitBtn" class="cta-btn">
+        Get Recommendation
+      </button>
+      <p id="formStatus" class="form-status" aria-live="polite"></p>
+    </form>
+  </article>
+</section>
+
+{% endblock %}
