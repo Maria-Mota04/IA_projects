@@ -12,8 +12,8 @@ This project focuses on analysing the different types of costs involved in a the
 .
 ├── README.md
 ├── data
-│   ├── processed
 │   ├── raw
+│   ├── processed
 │   └── synthetic
 │
 ├── environment.yml
@@ -21,48 +21,43 @@ This project focuses on analysing the different types of costs involved in a the
 ├── models_saved
 │
 ├── src
-│   ├── api
-│   │   ├── app.py
-│   │   ├── routes.py
-│   │   └── schemas.py
-│   │
 │   ├── data
 │   │   ├── dataset_loader.py
-│   │   ├── generate_data.py
-│   │   └── preprocess.py
+│   │   ├── preprocess.py
 │   │
 │   ├── features
 │   │   └── build_features.py
 │   │
 │   ├── models
-│   │   ├── evaluate.py
-│   │   ├── model.py
-│   │   ├── predict.py
-│   │   └── train_model.py
+│   │   ├── model_registry.py
+│   │   ├── model_trainer.py
+│   │   ├── model_selector.py
+│   │   ├── model_evaluator.py
+│   │   ├── model_persistence.py
 │   │
 │   └── utils
-│       ├── config.py
 │       ├── helpers.py
-│       └── logger.py
+│       ├── logger.py
 │
 ├── tests
 │   ├── test_api.py
 │   ├── test_data.py
-│   └── test_model.py
+│   ├── test_model.py
+│   ├── test_preprocess.py
+│   ├── test_build_features.py
 │
 └── webapp
     ├── app.py
     ├── settings.py
-    │
     ├── static
     │   ├── css
-    │   ├── images
-    │   └── js
-    │
+    │   ├── js
+    │   └── images
     └── templates
         ├── index.html
         ├── layout.html
-        └── result.html
+        ├── result.html
+        └── comparison.html
 ```
 
 ---
@@ -114,13 +109,18 @@ http://127.0.0.1:5000
 
 ## How it works
 
-The system is organised around different cost categories that are analysed individually and then combined to understand the full production budget.
+The system follows a machine learning pipeline:
 
-The main workflow is:
-
-1. Define cost categories
-2. Input or estimate values for each category
-3. Analyse total production cost and contributing factors
+- Load dataset from Excel
+- Preprocess data (cleaning, missing values, encoding)
+- Feature engineering
+- Split into train and test sets
+- Scale features
+- Train multiple models
+- Evaluate models using classification metrics
+- Select best model (F1-score)
+- Save model and metrics
+- Serve predictions via Flask API
 
 ---
 
@@ -205,6 +205,70 @@ The main workflow is:
 
 * Python
 * Flask
+* Scikit-learn
+* Pandas
+* NumPy
 * HTML / CSS / JavaScript
-* Scikit-learn (optional)
-* NumPy / Pandas (optional)
+* Pytest (testing framework)
+* Pickle (model persistence)
+
+
+---
+
+## How to Run Tests
+
+The project includes a full test suite covering data processing, feature engineering, model training, and API endpoints.
+
+### 1. Install test dependencies
+
+If you already installed `requirements.txt`, nothing extra is needed. Otherwise:
+
+```bash
+pip install pytest
+```
+
+### 2. Run all tests
+
+From the project root directory:
+
+```bash
+pytest
+```
+
+
+### 3. Run tests with more detail
+
+```bash
+pytest -v
+```
+
+### 4. Run a specific test file
+
+```bash
+pytest tests/test_data.py
+```
+
+or
+
+```bash
+pytest tests/test_model.py
+```
+
+### 5. Run a specific test function
+
+```bash
+pytest tests/test_preprocess.py::test_clean_drops_leakage_columns
+```
+
+
+## What is tested
+
+* Dataset loading (Excel ingestion and sheet handling)
+* Data preprocessing pipeline
+* Feature engineering functions
+* Model training and selection logic
+* Model evaluation metrics
+* Flask API endpoints (basic route checks)
+
+---
+

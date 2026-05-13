@@ -24,7 +24,7 @@ class DatasetLoader:
 
         return pd.read_excel(self.file_path)
 
-    def load_all_sheets(self) -> pd.DataFrame:
+    def load_all_sheets(self, add_source_column: bool = False) -> pd.DataFrame:
         """
         Load all sheets and merge into one DataFrame.
         """
@@ -35,6 +35,10 @@ class DatasetLoader:
 
         for sheet in excel_file.sheet_names:
             df = pd.read_excel(excel_file, sheet_name=sheet)
+
+            if add_source_column:
+                df["source_sheet"] = sheet
+
             dfs.append(df)
 
         return pd.concat(dfs, ignore_index=True)
