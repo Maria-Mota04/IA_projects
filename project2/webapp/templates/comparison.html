@@ -1,4 +1,5 @@
-{% extends "layout.html" %} {% block content %}
+{% extends "layout.html" %}
+{% block content %}
 
 <section class="comparison-wrap reveal-up">
   <article class="panel-card comparison-card">
@@ -20,42 +21,81 @@
             <th>ROC AUC</th>
           </tr>
         </thead>
+
         <tbody>
           {% for model in models %}
           <tr>
-            <td class="model-name">{{ model.Model }}</td>
-            <td>
-              <meter class="performance-meter" low="0.7" high="0.85" max="1" value="{{ model.Accuracy }}"></meter>
-              <span>{{ (model.Accuracy * 100)|round(1) }}%</span>
+
+            <!-- MODEL NAME -->
+            <td class="model-name">
+              {{ model.Model or "N/A" }}
             </td>
+
+            <!-- ACCURACY -->
             <td>
-              <meter class="performance-meter" low="0.7" high="0.85" max="1" value="{{ model.Precision }}"></meter>
-              <span>{{ (model.Precision * 100)|round(1) }}%</span>
+              <meter class="performance-meter"
+                     low="0.7" high="0.85" max="1"
+                     value="{{ model.Accuracy or 0 }}">
+              </meter>
+              <span>
+                {{ ((model.Accuracy or 0) * 100)|round(1) }}%
+              </span>
             </td>
+
+            <!-- PRECISION -->
             <td>
-              <meter class="performance-meter" low="0.7" high="0.85" max="1" value="{{ model.Recall }}"></meter>
-              <span>{{ (model.Recall * 100)|round(1) }}%</span>
+              <meter class="performance-meter"
+                     low="0.7" high="0.85" max="1"
+                     value="{{ model.Precision or 0 }}">
+              </meter>
+              <span>
+                {{ ((model.Precision or 0) * 100)|round(1) }}%
+              </span>
             </td>
+
+            <!-- RECALL -->
             <td>
-              <meter class="performance-meter" low="0.7" high="0.85" max="1" value="{{ model.F1 }}"></meter>
-              <span>{{ (model.F1 * 100)|round(1) }}%</span>
+              <meter class="performance-meter"
+                     low="0.7" high="0.85" max="1"
+                     value="{{ model.Recall or 0 }}">
+              </meter>
+              <span>
+                {{ ((model.Recall or 0) * 100)|round(1) }}%
+              </span>
             </td>
+
+            <!-- F1 -->
             <td>
-              {% if model.ROC_AUC %}
-                {{ (model.ROC_AUC * 100)|round(1) }}%
-              {% else %}
-                N/A
-              {% endif %}
+              <meter class="performance-meter"
+                     low="0.7" high="0.85" max="1"
+                     value="{{ model.F1 or 0 }}">
+              </meter>
+              <span>
+                {{ ((model.F1 or 0) * 100)|round(1) }}%
+              </span>
+            </td>
+
+            <!-- ROC AUC (optional) -->
+            <td>
+              <meter class="performance-meter"
+                     low="0.7" high="0.85" max="1"
+                     value="{{ model.ROC_AUC or 0 }}">
+              </meter>
+              <span>
+                {{ ((model.ROC_AUC or 0) * 100)|round(1) }}%
+              </span>
             </td>
           </tr>
           {% endfor %}
         </tbody>
+
       </table>
     </figure>
 
     <nav class="comparison-actions">
       <a href="/" class="cta-btn cta-secondary">Back to Prediction</a>
     </nav>
+
   </article>
 </section>
 

@@ -334,12 +334,11 @@ input[type="range"] {
   margin-bottom: 4px;
 }
 
-.comparison-table td:not(:first-child) {
+.comparison-table td {
+  padding: 14px;
+  border-bottom: 1px solid var(--line);
   text-align: center;
-  display: grid;
-  grid-template-columns: 1fr auto;
-  gap: 8px;
-  align-items: center;
+  vertical-align: middle;
 }
 
 .comparison-actions {
