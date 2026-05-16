@@ -2,57 +2,187 @@
 
 <section class="hero-grid">
   <article class="hero-copy reveal-up">
-    <p class="eyebrow">Smart suggestions for your next night out</p>
-    <h1>Find Your Next Theater Experience</h1>
+    <p class="eyebrow">Sistema de apoio à decisão para produções teatrais</p>
+    <h1>Vai a produção ser lucrativa?</h1>
     <p class="hero-lead">
-      Tune your mood and your budget, then get a recommendation generated from
-      the model in real time.
+      Preenche os detalhes da produção e obtém uma previsão em tempo real com base no modelo treinado.
     </p>
     <ul class="value-points">
-      <li>Fast prediction flow</li>
-      <li>Simple preference controls</li>
-      <li>Clear recommendation result</li>
+      <li>Previsão instantânea de lucro/prejuízo</li>
+      <li>Estimativa automática de custos</li>
+      <li>Baseado em dados reais de produções teatrais</li>
     </ul>
   </article>
 
   <article class="panel-card reveal-up delay-1">
     <form id="predictForm" class="predict-form" novalidate>
-      <fieldset class="input-block">
-        <legend>
-          <label for="genre">Genre preference</label>
-          <span class="meter" id="genreValue">5</span>
-        </legend>
-        <input
-          type="range"
-          id="genre"
-          name="genre"
-          min="0"
-          max="10"
-          value="5"
-          required
-        />
-      </fieldset>
 
-      <fieldset class="input-block">
-        <legend>
-          <label for="budget">Budget level</label>
-          <span class="meter" id="budgetValue">5</span>
-        </legend>
-        <input
-          type="range"
-          id="budget"
-          name="budget"
-          min="0"
-          max="10"
-          value="5"
-          required
-        />
-      </fieldset>
+      <h5 class="section-label">Produção</h5>
+
+      <div class="field-row">
+        <label for="tipo_espetaculo">Tipo de espetáculo</label>
+        <select id="tipo_espetaculo" name="tipo_espetaculo">
+          <option value="teatro_adulto">Teatro Adulto</option>
+          <option value="teatro_infantil">Teatro Infantil</option>
+          <option value="musical">Musical</option>
+          <option value="teatro_de_rua">Teatro de Rua</option>
+          <option value="teatro_experimental">Teatro Experimental</option>
+          <option value="performance_dança">Performance / Dança</option>
+        </select>
+      </div>
+
+      <div class="field-row">
+        <label for="tipo_contrato">Tipo de contrato</label>
+        <select id="tipo_contrato" name="tipo_contrato">
+          <option value="fixo">Fixo</option>
+          <option value="misto">Misto</option>
+          <option value="percentagem_receita">Percentagem da receita</option>
+        </select>
+      </div>
+
+      <div class="field-row">
+        <label for="local_evento">Local do evento</label>
+        <select id="local_evento" name="local_evento">
+          <option value="Porto">Porto</option>
+          <option value="Lisboa">Lisboa</option>
+          <option value="Braga">Braga</option>
+          <option value="Coimbra">Coimbra</option>
+          <option value="Faro">Faro</option>
+          <option value="Aveiro">Aveiro</option>
+          <option value="Bragança">Bragança</option>
+          <option value="Castelo Branco">Castelo Branco</option>
+          <option value="Guarda">Guarda</option>
+          <option value="Leiria">Leiria</option>
+          <option value="Santarém">Santarém</option>
+          <option value="Setúbal">Setúbal</option>
+          <option value="Viana do Castelo">Viana do Castelo</option>
+          <option value="Viseu">Viseu</option>
+          <option value="Évora">Évora</option>
+        </select>
+      </div>
+
+      <div class="field-row">
+        <label for="regiao_geografica">Região geográfica</label>
+        <select id="regiao_geografica" name="regiao_geografica">
+          <option value="Norte">Norte</option>
+          <option value="Centro">Centro</option>
+          <option value="Lisboa">Lisboa</option>
+          <option value="Alentejo">Alentejo</option>
+          <option value="Algarve">Algarve</option>
+        </select>
+      </div>
+
+      <div class="field-row">
+        <label for="tipo_local">Tipo de local</label>
+        <select id="tipo_local" name="tipo_local">
+          <option value="teatro_municipal">Teatro Municipal</option>
+          <option value="auditório">Auditório</option>
+          <option value="escola">Escola</option>
+          <option value="câmara_municipal">Câmara Municipal</option>
+          <option value="festival">Festival</option>
+          <option value="espaço_exterior">Espaço Exterior</option>
+          <option value="espaço_privado">Espaço Privado</option>
+        </select>
+      </div>
+
+      <div class="field-row">
+        <label for="mes_espetaculo">Mês do espetáculo</label>
+        <select id="mes_espetaculo" name="mes_espetaculo">
+          <option value="1">Janeiro</option>
+          <option value="2">Fevereiro</option>
+          <option value="3">Março</option>
+          <option value="4">Abril</option>
+          <option value="5">Maio</option>
+          <option value="6" selected>Junho</option>
+          <option value="7">Julho</option>
+          <option value="8">Agosto</option>
+          <option value="9">Setembro</option>
+          <option value="10">Outubro</option>
+          <option value="11">Novembro</option>
+          <option value="12">Dezembro</option>
+        </select>
+      </div>
+
+      <h5 class="section-label">Logística</h5>
+
+      <div class="field-row">
+        <label for="distancia_km">Distância (km)</label>
+        <input type="number" id="distancia_km" name="distancia_km" min="0" value="50" required />
+      </div>
+
+      <div class="field-row">
+        <label for="dias_deslocacao">Dias de deslocação</label>
+        <input type="number" id="dias_deslocacao" name="dias_deslocacao" min="0" value="1" required />
+      </div>
+
+      <div class="field-row checkboxes">
+        <label><input type="checkbox" name="tem_portagens" value="1" /> Tem portagens</label>
+        <label><input type="checkbox" name="precisa_carrinha" value="1" /> Precisa de carrinha</label>
+        <label><input type="checkbox" name="precisa_autocarro_privado" value="1" /> Precisa de autocarro privado</label>
+        <label><input type="checkbox" name="precisa_alojamento" value="1" /> Precisa de alojamento</label>
+        <label><input type="checkbox" name="catering_pago_pelo_cliente" value="1" /> Catering pago pelo cliente</label>
+        <label><input type="checkbox" name="alojamento_pago_pelo_cliente" value="1" /> Alojamento pago pelo cliente</label>
+      </div>
+
+      <h5 class="section-label">Equipa</h5>
+
+      <div class="field-row">
+        <label for="n_atores_total">Nº total de atores</label>
+        <input type="number" id="n_atores_total" name="n_atores_total" min="1" value="4" required />
+      </div>
+
+      <div class="field-row">
+        <label for="n_atores_residentes">Nº de atores residentes</label>
+        <input type="number" id="n_atores_residentes" name="n_atores_residentes" min="0" value="3" required />
+      </div>
+
+      <div class="field-row">
+        <label for="n_tecnicos">Nº de técnicos</label>
+        <input type="number" id="n_tecnicos" name="n_tecnicos" min="0" value="2" required />
+      </div>
+
+      <h5 class="section-label">Produção</h5>
+
+      <div class="field-row">
+        <label for="peso_cenario_kg">Peso do cenário (kg)</label>
+        <input type="number" id="peso_cenario_kg" name="peso_cenario_kg" min="0" value="0" />
+      </div>
+
+      <div class="field-row">
+        <label for="n_figurinos">Nº de figurinos</label>
+        <input type="number" id="n_figurinos" name="n_figurinos" min="0" value="0" />
+      </div>
+
+      <div class="field-row checkboxes">
+        <label><input type="checkbox" name="tem_cenario_grande" value="1" /> Cenário grande</label>
+        <label><input type="checkbox" name="tem_costureira" value="1" /> Tem costureira</label>
+        <label><input type="checkbox" name="tem_maquilhagem" value="1" /> Tem maquilhagem</label>
+        <label><input type="checkbox" name="tem_sistema_proprio" value="1" /> Sistema técnico próprio</label>
+        <label><input type="checkbox" name="marketing_pago_pelo_espaco" value="1" /> Marketing pago pelo espaço</label>
+      </div>
+
+      <h5 class="section-label">Financeiro</h5>
+
+      <div class="field-row">
+        <label for="receita_esperada">Receita esperada (€)</label>
+        <input type="number" id="receita_esperada" name="receita_esperada" min="0" value="1000" required />
+      </div>
+
+      <div class="field-row">
+        <label for="lotacao_espaco">Lotação do espaço</label>
+        <input type="number" id="lotacao_espaco" name="lotacao_espaco" min="1" value="200" required />
+      </div>
+
+      <div class="field-row">
+        <label for="percentagem_imprevistos">Margem de imprevistos (%)</label>
+        <input type="number" id="percentagem_imprevistos" name="percentagem_imprevistos" min="0" max="50" value="10" />
+      </div>
 
       <button type="submit" id="submitBtn" class="cta-btn">
-        Get Recommendation
+        Prever lucro
       </button>
       <p id="formStatus" class="form-status" aria-live="polite"></p>
+
     </form>
   </article>
 </section>

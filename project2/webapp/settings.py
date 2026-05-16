@@ -2,7 +2,6 @@ import os
 
 
 class Config:
-    DEBUG = True
     TESTING = False
 
     SECRET_KEY = os.getenv("SECRET_KEY", "dev-secret-key")

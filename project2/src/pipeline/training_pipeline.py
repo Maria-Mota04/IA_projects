@@ -57,3 +57,10 @@ def run_pipeline(
     )
 
     return results_df
+
+
+if __name__ == "__main__":
+    results = run_pipeline()
+    print("\n=== Resultados dos Modelos ===")
+    print(results[["Model", "Accuracy", "Precision", "Recall", "F1", "ROC_AUC"]].to_string(index=False))
+    print("\nMelhor modelo guardado em models_saved/model.pkl")

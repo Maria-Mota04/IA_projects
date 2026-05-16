@@ -17,12 +17,19 @@ class Preprocessor:
         self.df = df.copy()
 
     def clean(self):
+        if "data_espetaculo" in self.df.columns:
+            self.df["mes_espetaculo"] = pd.to_datetime(self.df["data_espetaculo"]).dt.month
+            self.df["dia_semana_espetaculo"] = pd.to_datetime(self.df["data_espetaculo"]).dt.dayofweek
+            self.df["ano_espetaculo"] = pd.to_datetime(self.df["data_espetaculo"]).dt.year
+
         cols_to_drop = [
             "id",
             "companhia",
             "espetaculo",
+            "lucro_prejuizo",
             "margem_pct",
             "receita_real",
+            "data_espetaculo",
         ]
 
         self.df = self.df.drop(
@@ -48,7 +55,7 @@ class Preprocessor:
 
         num_cols = self.df.select_dtypes(include=["int64", "float64"]).columns
 
-        cat_cols = self.df.select_dtypes(include=["object", "bool"]).columns
+        cat_cols = self.df.select_dtypes(include=["object", "str", "bool"]).columns
 
         for col in num_cols:
             self.df[col] = self.df[col].fillna(self.df[col].median())
@@ -84,7 +91,7 @@ class Preprocessor:
         One-hot encode categorical features.
         """
 
-        cat_cols = self.df.select_dtypes(include=["object"]).columns
+        cat_cols = self.df.select_dtypes(include=["object", "str"]).columns
 
         self.df = pd.get_dummies(
             self.df,

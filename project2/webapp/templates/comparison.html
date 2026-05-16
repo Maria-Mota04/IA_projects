@@ -17,62 +17,36 @@
             <th>Precision</th>
             <th>Recall</th>
             <th>F1 Score</th>
-            <th>Train Time</th>
+            <th>ROC AUC</th>
           </tr>
         </thead>
         <tbody>
           {% for model in models %}
-          <tr class="{% if 'Current' in model.name %}current-model{% endif %}">
-            <td class="model-name">{{ model.name }}</td>
+          <tr>
+            <td class="model-name">{{ model.Model }}</td>
             <td>
-              <meter
-                class="performance-meter"
-                low="0.7"
-                high="0.85"
-                max="1"
-                value="{{ model.accuracy }}"
-              >
-                {{ (model.accuracy * 100)|int }}%
-              </meter>
-              <span>{{ (model.accuracy * 100)|int }}%</span>
+              <meter class="performance-meter" low="0.7" high="0.85" max="1" value="{{ model.Accuracy }}"></meter>
+              <span>{{ (model.Accuracy * 100)|round(1) }}%</span>
             </td>
             <td>
-              <meter
-                class="performance-meter"
-                low="0.7"
-                high="0.85"
-                max="1"
-                value="{{ model.precision }}"
-              >
-                {{ (model.precision * 100)|int }}%
-              </meter>
-              <span>{{ (model.precision * 100)|int }}%</span>
+              <meter class="performance-meter" low="0.7" high="0.85" max="1" value="{{ model.Precision }}"></meter>
+              <span>{{ (model.Precision * 100)|round(1) }}%</span>
             </td>
             <td>
-              <meter
-                class="performance-meter"
-                low="0.7"
-                high="0.85"
-                max="1"
-                value="{{ model.recall }}"
-              >
-                {{ (model.recall * 100)|int }}%
-              </meter>
-              <span>{{ (model.recall * 100)|int }}%</span>
+              <meter class="performance-meter" low="0.7" high="0.85" max="1" value="{{ model.Recall }}"></meter>
+              <span>{{ (model.Recall * 100)|round(1) }}%</span>
             </td>
             <td>
-              <meter
-                class="performance-meter"
-                low="0.7"
-                high="0.85"
-                max="1"
-                value="{{ model.f1_score }}"
-              >
-                {{ (model.f1_score * 100)|int }}%
-              </meter>
-              <span>{{ (model.f1_score * 100)|int }}%</span>
+              <meter class="performance-meter" low="0.7" high="0.85" max="1" value="{{ model.F1 }}"></meter>
+              <span>{{ (model.F1 * 100)|round(1) }}%</span>
             </td>
-            <td>{{ model.train_time }}</td>
+            <td>
+              {% if model.ROC_AUC %}
+                {{ (model.ROC_AUC * 100)|round(1) }}%
+              {% else %}
+                N/A
+              {% endif %}
+            </td>
           </tr>
           {% endfor %}
         </tbody>

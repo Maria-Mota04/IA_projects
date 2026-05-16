@@ -47,19 +47,7 @@ class ModelTrainer:
 
             estimator = clone(model)
 
-            if name == "KMeans":
-                estimator.fit(X_train)
-            else:
-                estimator.fit(X_train, y_train)
-
-            y_pred = estimator.predict(X_test)
-
-            if name == "KMeans":
-                acc_normal = (y_pred == y_test).mean()
-                acc_inverted = ((1 - y_pred) == y_test).mean()
-
-                if acc_inverted > acc_normal:
-                    y_pred = 1 - y_pred
+            estimator.fit(X_train, y_train)
 
             evaluator = ModelEvaluator()
 

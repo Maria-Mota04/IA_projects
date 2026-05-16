@@ -5,7 +5,6 @@ from sklearn.ensemble import (
     GradientBoostingClassifier,
     AdaBoostClassifier,
 )
-from sklearn.cluster import KMeans
 from sklearn.svm import SVC
 
 
@@ -28,10 +27,5 @@ def get_model_registry():
         ),
         "AdaBoost": AdaBoostClassifier(
             random_state=42,
-        ),
-        "KMeans": KMeans(
-            n_clusters=2,
-            random_state=42,
-            n_init=10,
         ),
     }

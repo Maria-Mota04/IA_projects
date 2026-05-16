@@ -1,4 +1,6 @@
 ﻿import pandas as pd
+from pathlib import Path
+
 
 def summarize_results(results):
     rows = []
@@ -13,7 +15,9 @@ def summarize_results(results):
         rows.append(row)
 
     df = pd.DataFrame(rows)
-    df.to_csv("outputs/experiments/results.csv", index=False)
+    OUTPUT_PATH = Path("outputs/experiments/results.csv")
+    OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
+    df.to_csv(OUTPUT_PATH, index=False)
 
     print(df)
     return df
