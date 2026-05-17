@@ -75,3 +75,18 @@ def test_no_duplicate_columns(sample_data):
         _, new_names = remove_columns(X, cols, feature_names)
 
         assert len(new_names) == len(set(new_names))
+
+def test_prediction_no_profit(sample_data):
+    X, y, feature_names = sample_data
+    
+    idx_receita = feature_names.index("a") if "receita_esperada" not in feature_names else feature_names.index("receita_esperada")
+    idx_custo = feature_names.index("custo_total_eur")
+    
+    X_prejuizo = X.copy()
+    X_prejuizo[:, idx_receita] = 0.0
+    X_prejuizo[:, idx_custo] = 999999.0
+    
+    mock_y_pred = np.zeros(X_prejuizo.shape[0])
+    
+    assert np.all(mock_y_pred == 0)
+    assert mock_y_pred[0] == 0

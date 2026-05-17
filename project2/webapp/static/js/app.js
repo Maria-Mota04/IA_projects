@@ -24,41 +24,42 @@ async function submitPrediction(event) {
     formStatus.textContent = "A gerar previsão...";
     submitBtn.disabled = true;
 
-    // collect all form fields into a plain object
-    const formData = new FormData(form);
     const data = {};
 
-    // numeric and select fields
     const numericFields = [
         "distancia_km", "dias_deslocacao", "n_atores_total", "n_atores_residentes",
         "n_tecnicos", "peso_cenario_kg", "n_figurinos", "receita_esperada",
         "lotacao_espaco", "percentagem_imprevistos", "mes_espetaculo",
     ];
+    for (const field of numericFields) {
+        const el = form.querySelector(`[name="${field}"]`);
+        if (el && el.value !== "") {
+            data[field] = Number(el.value);
+        } else {
+            data[field] = 0;
+        }
+    }
 
     const selectFields = [
         "tipo_espetaculo", "tipo_contrato", "local_evento",
         "regiao_geografica", "tipo_local",
     ];
-
-    for (const field of [...numericFields, ...selectFields]) {
-        const el = form.elements[field];
+    for (const field of selectFields) {
+        const el = form.querySelector(`[name="${field}"]`);
         if (el) data[field] = el.value;
     }
 
-    // checkboxes — default to 0, set to 1 if checked
     const checkboxFields = [
         "tem_portagens", "precisa_carrinha", "precisa_autocarro_privado",
         "precisa_alojamento", "catering_pago_pelo_cliente", "alojamento_pago_pelo_cliente",
         "tem_cenario_grande", "tem_costureira", "tem_maquilhagem",
         "tem_sistema_proprio", "marketing_pago_pelo_espaco",
     ];
-
     for (const field of checkboxFields) {
-        const el = form.elements[field];
+        const el = form.querySelector(`[name="${field}"]`);
         data[field] = el && el.checked ? 1 : 0;
     }
 
-    // fixed date fields not in form
     data["dia_semana_espetaculo"] = 5;
     data["ano_espetaculo"] = 2025;
 
