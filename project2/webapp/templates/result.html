@@ -2,16 +2,24 @@
 
 <section class="result-wrap reveal-up">
   <article class="panel-card result-card">
-    <p class="eyebrow">Prediction complete</p>
-    <h1>Your Recommendation</h1>
-    <p class="hero-lead">Based on your preferences, we recommend:</p>
+    <p class="eyebrow">Previsão concluída</p>
+    <h1>Resultado</h1>
+    <p class="hero-lead">Com base nos dados introduzidos, o modelo prevê:</p>
 
     <output class="result-badge" role="status">
       <strong>{{ result }}</strong>
     </output>
 
+    {% if probability %}
+    <p class="result-detail">Probabilidade estimada de lucro: {{ probability }}%</p>
+    {% endif %}
+
+    {% if custo %}
+    <p class="result-detail">Custo total estimado: {{ custo }} €</p>
+    {% endif %}
+
     <nav class="result-actions">
-      <a href="/" class="cta-btn cta-secondary">Try again</a>
+      <a href="/" class="cta-btn cta-secondary">Nova previsão</a>
     </nav>
   </article>
 </section>

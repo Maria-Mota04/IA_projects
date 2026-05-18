@@ -59,3 +59,17 @@ def test_add_engineered_features_preserves_original_df():
     assert "custo_km_estimado" not in df.columns
     assert "custo_km_estimado" in result.columns
     assert result.loc[0, "custo_km_estimado"] == 20.0
+
+
+def test_add_engineered_features_creates_estimated_profit_feature():
+    df = pd.DataFrame(
+        {
+            "receita_esperada": [1500.0, 800.0],
+            "custo_total_eur": [1000.0, 1200.0],
+        }
+    )
+
+    result = add_engineered_features(df)
+
+    assert "lucro_estimado_eur" in result.columns
+    assert result["lucro_estimado_eur"].tolist() == [500.0, -400.0]

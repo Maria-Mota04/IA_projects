@@ -7,9 +7,11 @@ import pandas as pd
 import pytest
 from pathlib import Path
 from sklearn.linear_model import LogisticRegression
+from sklearn.svm import LinearSVC
 from sklearn.tree import DecisionTreeClassifier
-from sklearn.ensemble import RandomForestClassifier
 from sklearn.datasets import make_classification
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import StandardScaler
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
@@ -143,6 +145,9 @@ class TestModelEvaluatorMetricValues:
 
 class TestModelEvaluatorEdgeCases:
 
+    @pytest.mark.filterwarnings(
+        "ignore:Only one class is present in y_true:sklearn.exceptions.UndefinedMetricWarning"
+    )
     def test_roc_auc_is_none_or_nan_when_only_one_class_in_test(self):
         """ROC AUC is undefined when test set has a single class — returns None or NaN."""
         X = np.array([[0], [1], [2], [3]])
@@ -173,6 +178,19 @@ class TestModelEvaluatorEdgeCases:
         # should not raise
         metrics = evaluator.evaluate(model, X_test, y_test)
         assert "Precision" in metrics
+
+    def test_roc_auc_uses_decision_function_when_probabilities_unavailable(self):
+        X_train = np.array([[0], [1], [2], [3], [4], [5]])
+        y_train = np.array([0, 0, 0, 1, 1, 1])
+        X_test = np.array([[0.5], [1.5], [3.5], [4.5]])
+        y_test = np.array([0, 0, 1, 1])
+
+        model = LinearSVC(random_state=42)
+        model.fit(X_train, y_train)
+
+        metrics = ModelEvaluator().evaluate(model, X_test, y_test)
+
+        assert metrics["ROC_AUC"] == pytest.approx(1.0)
 
 
 # ------------------------------------------------------------------
@@ -270,6 +288,12 @@ class TestModelRegistry:
         registry = get_model_registry()
         for name, model in registry.items():
             assert hasattr(model, "predict_proba"), f"{name} missing predict_proba()"
+
+    def test_all_models_include_scaler_in_pipeline(self):
+        registry = get_model_registry()
+        for name, model in registry.items():
+            assert isinstance(model, Pipeline), f"{name} is not a Pipeline"
+            assert isinstance(model.steps[0][1], StandardScaler)
 
     def test_registry_returns_new_instances_each_call(self):
         r1 = get_model_registry()

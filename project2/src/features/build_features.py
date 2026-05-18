@@ -32,4 +32,7 @@ def add_engineered_features(df: pd.DataFrame) -> pd.DataFrame:
             "custo_combustivel_eur", 1
         )
 
+    if "receita_esperada" in df.columns and "custo_total_eur" in df.columns:
+        df["lucro_estimado_eur"] = df["receita_esperada"] - df["custo_total_eur"]
+
     return df

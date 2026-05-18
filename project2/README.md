@@ -12,13 +12,13 @@ This project focuses on analysing the different types of costs involved in a the
 .
 ├── README.md
 ├── data
-│   ├── raw
-│   ├── processed
-│   └── synthetic
+│   └── raw
+│       └── data.xlsx
 │
-├── environment.yml
 ├── requirements.txt
 ├── models_saved
+│   ├── model.pkl
+│   └── metrics.json
 │
 ├── src
 │   ├── data
@@ -29,6 +29,9 @@ This project focuses on analysing the different types of costs involved in a the
 │   │   └── build_features.py
 │   │
 │   ├── models
+│   │   ├── ablation_runner.py
+│   │   ├── experiment_results.py
+│   │   ├── experiments.py
 │   │   ├── model_registry.py
 │   │   ├── model_trainer.py
 │   │   ├── model_selector.py
@@ -36,12 +39,13 @@ This project focuses on analysing the different types of costs involved in a the
 │   │   ├── model_persistence.py
 │   │
 │   └── utils
-│       ├── helpers.py
 │       ├── logger.py
 │
 ├── tests
 │   ├── test_api.py
 │   ├── test_data.py
+│   ├── test_experiments.py
+│   ├── test_metrics_models.py
 │   ├── test_model.py
 │   ├── test_preprocess.py
 │   ├── test_build_features.py
@@ -51,8 +55,7 @@ This project focuses on analysing the different types of costs involved in a the
     ├── settings.py
     ├── static
     │   ├── css
-    │   ├── js
-    │   └── images
+    │   └── js
     └── templates
         ├── index.html
         ├── layout.html
@@ -90,16 +93,30 @@ pip install -r requirements.txt
 
 ---
 
-### 3. Run the Flask application
+### 3. Train or retrain the model
 
 ```bash
-cd webapp
-python3 app.py
+python -m src.pipeline.training_pipeline
+```
+
+This creates/updates:
+
+```bash
+models_saved/model.pkl
+models_saved/metrics.json
 ```
 
 ---
 
-### 4. Open in browser
+### 4. Run the Flask application
+
+```bash
+python -m webapp.app
+```
+
+---
+
+### 5. Open in browser
 
 ```
 http://127.0.0.1:5000
@@ -115,8 +132,8 @@ The system follows a machine learning pipeline:
 - Preprocess data (cleaning, missing values, encoding)
 - Feature engineering
 - Split into train and test sets
-- Scale features
-- Train multiple models
+- Train multiple model pipelines
+- Scale features inside each saved model pipeline
 - Evaluate models using classification metrics
 - Select best model (F1-score)
 - Save model and metrics
@@ -229,7 +246,7 @@ pip install pytest
 
 ### 2. Run all tests
 
-From the project root directory:
+From the `project2` directory:
 
 ```bash
 pytest
@@ -267,8 +284,9 @@ pytest tests/test_preprocess.py::test_clean_drops_leakage_columns
 * Data preprocessing pipeline
 * Feature engineering functions
 * Model training and selection logic
+* Model registry pipelines, including feature scaling
 * Model evaluation metrics
-* Flask API endpoints (basic route checks)
+* Flask API endpoints and prediction behavior
 
 ---
 

@@ -2,7 +2,6 @@ from pathlib import Path
 
 from src.data.dataset_loader import DatasetLoader
 from src.data.preprocess import Preprocessor
-from src.utils.helpers import scale_splits
 
 from src.models.model_trainer import ModelTrainer
 from src.models.model_selector import ModelSelector
@@ -23,8 +22,6 @@ def run_pipeline(
 
     preprocessor = Preprocessor(df)
     X_train, X_test, y_train, y_test = preprocessor.run()
-
-    X_train, X_test = scale_splits(X_train, X_test)
 
     trainer = ModelTrainer()
 

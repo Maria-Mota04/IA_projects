@@ -1,4 +1,8 @@
 import os
+from pathlib import Path
+
+
+BASE_DIR = Path(__file__).resolve().parents[1]
 
 
 class Config:
@@ -9,8 +13,11 @@ class Config:
     API_TITLE = "Theater Recommendation API"
     API_VERSION = "1.0"
 
-    MODEL_PATH = os.getenv("MODEL_PATH", "models_saved/model.pkl")
+    MODEL_PATH = os.getenv("MODEL_PATH", str(BASE_DIR / "models_saved" / "model.pkl"))
 
-    METRICS_FILE = os.getenv("METRICS_FILE", "models_saved/metrics.json")
+    METRICS_FILE = os.getenv(
+        "METRICS_FILE",
+        str(BASE_DIR / "models_saved" / "metrics.json"),
+    )
 
     MAX_CONTENT_LENGTH = 16 * 1024 * 1024

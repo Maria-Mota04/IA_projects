@@ -16,8 +16,6 @@ def run_ablation_experiments(
     results = {}
 
     for name, cols in EXPERIMENTS.items():
-        print(f"\nExperiment: {name}")
-
         if len(cols) == 0:
             X_train_r = X_train
             X_test_r = X_test
@@ -32,6 +30,9 @@ def run_ablation_experiments(
         m = clone(model)
         m.fit(X_train_r, y_train)
 
-        results[name] = evaluator(m, X_test_r, y_test, nome_modelo=name)
+        if hasattr(evaluator, "evaluate"):
+            results[name] = evaluator.evaluate(m, X_test_r, y_test, name=name)
+        else:
+            results[name] = evaluator(m, X_test_r, y_test, name=name)
 
     return results

@@ -1,13 +1,14 @@
 import numpy as np
+import pandas as pd
 import pytest
+from sklearn.tree import DecisionTreeClassifier
 
+from src.models.ablation_runner import run_ablation_experiments
+from src.models.experiment_results import summarize_results
 from src.models.experiments import EXPERIMENTS
 from src.features.feature_utils import remove_columns
+from src.models.model_evaluator import ModelEvaluator
 
-
-# -------------------------------------------------
-# FIXTURE SIMPLES DE DADOS ARTIFICIAIS
-# -------------------------------------------------
 @pytest.fixture
 def sample_data():
     feature_names = [
@@ -49,6 +50,20 @@ def test_remove_columns_shape(sample_data):
     assert "custo_total_eur" not in new_names
 
 
+def test_remove_columns_accepts_dataframes(sample_data):
+    X, _, feature_names = sample_data
+    X_df = pd.DataFrame(X, columns=feature_names)
+
+    X_new, new_names = remove_columns(
+        X_df, ["tem_portagens", "custo_total_eur"], feature_names
+    )
+
+    assert isinstance(X_new, pd.DataFrame)
+    assert X_new.shape[1] == len(new_names)
+    assert "tem_portagens" not in X_new.columns
+    assert "custo_total_eur" not in X_new.columns
+
+
 def test_baseline_identity(sample_data):
     X, y, feature_names = sample_data
 
@@ -76,17 +91,36 @@ def test_no_duplicate_columns(sample_data):
 
         assert len(new_names) == len(set(new_names))
 
-def test_prediction_no_profit(sample_data):
+def test_run_ablation_experiments_returns_metrics(sample_data):
     X, y, feature_names = sample_data
-    
-    idx_receita = feature_names.index("a") if "receita_esperada" not in feature_names else feature_names.index("receita_esperada")
-    idx_custo = feature_names.index("custo_total_eur")
-    
-    X_prejuizo = X.copy()
-    X_prejuizo[:, idx_receita] = 0.0
-    X_prejuizo[:, idx_custo] = 999999.0
-    
-    mock_y_pred = np.zeros(X_prejuizo.shape[0])
-    
-    assert np.all(mock_y_pred == 0)
-    assert mock_y_pred[0] == 0
+
+    results = run_ablation_experiments(
+        DecisionTreeClassifier(random_state=42),
+        X,
+        X,
+        y,
+        y,
+        feature_names,
+        ModelEvaluator(),
+    )
+
+    assert set(results) == set(EXPERIMENTS)
+    assert all("F1" in metrics for metrics in results.values())
+
+
+def test_summarize_results_writes_csv_without_predictions(tmp_path, monkeypatch):
+    monkeypatch.chdir(tmp_path)
+    results = {
+        "baseline": {
+            "Accuracy": 0.8,
+            "F1": 0.75,
+            "y_pred": np.array([0, 1, 1]),
+        }
+    }
+
+    df = summarize_results(results)
+    output_path = tmp_path / "outputs" / "experiments" / "results.csv"
+
+    assert output_path.exists()
+    assert df.loc[0, "experiment"] == "baseline"
+    assert "y_pred" not in df.columns

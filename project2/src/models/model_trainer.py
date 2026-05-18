@@ -4,7 +4,6 @@ import pandas as pd
 from src.models.model_registry import get_model_registry
 from src.models.model_evaluator import ModelEvaluator
 from src.models.model_selector import ModelSelector
-from src.models.model_persistence import ModelPersistence
 from src.utils.logger import get_logger
 
 
@@ -18,19 +17,6 @@ class ModelTrainer:
         self.fitted_models = {}
         self.results = []
         self.logger = get_logger(__name__)
-
-    def _get_scores(self, model, X_test):
-        """
-        Return probability or decision scores when available.
-        """
-
-        if hasattr(model, "predict_proba"):
-            return model.predict_proba(X_test)[:, 1]
-
-        if hasattr(model, "decision_function"):
-            return model.decision_function(X_test)
-
-        return None
 
     def train_all(
         self,
@@ -76,6 +62,3 @@ class ModelTrainer:
             return None
 
         return self.fitted_models[best_name]
-
-    def save_best(self, model, path):
-        ModelPersistence.save(model, path)

@@ -1,9 +1,7 @@
 from flask import Flask, render_template, request, jsonify
 from pathlib import Path
 import json
-import os
 import pandas as pd
-import numpy as np
 
 from webapp.settings import Config
 from src.models.model_persistence import ModelPersistence
@@ -30,7 +28,7 @@ def load_models_data():
             with open(metrics_file, "r") as f:
                 return json.load(f)
     except Exception as e:
-        print(f"Error loading models data: {e}")
+        app.logger.warning("Error loading models data: %s", e)
     return []
 
 
@@ -133,6 +131,7 @@ def build_feature_vector(form):
     custo_transporte_por_ator    = custo_total_transporte_eur / (n_atores_total + 1)
     custo_tecnico_por_pessoa     = custo_total_tecnica_eur / (total_pessoas_equipa + 1)
     custo_km_estimado            = distancia_km * custo_combustivel_eur
+    lucro_estimado_eur           = receita_esperada - custo_total_eur
 
     # --- one-hot encoding ---
     tipos = ["musical", "performance_dança", "teatro_adulto", "teatro_de_rua",
@@ -203,6 +202,7 @@ def build_feature_vector(form):
         "custo_transporte_por_ator": custo_transporte_por_ator,
         "custo_tecnico_por_pessoa": custo_tecnico_por_pessoa,
         "custo_km_estimado": custo_km_estimado,
+        "lucro_estimado_eur": lucro_estimado_eur,
         # one-hot tipo_espetaculo (drop_first removes "circo" baseline)
         **{f"tipo_espetaculo_{t}": int(tipo_espetaculo == t) for t in tipos},
         # one-hot local_evento (drop_first removes "Aveiro" baseline)
@@ -226,9 +226,9 @@ def home():
 @app.route("/predict", methods=["POST"])
 def predict():
     try:
-        data = request.json
+        data = request.get_json(silent=True)
 
-        if not data or not isinstance(data, dict):
+        if data is None or not isinstance(data, dict):
             return jsonify({"error": "Request body must be a JSON object."}), 400
 
         if len(data) == 0:

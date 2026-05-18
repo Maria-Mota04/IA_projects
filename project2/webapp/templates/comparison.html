@@ -3,10 +3,10 @@
 
 <section class="comparison-wrap reveal-up">
   <article class="panel-card comparison-card">
-    <p class="eyebrow">Performance Analytics</p>
-    <h1>Model Comparison</h1>
+    <p class="eyebrow">Análise de desempenho</p>
+    <h1>Comparação de modelos</h1>
     <p class="hero-lead">
-      Compare the performance metrics across different model versions:
+      Comparação das métricas obtidas pelos modelos treinados:
     </p>
 
     <figure class="comparison-table-wrapper">
@@ -25,13 +25,10 @@
         <tbody>
           {% for model in models %}
           <tr>
-
-            <!-- MODEL NAME -->
             <td class="model-name">
               {{ model.Model or "N/A" }}
             </td>
 
-            <!-- ACCURACY -->
             <td>
               <meter class="performance-meter"
                      low="0.7" high="0.85" max="1"
@@ -42,7 +39,6 @@
               </span>
             </td>
 
-            <!-- PRECISION -->
             <td>
               <meter class="performance-meter"
                      low="0.7" high="0.85" max="1"
@@ -53,7 +49,6 @@
               </span>
             </td>
 
-            <!-- RECALL -->
             <td>
               <meter class="performance-meter"
                      low="0.7" high="0.85" max="1"
@@ -64,7 +59,6 @@
               </span>
             </td>
 
-            <!-- F1 -->
             <td>
               <meter class="performance-meter"
                      low="0.7" high="0.85" max="1"
@@ -75,7 +69,6 @@
               </span>
             </td>
 
-            <!-- ROC AUC (optional) -->
             <td>
               <meter class="performance-meter"
                      low="0.7" high="0.85" max="1"
@@ -93,7 +86,7 @@
     </figure>
 
     <nav class="comparison-actions">
-      <a href="/" class="cta-btn cta-secondary">Back to Prediction</a>
+      <a href="/" class="cta-btn cta-secondary">Voltar à previsão</a>
     </nav>
 
   </article>
