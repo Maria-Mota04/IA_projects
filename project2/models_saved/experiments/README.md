@@ -11,15 +11,15 @@ Each experiment trains all registered classifiers, saves every fitted model, and
 - Precision: `0.9701`
 - Recall: `0.9700`
 - F1-score: `0.9700`
-- ROC AUC: `0.9881`
+- ROC AUC: `0.9840`
 
 ## Results by Experiment
 
 | Experiment | Best model | Features | Accuracy | Precision | Recall | F1 | ROC AUC |
 | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| no_binary | Random Forest | 79 | 0.9700 | 0.9701 | 0.9700 | 0.9700 | 0.9881 |
+| no_binary | Random Forest | 78 | 0.9700 | 0.9701 | 0.9700 | 0.9700 | 0.9840 |
 | no_geo_time | Random Forest | 69 | 0.9700 | 0.9701 | 0.9700 | 0.9700 | 0.9903 |
-| no_aggregated_costs | Random Forest | 83 | 0.9600 | 0.9600 | 0.9600 | 0.9600 | 0.9760 |
+| no_aggregated_costs | AdaBoost | 82 | 0.9600 | 0.9600 | 0.9600 | 0.9600 | 0.9677 |
 | structural_only | Gradient Boosting | 26 | 0.9600 | 0.9600 | 0.9600 | 0.9600 | 0.9749 |
 | baseline | AdaBoost | 90 | 0.9600 | 0.9606 | 0.9600 | 0.9599 | 0.9879 |
 

@@ -1,11 +1,11 @@
 [
   {
-    "Model":"Random Forest",
+    "Model":"AdaBoost",
     "Accuracy":0.96,
     "Precision":0.96,
     "Recall":0.96,
     "F1":0.96,
-    "ROC_AUC":0.975959596,
+    "ROC_AUC":0.9676767677,
     "confusion_matrix":[
       [
         43,
@@ -120,20 +120,20 @@
     ]
   },
   {
-    "Model":"AdaBoost",
-    "Accuracy":0.95,
-    "Precision":0.9502818035,
-    "Recall":0.95,
-    "F1":0.9500453675,
-    "ROC_AUC":0.9721212121,
+    "Model":"Random Forest",
+    "Accuracy":0.96,
+    "Precision":0.96,
+    "Recall":0.96,
+    "F1":0.96,
+    "ROC_AUC":0.9757575758,
     "confusion_matrix":[
       [
         43,
         2
       ],
       [
-        3,
-        52
+        2,
+        53
       ]
     ],
     "y_pred":[
@@ -234,18 +234,18 @@
       0,
       1,
       0,
-      0,
+      1,
       1,
       1
     ]
   },
   {
-    "Model":"Gradient Boosting",
+    "Model":"Decision Tree",
     "Accuracy":0.94,
     "Precision":0.9409474107,
     "Recall":0.94,
     "F1":0.9400966184,
-    "ROC_AUC":0.9806060606,
+    "ROC_AUC":0.9414141414,
     "confusion_matrix":[
       [
         43,
@@ -318,13 +318,13 @@
       0,
       0,
       1,
-      0,
       1,
       1,
-      0,
-      0,
-      0,
       1,
+      0,
+      0,
+      0,
+      0,
       0,
       0,
       1,
@@ -365,7 +365,7 @@
     "Precision":0.9409474107,
     "Recall":0.94,
     "F1":0.9400966184,
-    "ROC_AUC":0.9749494949,
+    "ROC_AUC":0.9737373737,
     "confusion_matrix":[
       [
         43,
@@ -480,20 +480,20 @@
     ]
   },
   {
-    "Model":"Decision Tree",
-    "Accuracy":0.93,
-    "Precision":0.9319711538,
-    "Recall":0.93,
-    "F1":0.9301477238,
-    "ROC_AUC":0.9323232323,
+    "Model":"Gradient Boosting",
+    "Accuracy":0.94,
+    "Precision":0.9409474107,
+    "Recall":0.94,
+    "F1":0.9400966184,
+    "ROC_AUC":0.9761616162,
     "confusion_matrix":[
       [
         43,
         2
       ],
       [
-        5,
-        50
+        4,
+        51
       ]
     ],
     "y_pred":[
@@ -564,7 +564,7 @@
       0,
       0,
       0,
-      0,
+      1,
       0,
       0,
       1,
@@ -605,7 +605,7 @@
     "Precision":0.9103462158,
     "Recall":0.91,
     "F1":0.9100816615,
-    "ROC_AUC":0.9688888889,
+    "ROC_AUC":0.9696969697,
     "confusion_matrix":[
       [
         41,

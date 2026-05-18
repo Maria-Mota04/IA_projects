@@ -11,6 +11,7 @@ FEATURE_GROUPS = {
         "precisa_alojamento",
         "tem_sistema_proprio",
         "marketing_pago_pelo_espaco",
+        "n_carros_extra",
     ],
     "aggregated_costs": [
         "custo_total_transporte_eur",
@@ -19,6 +20,7 @@ FEATURE_GROUPS = {
         "custo_total_tecnica_eur",
         "custo_total_alimentacao_alojamento_eur",
         "custo_total_eur",
+        "custo_imprevistos_eur",
         "lucro_estimado_eur",
     ],
     "geo_time": [

@@ -1,6 +1,5 @@
 feature
 distancia_km
-n_carros_extra
 custo_combustivel_eur
 custo_portagens_eur
 custo_aluguer_carrinha_eur

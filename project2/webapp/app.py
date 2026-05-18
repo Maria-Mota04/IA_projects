@@ -27,6 +27,25 @@ NUMERIC_LIMITS = {
     "ano_espetaculo": (2000, 2100),
 }
 
+REGION_BY_LOCATION = {
+    "Braga": "Norte",
+    "Bragança": "Norte",
+    "Porto": "Norte",
+    "Viana do Castelo": "Norte",
+    "Vila Real": "Norte",
+    "Aveiro": "Centro",
+    "Castelo Branco": "Centro",
+    "Coimbra": "Centro",
+    "Guarda": "Centro",
+    "Leiria": "Centro",
+    "Santarém": "Centro",
+    "Viseu": "Centro",
+    "Lisboa": "Lisboa",
+    "Setúbal": "Lisboa",
+    "Évora": "Alentejo",
+    "Faro": "Algarve",
+}
+
 def load_model():
     global model
     if model is None:
@@ -52,6 +71,7 @@ def load_experiment_data():
         summary_file = Path(app.config.get("EXPERIMENT_SUMMARY_FILE"))
         if summary_file.exists():
             df = pd.read_csv(summary_file)
+            df = df.sort_values(by="F1", ascending=False)
             return df.to_dict(orient="records")
     except Exception as e:
         app.logger.warning("Error loading experiment data: %s", e)
@@ -120,7 +140,7 @@ def build_feature_vector(form):
     # categorical
     tipo_espetaculo = form.get("tipo_espetaculo", "teatro_adulto")
     local_evento    = form.get("local_evento", "Porto")
-    regiao          = form.get("regiao_geografica", "Norte")
+    regiao          = REGION_BY_LOCATION.get(local_evento, form.get("regiao_geografica", "Norte"))
     tipo_local      = form.get("tipo_local", "teatro_municipal")
     tipo_contrato   = form.get("tipo_contrato", "fixo")
 

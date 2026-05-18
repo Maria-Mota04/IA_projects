@@ -178,3 +178,13 @@ def test_feature_vector_only_charges_lodging_when_needed_and_not_paid_by_client(
     assert no_lodging["custo_alojamento_eur"] == 0
     assert paid_by_client["custo_alojamento_eur"] == 0
     assert paid_by_company["custo_alojamento_eur"] > 0
+
+
+def test_feature_vector_derives_region_from_location():
+    feature_row = build_feature_vector({
+        "local_evento": "Porto",
+        "regiao_geografica": "Algarve",
+    })
+
+    assert feature_row["regiao_geografica_Norte"] == 1
+    assert feature_row["regiao_geografica_Algarve"] == 0

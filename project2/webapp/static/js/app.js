@@ -16,6 +16,25 @@ const CHECKBOX_FIELDS = [
     "tem_sistema_proprio", "marketing_pago_pelo_espaco",
 ];
 
+const REGION_BY_LOCATION = {
+    "Braga": "Norte",
+    "Bragança": "Norte",
+    "Porto": "Norte",
+    "Viana do Castelo": "Norte",
+    "Vila Real": "Norte",
+    "Aveiro": "Centro",
+    "Castelo Branco": "Centro",
+    "Coimbra": "Centro",
+    "Guarda": "Centro",
+    "Leiria": "Centro",
+    "Santarém": "Centro",
+    "Viseu": "Centro",
+    "Lisboa": "Lisboa",
+    "Setúbal": "Lisboa",
+    "Évora": "Alentejo",
+    "Faro": "Algarve",
+};
+
 function formatEuro(value) {
     return new Intl.NumberFormat("pt-PT", {
         style: "currency",
@@ -72,8 +91,24 @@ function collectFormData(form) {
 
     data.dia_semana_espetaculo = 5;
     data.ano_espetaculo = 2025;
+    data.regiao_geografica = REGION_BY_LOCATION[data.local_evento] || data.regiao_geografica || "Norte";
 
     return data;
+}
+
+function syncRegionFromLocation() {
+    const form = document.getElementById("predictForm");
+    if (!form) {
+        return;
+    }
+
+    const locationEl = form.querySelector('[name="local_evento"]');
+    const regionEl = form.querySelector('[name="regiao_geografica"]');
+    if (!locationEl || !regionEl) {
+        return;
+    }
+
+    regionEl.value = REGION_BY_LOCATION[locationEl.value] || "Norte";
 }
 
 function estimateCosts(data) {
@@ -214,7 +249,11 @@ window.addEventListener("DOMContentLoaded", () => {
     if (predictForm) {
         predictForm.addEventListener("submit", submitPrediction);
         predictForm.addEventListener("input", updateEstimate);
-        predictForm.addEventListener("change", updateEstimate);
+        predictForm.addEventListener("change", () => {
+            syncRegionFromLocation();
+            updateEstimate();
+        });
+        syncRegionFromLocation();
         updateEstimate();
     }
 });
