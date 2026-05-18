@@ -16,6 +16,15 @@
 
   <article class="panel-card reveal-up delay-1">
     <form id="predictForm" class="predict-form" novalidate>
+      <p class="form-intro">
+        Preenche apenas os dados que são conhecidos antes do espetáculo. Os custos derivados são calculados automaticamente.
+      </p>
+      <div class="form-summary">
+        <span>Receita</span>
+        <span>Custos estimados</span>
+        <span>Margem</span>
+        <span>Previsão</span>
+      </div>
 
       <h5 class="section-label">Produção</h5>
 
@@ -107,12 +116,14 @@
 
       <div class="field-row">
         <label for="distancia_km">Distância (km)</label>
-        <input type="number" id="distancia_km" name="distancia_km" min="0" value="50" required />
+        <input type="number" id="distancia_km" name="distancia_km" min="0" max="5000" step="1" value="50" required />
+        <small class="field-hint">0 a 5000 km.</small>
       </div>
 
       <div class="field-row">
         <label for="dias_deslocacao">Dias de deslocação</label>
-        <input type="number" id="dias_deslocacao" name="dias_deslocacao" min="0" value="1" required />
+        <input type="number" id="dias_deslocacao" name="dias_deslocacao" min="0" max="30" step="1" value="1" required />
+        <small class="field-hint">0 a 30 dias.</small>
       </div>
 
       <div class="field-row checkboxes">
@@ -128,29 +139,34 @@
 
       <div class="field-row">
         <label for="n_atores_total">Nº total de atores</label>
-        <input type="number" id="n_atores_total" name="n_atores_total" min="1" value="4" required />
+        <input type="number" id="n_atores_total" name="n_atores_total" min="1" max="100" step="1" value="4" required />
+        <small class="field-hint">1 a 100 atores.</small>
       </div>
 
       <div class="field-row">
         <label for="n_atores_residentes">Nº de atores residentes</label>
-        <input type="number" id="n_atores_residentes" name="n_atores_residentes" min="0" value="3" required />
+        <input type="number" id="n_atores_residentes" name="n_atores_residentes" min="0" max="100" step="1" value="3" required />
+        <small class="field-hint">Não pode exceder o total de atores.</small>
       </div>
 
       <div class="field-row">
         <label for="n_tecnicos">Nº de técnicos</label>
-        <input type="number" id="n_tecnicos" name="n_tecnicos" min="0" value="2" required />
+        <input type="number" id="n_tecnicos" name="n_tecnicos" min="0" max="100" step="1" value="2" required />
+        <small class="field-hint">0 a 100 técnicos.</small>
       </div>
 
       <h5 class="section-label">Produção</h5>
 
       <div class="field-row">
         <label for="peso_cenario_kg">Peso do cenário (kg)</label>
-        <input type="number" id="peso_cenario_kg" name="peso_cenario_kg" min="0" value="0" />
+        <input type="number" id="peso_cenario_kg" name="peso_cenario_kg" min="0" max="10000" step="1" value="0" />
+        <small class="field-hint">0 a 10000 kg.</small>
       </div>
 
       <div class="field-row">
         <label for="n_figurinos">Nº de figurinos</label>
-        <input type="number" id="n_figurinos" name="n_figurinos" min="0" value="0" />
+        <input type="number" id="n_figurinos" name="n_figurinos" min="0" max="500" step="1" value="0" />
+        <small class="field-hint">0 a 500 figurinos.</small>
       </div>
 
       <div class="field-row checkboxes">
@@ -165,18 +181,36 @@
 
       <div class="field-row">
         <label for="receita_esperada">Receita esperada (€)</label>
-        <input type="number" id="receita_esperada" name="receita_esperada" min="0" value="1000" required />
+        <input type="number" id="receita_esperada" name="receita_esperada" min="0" max="1000000" step="50" value="1000" required />
+        <small class="field-hint">0 a 1 000 000 €.</small>
       </div>
 
       <div class="field-row">
         <label for="lotacao_espaco">Lotação do espaço</label>
-        <input type="number" id="lotacao_espaco" name="lotacao_espaco" min="1" value="200" required />
+        <input type="number" id="lotacao_espaco" name="lotacao_espaco" min="1" max="100000" step="1" value="200" required />
+        <small class="field-hint">1 a 100 000 lugares.</small>
       </div>
 
       <div class="field-row">
         <label for="percentagem_imprevistos">Margem de imprevistos (%)</label>
-        <input type="number" id="percentagem_imprevistos" name="percentagem_imprevistos" min="0" max="50" value="10" />
+        <input type="number" id="percentagem_imprevistos" name="percentagem_imprevistos" min="0" max="100" step="1" value="10" />
+        <small class="field-hint">0% a 100%.</small>
       </div>
+
+      <aside class="estimate-panel" aria-live="polite">
+        <h5>Estimativa antes da previsão</h5>
+        <p>Esta estimativa usa os mesmos pressupostos de custos que são enviados ao modelo.</p>
+        <dl>
+          <div>
+            <dt>Custo estimado</dt>
+            <dd id="estimatedCost">--</dd>
+          </div>
+          <div>
+            <dt>Margem estimada</dt>
+            <dd id="estimatedMargin">--</dd>
+          </div>
+        </dl>
+      </aside>
 
       <button type="submit" id="submitBtn" class="cta-btn">
         Prever lucro

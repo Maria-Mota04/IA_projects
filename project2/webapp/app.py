@@ -11,6 +11,21 @@ app.config.from_object(Config)
 
 model = None
 
+NUMERIC_LIMITS = {
+    "distancia_km": (0, 5000),
+    "dias_deslocacao": (0, 30),
+    "n_atores_total": (1, 100),
+    "n_atores_residentes": (0, 100),
+    "n_tecnicos": (0, 100),
+    "peso_cenario_kg": (0, 10000),
+    "n_figurinos": (0, 500),
+    "receita_esperada": (0, 1_000_000),
+    "lotacao_espaco": (1, 100_000),
+    "percentagem_imprevistos": (0, 100),
+    "mes_espetaculo": (1, 12),
+    "dia_semana_espetaculo": (0, 6),
+    "ano_espetaculo": (2000, 2100),
+}
 
 def load_model():
     global model
@@ -32,6 +47,31 @@ def load_models_data():
     return []
 
 
+def _read_number(form, field, default, as_int=False):
+    value = form.get(field, default)
+    try:
+        number = int(value) if as_int else float(value)
+    except (TypeError, ValueError):
+        raise ValueError(f"{field} must be a valid number")
+
+    min_value, max_value = NUMERIC_LIMITS[field]
+    if number < min_value or number > max_value:
+        raise ValueError(f"{field} must be between {min_value} and {max_value}")
+
+    return number
+
+
+def _read_bool(form, field):
+    try:
+        value = int(form.get(field, 0))
+    except (TypeError, ValueError):
+        raise ValueError(f"{field} must be 0 or 1")
+
+    if value not in (0, 1):
+        raise ValueError(f"{field} must be 0 or 1")
+    return value
+
+
 def build_feature_vector(form):
     """
     Receives simplified form input and builds the full feature vector
@@ -39,29 +79,32 @@ def build_feature_vector(form):
     """
 
     # --- core inputs from form ---
-    distancia_km              = float(form.get("distancia_km", 0))
-    n_atores_total            = int(form.get("n_atores_total", 1))
-    n_atores_residentes       = int(form.get("n_atores_residentes", 1))
-    n_tecnicos                = int(form.get("n_tecnicos", 1))
-    receita_esperada          = float(form.get("receita_esperada", 0))
-    lotacao_espaco            = int(form.get("lotacao_espaco", 100))
-    peso_cenario_kg           = float(form.get("peso_cenario_kg", 0))
-    n_figurinos               = int(form.get("n_figurinos", 0))
-    dias_deslocacao           = int(form.get("dias_deslocacao", 0))
-    percentagem_imprevistos   = float(form.get("percentagem_imprevistos", 10))
+    distancia_km              = _read_number(form, "distancia_km", 0)
+    n_atores_total            = _read_number(form, "n_atores_total", 1, as_int=True)
+    n_atores_residentes       = _read_number(form, "n_atores_residentes", 1, as_int=True)
+    n_tecnicos                = _read_number(form, "n_tecnicos", 1, as_int=True)
+    receita_esperada          = _read_number(form, "receita_esperada", 0)
+    lotacao_espaco            = _read_number(form, "lotacao_espaco", 100, as_int=True)
+    peso_cenario_kg           = _read_number(form, "peso_cenario_kg", 0)
+    n_figurinos               = _read_number(form, "n_figurinos", 0, as_int=True)
+    dias_deslocacao           = _read_number(form, "dias_deslocacao", 0, as_int=True)
+    percentagem_imprevistos   = _read_number(form, "percentagem_imprevistos", 10)
+
+    if n_atores_residentes > n_atores_total:
+        raise ValueError("n_atores_residentes cannot exceed n_atores_total")
 
     # boolean flags
-    tem_portagens             = int(form.get("tem_portagens", 0))
-    precisa_carrinha          = int(form.get("precisa_carrinha", 0))
-    precisa_autocarro_privado = int(form.get("precisa_autocarro_privado", 0))
-    tem_cenario_grande        = int(form.get("tem_cenario_grande", 0))
-    tem_costureira            = int(form.get("tem_costureira", 0))
-    tem_maquilhagem           = int(form.get("tem_maquilhagem", 0))
-    catering_pago_pelo_cliente    = int(form.get("catering_pago_pelo_cliente", 0))
-    alojamento_pago_pelo_cliente  = int(form.get("alojamento_pago_pelo_cliente", 0))
-    precisa_alojamento        = int(form.get("precisa_alojamento", 0))
-    tem_sistema_proprio       = int(form.get("tem_sistema_proprio", 0))
-    marketing_pago_pelo_espaco    = int(form.get("marketing_pago_pelo_espaco", 0))
+    tem_portagens             = _read_bool(form, "tem_portagens")
+    precisa_carrinha          = _read_bool(form, "precisa_carrinha")
+    precisa_autocarro_privado = _read_bool(form, "precisa_autocarro_privado")
+    tem_cenario_grande        = _read_bool(form, "tem_cenario_grande")
+    tem_costureira            = _read_bool(form, "tem_costureira")
+    tem_maquilhagem           = _read_bool(form, "tem_maquilhagem")
+    catering_pago_pelo_cliente    = _read_bool(form, "catering_pago_pelo_cliente")
+    alojamento_pago_pelo_cliente  = _read_bool(form, "alojamento_pago_pelo_cliente")
+    precisa_alojamento        = _read_bool(form, "precisa_alojamento")
+    tem_sistema_proprio       = _read_bool(form, "tem_sistema_proprio")
+    marketing_pago_pelo_espaco    = _read_bool(form, "marketing_pago_pelo_espaco")
 
     # categorical
     tipo_espetaculo = form.get("tipo_espetaculo", "teatro_adulto")
@@ -71,9 +114,9 @@ def build_feature_vector(form):
     tipo_contrato   = form.get("tipo_contrato", "fixo")
 
     # date
-    mes              = int(form.get("mes_espetaculo", 6))
-    dia_semana       = int(form.get("dia_semana_espetaculo", 5))
-    ano              = int(form.get("ano_espetaculo", 2025))
+    mes              = _read_number(form, "mes_espetaculo", 6, as_int=True)
+    dia_semana       = _read_number(form, "dia_semana_espetaculo", 5, as_int=True)
+    ano              = _read_number(form, "ano_espetaculo", 2025, as_int=True)
 
     # --- derived cost estimates ---
     custo_combustivel_eur        = distancia_km * 0.15
@@ -103,7 +146,9 @@ def build_feature_vector(form):
                                     + custo_maquilhagem_eur)
 
     custo_catering_eur           = 0 if catering_pago_pelo_cliente else total_pessoas_equipa * 15 * max(1, dias_deslocacao)
-    custo_alojamento_eur         = 0 if alojamento_pago_pelo_cliente else total_pessoas_equipa * 50 * max(0, dias_deslocacao - 1)
+    custo_alojamento_eur         = 0 if (
+        not precisa_alojamento or alojamento_pago_pelo_cliente
+    ) else total_pessoas_equipa * 50 * max(0, dias_deslocacao - 1)
     custo_total_alimentacao_alojamento_eur = custo_catering_eur + custo_alojamento_eur
 
     custo_aluguer_luz_eur        = 0 if tem_sistema_proprio else 150

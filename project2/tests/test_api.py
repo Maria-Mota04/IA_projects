@@ -92,7 +92,40 @@ def test_predict_route_rejects_invalid_field_type():
     response = client.post("/predict", json={"distancia_km": "abc"})
 
     assert response.status_code == 400
-    assert "could not convert string to float" in response.json["error"]
+    assert response.json["error"] == "distancia_km must be a valid number"
+
+
+def test_predict_route_rejects_numeric_overflow_values():
+    client = app.test_client()
+
+    response = client.post("/predict", json={"receita_esperada": 10**12})
+
+    assert response.status_code == 400
+    assert response.json["error"] == "receita_esperada must be between 0 and 1000000"
+
+
+def test_predict_route_rejects_inconsistent_actor_counts():
+    client = app.test_client()
+
+    response = client.post(
+        "/predict",
+        json={
+            "n_atores_total": 2,
+            "n_atores_residentes": 3,
+        },
+    )
+
+    assert response.status_code == 400
+    assert response.json["error"] == "n_atores_residentes cannot exceed n_atores_total"
+
+
+def test_predict_route_rejects_invalid_boolean_values():
+    client = app.test_client()
+
+    response = client.post("/predict", json={"tem_portagens": 3})
+
+    assert response.status_code == 400
+    assert response.json["error"] == "tem_portagens must be 0 or 1"
 
 
 def test_feature_vector_matches_saved_model_features():
@@ -101,3 +134,32 @@ def test_feature_vector_matches_saved_model_features():
 
     assert model is not None
     assert set(feature_row) == set(model.feature_names_in_)
+
+
+def test_feature_vector_only_charges_lodging_when_needed_and_not_paid_by_client():
+    base = {
+        "n_atores_total": 4,
+        "n_atores_residentes": 4,
+        "n_tecnicos": 2,
+        "dias_deslocacao": 3,
+    }
+
+    no_lodging = build_feature_vector({
+        **base,
+        "precisa_alojamento": 0,
+        "alojamento_pago_pelo_cliente": 0,
+    })
+    paid_by_client = build_feature_vector({
+        **base,
+        "precisa_alojamento": 1,
+        "alojamento_pago_pelo_cliente": 1,
+    })
+    paid_by_company = build_feature_vector({
+        **base,
+        "precisa_alojamento": 1,
+        "alojamento_pago_pelo_cliente": 0,
+    })
+
+    assert no_lodging["custo_alojamento_eur"] == 0
+    assert paid_by_client["custo_alojamento_eur"] == 0
+    assert paid_by_company["custo_alojamento_eur"] > 0
