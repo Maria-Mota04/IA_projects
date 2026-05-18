@@ -1,111 +1,160 @@
 import numpy as np
 import pandas as pd
 import pytest
-from sklearn.tree import DecisionTreeClassifier
 
-from src.models.ablation_runner import run_ablation_experiments
+from src.features.feature_utils import keep_columns, remove_columns
+from src.models.ablation_runner import apply_experiment, run_ablation_experiments
 from src.models.experiment_results import summarize_results
 from src.models.experiments import EXPERIMENTS
-from src.features.feature_utils import remove_columns
-from src.models.model_evaluator import ModelEvaluator
+from src.models.model_trainer import ModelTrainer
+
 
 @pytest.fixture
 def sample_data():
     feature_names = [
-        "a", "b", "c", "d", "e",
-        # no_binary
-        "tem_portagens", "precisa_carrinha", "precisa_autocarro_privado",
-        "tem_cenario_grande", "tem_costureira", "tem_maquilhagem",
-        "catering_pago_pelo_cliente", "alojamento_pago_pelo_cliente",
-        "tem_sistema_proprio", "marketing_pago_pelo_espaco",
-        # no_aggregated_costs
-        "custo_total_transporte_eur", "custo_total_cenario_eur",
-        "custo_total_figurinos_eur", "custo_total_tecnica_eur",
-        "custo_total_alimentacao_alojamento_eur", "custo_total_eur",
-        # no_geo_time
-        "data_espetaculo", "regiao_geografica", "local_evento",
+        "distancia_km",
+        "n_atores_total",
+        "n_atores_residentes",
+        "n_atores_externos",
+        "n_tecnicos",
+        "total_pessoas_equipa",
+        "peso_cenario_kg",
+        "n_figurinos",
+        "dias_deslocacao",
+        "lotacao_espaco",
+        "receita_esperada",
+        "percentagem_imprevistos",
+        "tem_portagens",
+        "precisa_carrinha",
+        "precisa_autocarro_privado",
+        "tem_cenario_grande",
+        "tem_costureira",
+        "tem_maquilhagem",
+        "catering_pago_pelo_cliente",
+        "alojamento_pago_pelo_cliente",
+        "precisa_alojamento",
+        "tem_sistema_proprio",
+        "marketing_pago_pelo_espaco",
+        "custo_total_transporte_eur",
+        "custo_total_cenario_eur",
+        "custo_total_figurinos_eur",
+        "custo_total_tecnica_eur",
+        "custo_total_alimentacao_alojamento_eur",
+        "custo_total_eur",
+        "lucro_estimado_eur",
+        "mes_espetaculo",
+        "dia_semana_espetaculo",
+        "ano_espetaculo",
+        "local_evento_Porto",
+        "regiao_geografica_Norte",
+        "tipo_espetaculo_musical",
+        "tipo_contrato_misto",
+        "tipo_local_festival",
     ]
-
-    X = np.random.rand(10, len(feature_names))
-    y = np.random.randint(0, 2, 10)
+    X = pd.DataFrame(np.random.rand(30, len(feature_names)), columns=feature_names)
+    y = pd.Series([0, 1] * 15)
 
     return X, y, feature_names
 
 
 def test_experiments_defined():
     assert isinstance(EXPERIMENTS, dict)
-    assert "baseline" in EXPERIMENTS
-    assert isinstance(EXPERIMENTS["baseline"], list)
+    assert set(EXPERIMENTS) == {
+        "baseline",
+        "no_binary",
+        "no_aggregated_costs",
+        "no_geo_time",
+        "structural_only",
+    }
+    assert EXPERIMENTS["baseline"]["drop"] == []
+    assert EXPERIMENTS["baseline"]["keep"] is None
 
 
-def test_remove_columns_shape(sample_data):
-    X, y, feature_names = sample_data
-
-    X_new, new_names = remove_columns(
-        X, ["tem_portagens", "custo_total_eur"], feature_names
-    )
-
-    assert X_new.shape[1] == len(new_names)
-    assert "tem_portagens" not in new_names
-    assert "custo_total_eur" not in new_names
-
-
-def test_remove_columns_accepts_dataframes(sample_data):
+def test_remove_columns_accepts_prefixes_and_dataframes(sample_data):
     X, _, feature_names = sample_data
-    X_df = pd.DataFrame(X, columns=feature_names)
 
     X_new, new_names = remove_columns(
-        X_df, ["tem_portagens", "custo_total_eur"], feature_names
+        X,
+        ["tem_portagens", "local_evento_"],
+        feature_names,
     )
 
     assert isinstance(X_new, pd.DataFrame)
     assert X_new.shape[1] == len(new_names)
-    assert "tem_portagens" not in X_new.columns
-    assert "custo_total_eur" not in X_new.columns
+    assert "tem_portagens" not in new_names
+    assert "local_evento_Porto" not in new_names
 
 
-def test_baseline_identity(sample_data):
-    X, y, feature_names = sample_data
-
-    X_new, new_names = remove_columns(X, EXPERIMENTS["baseline"], feature_names)
-
-    assert X.shape == X_new.shape
-    assert feature_names == new_names
-
-
-def test_all_experiment_columns_valid(sample_data):
-    _, _, feature_names = sample_data
-
-    all_features = set(feature_names)
-
-    for exp, cols in EXPERIMENTS.items():
-        for c in cols:
-            assert c in all_features, f"{c} not in dataset for experiment {exp}"
-
-
-def test_no_duplicate_columns(sample_data):
+def test_keep_columns_accepts_prefixes(sample_data):
     X, _, feature_names = sample_data
 
-    for exp, cols in EXPERIMENTS.items():
-        _, new_names = remove_columns(X, cols, feature_names)
+    X_new, new_names = keep_columns(
+        X,
+        ["distancia_km", "tipo_espetaculo_"],
+        feature_names,
+    )
 
-        assert len(new_names) == len(set(new_names))
+    assert list(X_new.columns) == ["distancia_km", "tipo_espetaculo_musical"]
+    assert new_names == ["distancia_km", "tipo_espetaculo_musical"]
 
-def test_run_ablation_experiments_returns_metrics(sample_data):
+
+def test_apply_experiment_baseline_keeps_all_features(sample_data):
+    X, _, feature_names = sample_data
+
+    X_new, new_names = apply_experiment(
+        X,
+        EXPERIMENTS["baseline"],
+        feature_names,
+    )
+
+    assert X_new.shape == X.shape
+    assert new_names == feature_names
+
+
+def test_apply_experiment_removes_aggregated_costs(sample_data):
+    X, _, feature_names = sample_data
+
+    _, new_names = apply_experiment(
+        X,
+        EXPERIMENTS["no_aggregated_costs"],
+        feature_names,
+    )
+
+    assert "custo_total_eur" not in new_names
+    assert "lucro_estimado_eur" not in new_names
+
+
+def test_apply_experiment_structural_only_removes_cost_outputs(sample_data):
+    X, _, feature_names = sample_data
+
+    _, new_names = apply_experiment(
+        X,
+        EXPERIMENTS["structural_only"],
+        feature_names,
+    )
+
+    assert "distancia_km" in new_names
+    assert "tipo_contrato_misto" in new_names
+    assert "custo_total_eur" not in new_names
+    assert "tem_portagens" not in new_names
+
+
+def test_run_ablation_experiments_returns_results_for_each_experiment(sample_data):
     X, y, feature_names = sample_data
 
-    results = run_ablation_experiments(
-        DecisionTreeClassifier(random_state=42),
+    results, fitted_models, selected_features = run_ablation_experiments(
+        ModelTrainer,
         X,
         X,
         y,
         y,
         feature_names,
-        ModelEvaluator(),
     )
 
     assert set(results) == set(EXPERIMENTS)
-    assert all("F1" in metrics for metrics in results.values())
+    assert set(fitted_models) == set(EXPERIMENTS)
+    assert set(selected_features) == set(EXPERIMENTS)
+    assert all("F1" in df.columns for df in results.values())
 
 
 def test_summarize_results_writes_csv_without_predictions(tmp_path, monkeypatch):

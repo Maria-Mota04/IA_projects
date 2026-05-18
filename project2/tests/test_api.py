@@ -3,7 +3,7 @@ import sys
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
-from webapp.app import app, build_feature_vector, load_model
+from webapp.app import app, build_feature_vector, load_experiment_data, load_model
 
 
 def test_home_route():
@@ -28,6 +28,21 @@ def test_comparison_route():
     response = client.get("/comparison")
 
     assert response.status_code == 200
+
+
+def test_experiments_route():
+    client = app.test_client()
+
+    response = client.get("/experiments")
+
+    assert response.status_code == 200
+
+
+def test_load_experiment_data_returns_summary_rows():
+    rows = load_experiment_data()
+
+    assert len(rows) >= 5
+    assert {"Experiment", "BestModel", "F1"}.issubset(rows[0])
 
 
 def test_predict_route_distinguishes_profit_and_loss_cases():

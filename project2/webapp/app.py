@@ -47,6 +47,17 @@ def load_models_data():
     return []
 
 
+def load_experiment_data():
+    try:
+        summary_file = Path(app.config.get("EXPERIMENT_SUMMARY_FILE"))
+        if summary_file.exists():
+            df = pd.read_csv(summary_file)
+            return df.to_dict(orient="records")
+    except Exception as e:
+        app.logger.warning("Error loading experiment data: %s", e)
+    return []
+
+
 def _read_number(form, field, default, as_int=False):
     value = form.get(field, default)
     try:
@@ -318,6 +329,12 @@ def result():
 def comparison():
     models_data = load_models_data()
     return render_template("comparison.html", models=models_data)
+
+
+@app.route("/experiments")
+def experiments():
+    experiments_data = load_experiment_data()
+    return render_template("experiments.html", experiments=experiments_data)
 
 
 if __name__ == "__main__":

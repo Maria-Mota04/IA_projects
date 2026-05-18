@@ -1,0 +1,89 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<section class="comparison-wrap reveal-up">
+  <article class="panel-card comparison-card">
+    <p class="eyebrow">Estudo de ablação</p>
+    <h1>Resultados das experiências</h1>
+    <p class="hero-lead">
+      Comparação das versões do modelo quando diferentes grupos de features são removidos ou isolados.
+    </p>
+
+    {% if experiments %}
+    <div class="experiment-highlights">
+      {% set best = experiments[0] %}
+      <article>
+        <span>Melhor experiência</span>
+        <strong>{{ best.Experiment }}</strong>
+      </article>
+      <article>
+        <span>Modelo vencedor</span>
+        <strong>{{ best.BestModel }}</strong>
+      </article>
+      <article>
+        <span>F1-score</span>
+        <strong>{{ ((best.F1 or 0) * 100)|round(1) }}%</strong>
+      </article>
+      <article>
+        <span>Features usadas</span>
+        <strong>{{ best.FeatureCount }}</strong>
+      </article>
+    </div>
+    {% endif %}
+
+    <figure class="comparison-table-wrapper">
+      <table class="comparison-table">
+        <thead>
+          <tr>
+            <th>Experiência</th>
+            <th>Melhor modelo</th>
+            <th>Features</th>
+            <th>Accuracy</th>
+            <th>Precision</th>
+            <th>Recall</th>
+            <th>F1</th>
+            <th>ROC AUC</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          {% for exp in experiments %}
+          <tr>
+            <td class="model-name">{{ exp.Experiment }}</td>
+            <td>{{ exp.BestModel }}</td>
+            <td>{{ exp.FeatureCount }}</td>
+            <td>{{ ((exp.Accuracy or 0) * 100)|round(1) }}%</td>
+            <td>{{ ((exp.Precision or 0) * 100)|round(1) }}%</td>
+            <td>{{ ((exp.Recall or 0) * 100)|round(1) }}%</td>
+            <td>
+              <meter class="performance-meter"
+                     low="0.7" high="0.85" max="1"
+                     value="{{ exp.F1 or 0 }}">
+              </meter>
+              <span>{{ ((exp.F1 or 0) * 100)|round(1) }}%</span>
+            </td>
+            <td>{{ ((exp.ROC_AUC or 0) * 100)|round(1) }}%</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </figure>
+
+    <section class="experiment-notes">
+      <h2>Conclusões principais</h2>
+      <ul>
+        <li>Remover variáveis binárias não reduziu o desempenho, sugerindo que os custos e variáveis estruturais já capturam muita dessa informação.</li>
+        <li>Remover geografia e tempo manteve resultados altos, indicando baixa dependência do modelo em padrões regionais ou temporais neste dataset.</li>
+        <li>Sem custos agregados, o modelo continua forte, mas perde alguma informação financeira direta.</li>
+        <li>Com apenas features estruturais, o desempenho permanece alto, o que torna essa versão interessante para cenários de planeamento inicial.</li>
+      </ul>
+    </section>
+
+    <nav class="comparison-actions">
+      <a href="/comparison" class="cta-btn cta-secondary">Ver modelos baseline</a>
+      <a href="/" class="cta-btn cta-secondary">Voltar à previsão</a>
+    </nav>
+  </article>
+</section>
+
+{% endblock %}

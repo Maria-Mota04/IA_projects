@@ -108,7 +108,34 @@ models_saved/metrics.json
 
 ---
 
-### 4. Run the Flask application
+### 4. Run feature-ablation experiments
+
+```bash
+python -m src.pipeline.experiment_pipeline
+```
+
+This trains all registered classifiers for each experiment and saves:
+
+```bash
+models_saved/experiment_summary.csv
+models_saved/experiments/README.md
+models_saved/experiments/<experiment>/model.pkl
+models_saved/experiments/<experiment>/metrics.json
+models_saved/experiments/<experiment>/features.csv
+models_saved/experiments/<experiment>/all_models/*.pkl
+```
+
+Experiments included:
+
+* `baseline`: all cleaned and engineered features
+* `no_binary`: removes binary operational variables
+* `no_aggregated_costs`: removes aggregated cost and estimated margin features
+* `no_geo_time`: removes geographic and temporal features
+* `structural_only`: keeps only early planning and structural variables
+
+---
+
+### 5. Run the Flask application
 
 ```bash
 python -m webapp.app
@@ -116,7 +143,7 @@ python -m webapp.app
 
 ---
 
-### 5. Open in browser
+### 6. Open in browser
 
 ```
 http://127.0.0.1:5000
@@ -284,6 +311,7 @@ pytest tests/test_preprocess.py::test_clean_drops_leakage_columns
 * Data preprocessing pipeline
 * Feature engineering functions
 * Model training and selection logic
+* Feature-ablation experiment pipeline
 * Model registry pipelines, including feature scaling
 * Model evaluation metrics
 * Flask API endpoints and prediction behavior

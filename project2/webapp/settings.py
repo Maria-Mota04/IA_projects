@@ -20,4 +20,9 @@ class Config:
         str(BASE_DIR / "models_saved" / "metrics.json"),
     )
 
+    EXPERIMENT_SUMMARY_FILE = os.getenv(
+        "EXPERIMENT_SUMMARY_FILE",
+        str(BASE_DIR / "models_saved" / "experiment_summary.csv"),
+    )
+
     MAX_CONTENT_LENGTH = 16 * 1024 * 1024
