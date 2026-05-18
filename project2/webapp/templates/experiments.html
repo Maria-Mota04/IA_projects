@@ -52,9 +52,27 @@
             <td class="model-name">{{ exp.Experiment }}</td>
             <td>{{ exp.BestModel }}</td>
             <td>{{ exp.FeatureCount }}</td>
-            <td>{{ ((exp.Accuracy or 0) * 100)|round(1) }}%</td>
-            <td>{{ ((exp.Precision or 0) * 100)|round(1) }}%</td>
-            <td>{{ ((exp.Recall or 0) * 100)|round(1) }}%</td>
+            <td>
+              <meter class="performance-meter"
+                     low="0.7" high="0.85" max="1"
+                     value="{{ exp.Accuracy or 0 }}">
+              </meter>
+              <span>{{ ((exp.Accuracy or 0) * 100)|round(1) }}%</span>
+            </td>
+            <td>
+              <meter class="performance-meter"
+                     low="0.7" high="0.85" max="1"
+                     value="{{ exp.Precision or 0 }}">
+              </meter>
+              <span>{{ ((exp.Precision or 0) * 100)|round(1) }}%</span>
+            </td>
+            <td>
+              <meter class="performance-meter"
+                     low="0.7" high="0.85" max="1"
+                     value="{{ exp.Recall or 0 }}">
+              </meter>
+              <span>{{ ((exp.Recall or 0) * 100)|round(1) }}%</span>
+            </td>
             <td>
               <meter class="performance-meter"
                      low="0.7" high="0.85" max="1"
@@ -62,7 +80,13 @@
               </meter>
               <span>{{ ((exp.F1 or 0) * 100)|round(1) }}%</span>
             </td>
-            <td>{{ ((exp.ROC_AUC or 0) * 100)|round(1) }}%</td>
+            <td>
+              <meter class="performance-meter"
+                     low="0.7" high="0.85" max="1"
+                     value="{{ exp.ROC_AUC or 0 }}">
+              </meter>
+              <span>{{ ((exp.ROC_AUC or 0) * 100)|round(1) }}%</span>
+            </td>
           </tr>
           {% endfor %}
         </tbody>
